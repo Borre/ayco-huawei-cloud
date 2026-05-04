@@ -10,9 +10,11 @@ resource "huaweicloud_fgs_function" "ocr_trigger" {
   description = "Triggers OCR on contract PDF upload to OBS"
 
   user_data = jsonencode({
-    OCR_ENDPOINT    = "ocr.cn-north-4.myhuaweicloud.com"
-    OBS_BUCKET      = var.obs_contracts_raw
-    OBS_TEXT_BUCKET = var.obs_contracts_text
+    OCR_ENDPOINT        = "ocr.ap-southeast-1.myhuaweicloud.com"
+    OBS_ENDPOINT        = "obs.la-north-2.myhuaweicloud.com"
+    OBS_BUCKET          = var.obs_contracts_raw
+    OBS_TEXT_BUCKET     = var.obs_contracts_text
+    HUAWEI_PROJECT_ID   = var.project_id
   })
 }
 
