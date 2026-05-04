@@ -1,0 +1,13 @@
+# AYCO — Terraform Variables
+# Copy to terraform.tfvars and fill in real values
+# DO NOT commit terraform.tfvars with real credentials
+
+region     = "la-north-2"
+access_key = "YOUR_HUAWEI_AK"
+secret_key = "YOUR_HUAWEI_SK"
+domain_id  = "YOUR_DOMAIN_ID"
+project_id = "fbb6435c497c41bda90a0cc5240573e0"
+
+keypair_name      = "hermes-agent"
+dws_admin_password = "CHANGE_ME_Str0ng!"
+deepseek_api_key   = "sk-YOUR_DEEPSEEK_KEY"

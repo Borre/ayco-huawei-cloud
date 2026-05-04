@@ -1,0 +1,83 @@
+{
+  "dashboard": {
+    "title": "AYCO — Risk Overview",
+    "tags": ["ayco", "risk", "overview"],
+    "timezone": "America/Mexico_City",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Vendors por Nivel de Riesgo",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT risk_level, COUNT(*) as count FROM ods.vendors GROUP BY risk_level ORDER BY CASE risk_level WHEN 'Crítico' THEN 1 WHEN 'Alto' THEN 2 WHEN 'Medio' THEN 3 WHEN 'Bajo' THEN 4 END",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {"hideFrom": {"legend": false, "tooltip": false, "viz": false}}
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "Crítico"}, "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]},
+            {"matcher": {"id": "byName", "options": "Alto"}, "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]},
+            {"matcher": {"id": "byName", "options": "Medio"}, "properties": [{"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}]},
+            {"matcher": {"id": "byName", "options": "Bajo"}, "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]}
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "title": "Exposición Total por Riesgo (MXN)",
+        "type": "barchart",
+        "gridPos": {"h": 8, "w": 16, "x": 8, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT risk_level, SUM(annual_revenue_mxn) as exposure FROM ods.vendors GROUP BY risk_level ORDER BY exposure DESC",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Top 10 Vendors de Mayor Riesgo",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "targets": [
+          {
+            "rawSql": "SELECT vendor_id, name, sector, state, risk_level, risk_score, annual_revenue_mxn FROM ods.vendors WHERE risk_level IN ('Alto', 'Crítico') ORDER BY risk_score DESC LIMIT 10",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Distribución por Estado",
+        "type": "geomap",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "rawSql": "SELECT state, COUNT(*) as vendors, COUNT(CASE WHEN risk_level IN ('Alto','Crítico') THEN 1 END) as high_risk FROM ods.vendors GROUP BY state",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Risk Score Distribution",
+        "type": "histogram",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "targets": [
+          {
+            "rawSql": "SELECT risk_score FROM ods.vendors",
+            "format": "table"
+          }
+        ]
+      }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 39
+  }
+}

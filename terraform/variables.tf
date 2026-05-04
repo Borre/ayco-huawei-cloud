@@ -38,3 +38,9 @@ variable "dws_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "deepseek_api_key" {
+  description = "DeepSeek API key"
+  type        = string
+  sensitive   = true
+}

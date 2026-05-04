@@ -1,0 +1,59 @@
+{
+  "dashboard": {
+    "title": "AYCO — Vendor Exposure Analysis",
+    "tags": ["ayco", "vendor", "exposure"],
+    "timezone": "America/Mexico_City",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Exposure by Sector",
+        "type": "barchart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT sector, SUM(annual_revenue_mxn) as total_exposure, COUNT(*) as vendor_count FROM ods.vendors GROUP BY sector ORDER BY total_exposure DESC",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Debt Ratio vs Revenue",
+        "type": "scatter",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT annual_revenue_mxn as x, debt_ratio as y, risk_level, name FROM ods.vendors WHERE annual_revenue_mxn > 10000000",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Contract Count by Risk Level",
+        "type": "boxplot",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "targets": [
+          {
+            "rawSql": "SELECT risk_level, contract_count FROM ods.vendors",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "High-Risk Vendors in Flagged Cities (CNBV)",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+        "targets": [
+          {
+            "rawSql": "SELECT vendor_id, name, city, state, risk_level, risk_score, annual_revenue_mxn, debt_ratio FROM ods.vendors WHERE city IN ('Tijuana', 'Ciudad Juárez', 'Nuevo Laredo', 'Tapachula', 'Reynosa') AND risk_level IN ('Alto', 'Crítico') ORDER BY risk_score DESC LIMIT 20",
+            "format": "table"
+          }
+        ]
+      }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 39
+  }
+}

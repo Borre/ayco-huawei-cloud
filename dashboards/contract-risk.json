@@ -1,0 +1,107 @@
+{
+  "dashboard": {
+    "title": "AYCO — Contract Risk Analysis",
+    "tags": ["ayco", "contract", "risk", "ocr"],
+    "timezone": "America/Mexico_City",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Anomaly Detection Summary",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) as total_anomalies FROM ods.transactions WHERE anomaly_type != 'normal'",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Total Transaction Volume (MXN)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT SUM(amount_mxn) as total FROM ods.transactions",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Structuring Attempts (CNBV Flag)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) as count FROM ods.transactions WHERE anomaly_type = 'structuring'",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Cross-Border Transactions",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) as count FROM ods.transactions WHERE anomaly_type = 'cross_border'",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Anomaly Types Distribution",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "rawSql": "SELECT anomaly_type, COUNT(*) as count FROM ods.transactions WHERE anomaly_type != 'normal' GROUP BY anomaly_type ORDER BY count DESC",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Anomaly Amounts by Type",
+        "type": "boxplot",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "rawSql": "SELECT anomaly_type, amount_mxn FROM ods.transactions WHERE anomaly_type != 'normal'",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Transactions Over Time (Last 30 Days)",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+        "targets": [
+          {
+            "rawSql": "SELECT DATE_TRUNC('day', timestamp) as time, anomaly_type, COUNT(*) as count FROM ods.transactions WHERE anomaly_type != 'normal' GROUP BY 1, 2 ORDER BY 1",
+            "format": "time_series"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Flagged Transactions Detail",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+        "targets": [
+          {
+            "rawSql": "SELECT tx_id, vendor_id, customer_id, amount_mxn, anomaly_type, timestamp, city_from, city_to FROM ods.transactions WHERE anomaly_type != 'normal' ORDER BY amount_mxn DESC LIMIT 50",
+            "format": "table"
+          }
+        ]
+      }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 39
+  }
+}

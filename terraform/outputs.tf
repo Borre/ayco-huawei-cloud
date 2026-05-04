@@ -5,7 +5,7 @@ output "dify_public_ip" {
 
 output "dws_endpoint" {
   description = "DWS cluster endpoint"
-  value       = module.data-platform.dws_endpoint
+  value       = module.data_platform.dws_endpoint
 }
 
 output "ecs_ips" {

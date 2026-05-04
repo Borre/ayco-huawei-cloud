@@ -56,7 +56,11 @@ demo: deploy
 	@echo "=== Generando datos sintéticos México ==="
 	python3 $(SCRIPTS)/generate-test-data.py
 	@echo "=== Seed DWS schema ==="
-	bash $(SCRIPTS)/seed-dws.sh 2>/dev/null || echo "  (DWS seed — ejecutar manualmente si falla)"
+	@if command -v psql &>/dev/null && [ -n "$${DWS_ENDPOINT:-}" ]; then \
+	  PGPASSWORD="$${DWS_ADMIN_PASSWORD}" psql -h "$${DWS_ENDPOINT}" -U ayco_admin -d ayco -f $(SCRIPTS)/seed-dws.sql; \
+	else \
+	  echo "  (DWS seed — set DWS_ENDPOINT + DWS_ADMIN_PASSWORD to run manually)"; \
+	fi
 	@echo "=== Indexando Knowledge Base en Dify ==="
 	python3 $(SCRIPTS)/index-knowledge-base.py 2>/dev/null || echo "  (KB index — ejecutar manualmente si falla)"
 	@echo "=== Health check ==="

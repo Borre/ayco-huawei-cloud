@@ -1,13 +1,37 @@
-# AYCO Huawei Cloud
+     1|# AYCO Huawei Cloud
+     2|.env
+     3|*.tfstate
+     4|*.tfstate.*
+     5|.terraform/
+     6|plan.out
+     7|plan.json
+     8|*.swp
+     9|*.swo
+    10|*~
+    11|.DS_Store
+    12|__pycache__/
+    13|*.pyc
+    14|
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/plan.out
+terraform/plan.json
+terraform/terraform.tfvars
+
+# Environment
 .env
-*.tfstate
-*.tfstate.*
-.terraform/
-plan.out
-plan.json
-*.swp
-*.swo
-*~
-.DS_Store
-__pycache__/
-*.pyc
+
+# Generated data
+data/*.csv
+data/*.json
+data/contracts/
+
+# Backups
+backups/
+
+# SSH keys
+*.pem
+*.key
