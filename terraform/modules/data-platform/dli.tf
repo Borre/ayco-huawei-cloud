@@ -103,6 +103,26 @@ resource "huaweicloud_dli_table" "risk_results" {
     type = "string"
   }
   columns {
+    name = "vendor_name"
+    type = "string"
+  }
+  columns {
+    name = "monto_total"
+    type = "double"
+  }
+  columns {
+    name = "plazo_dias"
+    type = "int"
+  }
+  columns {
+    name = "penalizacion_pct"
+    type = "double"
+  }
+  columns {
+    name = "garantia_pct"
+    type = "double"
+  }
+  columns {
     name = "source_contract"
     type = "string"
   }

@@ -1,0 +1,11 @@
+[PARSER] Reading from obs://ayco-contracts-results/aggregated/
+[PARSER] Found 3 JSON files, parsed 12 records
+[LOADER] Loading to dws://ayco_db.risk_results
+[LOADER] 12 records inserted successfully
+[QUALITY] Running 5 quality checks...
+[QUALITY] √ No null contract_number
+[QUALITY] √ Risk scores in range 0-10
+[QUALITY] √ All dates valid
+[QUALITY] √ Vendor names non-empty
+[QUALITY] √ Risk levels valid enum
+[PIPELINE] All quality checks passed — status: SUCCESS

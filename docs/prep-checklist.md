@@ -17,7 +17,9 @@
   - [ ] `project_id = "fbb6435c497c41bda90a0cc5240573e0"`
   - [ ] `keypair_name = "hermes-agent"`
   - [ ] `region = "la-north-2"`
-- [ ] `.env` populated (MAAS_API_KEY, DEEPSEEK_API_KEY, DWS_ADMIN_PASSWORD, DWS_ENDPOINT)
+  - [ ] `langfuse_public_key` (from cloud.langfuse.com)
+  - [ ] `langfuse_secret_key` (from cloud.langfuse.com)
+- [ ] `.env` populated (MAAS_API_KEY, DEEPSEEK_API_KEY, DWS_ADMIN_PASSWORD, DWS_ENDPOINT, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY)
 - [ ] `terraform init` passes
 - [ ] `terraform plan` passes (no errors, expected ~20+ resources)
 
@@ -275,6 +277,7 @@ make demo   # Full redeploy takes ~20-30 min
 | Command | Purpose |
 |---------|---------|
 | `make demo` | Full deploy + test data + health check |
+| `bash scripts/langfuse-setup.sh` | Langfuse Cloud setup + verify |
 | `make status` | Run health check |
 | `make destroy` | Tear down all resources |
 | `bash scripts/health-check.sh` | Smoke test endpoints |

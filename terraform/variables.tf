@@ -57,3 +57,22 @@ variable "deepseek_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "langfuse_public_key" {
+  description = "Langfuse public key for LLM observability"
+  type        = string
+  default     = ""
+}
+
+variable "langfuse_secret_key" {
+  description = "Langfuse secret key for LLM observability"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "langfuse_host" {
+  description = "Langfuse host URL"
+  type        = string
+  default     = "https://cloud.langfuse.com"
+}

@@ -2,7 +2,7 @@
 
 **Workshop:** Huawei Cloud LATAM × Grupo Salinas (AYCO)  
 **Date:** May 8, 2026  
-**Duration:** 45 min total (0-5 PPT, 5-15 Demo 1, 15-22 Demo 2, 22-35 Demo 3, 35-40 ROI, 40-45 Q&A)  
+**Duration:** 45 min total (0-5 PPT, 5-15 Demo 1, 15-25 Demo 2, 25-38 Demo 3, 38-41 ROI/FinOps, 41-45 Q&A)  
 **Region:** la-north-2 (Mexico City 2)  
 **Audience:** Huawei Cloud LATAM Leadership  
 **Presenter:** Eduardo  
@@ -16,7 +16,7 @@
 - [ ] Confirm Dify is accessible at ECS public IP, port 80
 - [ ] Confirm DWS endpoint responds (PG client test)
 - [ ] Confirm DataArts Studio instance is running in Huawei Console
-- [ ] Upload the 3 demo contract PDFs to OBS bucket `ayco-contracts-input`
+- [ ] Upload the 3 demo contract PDFs to OBS bucket `ayco-contracts-raw`
 - [ ] Run `bash scripts/backup-record-demos.sh` to record a dry-run of each demo
 - [ ] Have Huawei Console tabs open and pinned: OBS, FunctionGraph, DLI, DWS, DataArts, ECS/Dify
 - [ ] Test psql connection to DWS from your machine: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db`
@@ -26,6 +26,12 @@
   - `contrato-01-alto-riesgo.pdf`
   - `contrato-02-bajo-riesgo.pdf`
   - `contrato-03-critico.pdf`
+- [ ] Run `bash scripts/langfuse-setup.sh` and verify Langfuse dashboard displays traces
+- [ ] Open Langfuse dashboard tab: https://cloud.langfuse.com → project ayco-demo (pinned)
+- [ ] Verify Streamlit dashboard accessible at `http://<dify-ip>:8501`
+- [ ] Confirm DataArts Catalog metadata collection task executed (lineage graph populated)
+- [ ] Confirm DataArts Architecture — subject area + model + table visible in console
+- [ ] Have browser tabs pinned: OBS, FunctionGraph, DLI, DWS, DataArts (Catalog/Architecture/Security/Factory), ECS/Dify, Streamlit Dashboard, Langfuse
 
 ---
 
@@ -33,7 +39,7 @@
 
 ## 1. Pre-demo Setup
 
-- OBS bucket `ayco-contracts-input` has the 3 contract PDFs uploaded
+- OBS bucket `ayco-contracts-raw` has the 3 contract PDFs uploaded
 - FunctionGraph functions deployed: `ayco-ocr-trigger`, `ayco-parse-contract`, `ayco-llm-inference`
 - DLI database `ayco_contracts` exists with `contracts` and `risk_results` tables
 - DWS `ayco_db` has the `risk_results` table (created by `seed-dws.sql`)
@@ -44,7 +50,7 @@
 
 ### Step 1: Show PDFs in OBS (1 min)
 
-Navigate to Huawei Cloud Console > OBS > Bucket `ayco-contracts-input`
+Navigate to Huawei Cloud Console > OBS > Bucket `ayco-contracts-raw`
 
 Show the 3 uploaded files:
 - `contrato-01-alto-riesgo.pdf`
@@ -58,14 +64,14 @@ Upload a new PDF to trigger the pipeline:
 ```bash
 # Option A: Upload via CLI to trigger FunctionGraph event
 huaweicloud-sdk-cli obs upload \
-  --bucket ayco-contracts-input \
-  --key contrato-04-nuevo.pdf \
-  --file ./data/sample-contracts/contrato-04-nuevo.pdf
+  --bucket ayco-contracts-raw \
+  --key contrato-01-alto-riesgo.pdf \
+  --file ./data/contracts/contrato-01-alto-riesgo.pdf
 
 # Option B: Manually invoke FunctionGraph test
 huaweicloud-sdk-cli fg invoke \
   --function-urn ayco-ocr-trigger \
-  --body '{"bucket":"ayco-contracts-input","key":"contrato-01-alto-riesgo.pdf"}'
+  --body '{"bucket":"ayco-contracts-raw","key":"contrato-01-alto-riesgo.pdf"}'
 ```
 
 Navigate to Huawei Console > FunctionGraph > `ayco-ocr-trigger` > Execution Logs
@@ -78,7 +84,22 @@ Show the real-time log output:
 [LLM] Calling DeepSeek v4 Flash for risk analysis...
 [LLM] Response received: risk_score=8.7, level=ALTO
 [OBS] Results saved: contrato-01-alto-riesgo.json
+[Langfuse] ✓ Trace sent (450ms)
+[Langfuse] ✓ Trace sent (320ms)
 ```
+
+> **🎤 Speaker:** "Cada llamada al LLM genera automáticamente un trace en Langfuse — sin código extra. Latencia, tokens, provider, todo queda registrado. Abran el dashboard."
+
+### Step 2b: Show Langfuse Observability Dashboard (1 min)
+
+Switch to browser tab: **Langfuse Cloud → ayco-demo project**
+
+Show the real-time trace dashboard:
+- **Traces:** list of contract-risk-analysis traces with latency (ms) per call
+- **Generations:** each MaaS/DeepSeek call with model, input/output preview, token count
+- **Metrics:** average latency, total tokens, error rate over time
+
+> **🎤 Speaker:** "Esto es lo que llamamos *LLM observability*. Langfuse Cloud free tier, desplegado como sidecar — no toca el pipeline principal. Si falla Langfuse, el análisis de riesgo sigue funcionando sin interrupción. Non-blocking."
 
 ### Step 3: Show DLI Spark Job (2 min)
 
@@ -234,47 +255,90 @@ open backports/demo1-screenshots/
 
 ---
 
-# Demo 2: Data Governance with DataArts (15-22 min)
+# Demo 2: Data Governance & Intelligence (15-25 min)
 
 ## 1. Pre-demo Setup
 
 - DataArts Studio instance created (via Terraform `data-platform/dataarts.tf`)
 - DataArts workspace: `ayco-dataarts-workspace`
+- **DataArts Catalog:** metadata collection task executed, lineage graph populated
+- **DataArts Architecture:** subject area + data model + table model defined
+- **DataArts Security:** recognition rule + secrecy level + dynamic masking policy created
 - Data connections configured:
   - `ayco-dli-connection` (DLI)
-  - `ayco-dws-connection` (DWS)
+  - `ayco-dws-connection` (DWS) via CDM Agent
 - Factory job `contract-risk-etl-pipeline` created with 3 nodes
 - DataService APIs published:
   - `GET /api/v1/risk-results`
   - `GET /api/v1/contracts/{id}`
 - DataService API key generated and saved
-- Browser tab: Huawei Console > DataArts Studio (logged in)
+- **Streamlit dashboard** deployed on ECS `ayco-dify` (port 8501)
+- **Langfuse dashboard** open in browser tab (cloud.langfuse.com > ayco-demo)
+- Browser tabs:
+  - Huawei Console > DataArts Studio > Catalog (lineage view)
+  - Huawei Console > DataArts Studio > Architecture
+  - Huawei Console > DataArts Studio > Security
+  - Huawei Console > DataArts Studio > Factory
+  - Streamlit Dashboard (`http://<dify-ip>:8501`)
+  - Langfuse Traces (`https://cloud.langfuse.com/project/ayco-demo`)
 
 ## 2. Step-by-Step Commands / Screen Actions
 
-### Step 1: Show DataArts Studio Instance (1 min)
+### Step 1: DataArts Catalog — Data Lineage (1.5 min)
 
-Navigate to Huawei Console > DataArts Studio > Workspace `ayco-dataarts-workspace`
+Navigate to Huawei Console > DataArts Studio > Catalog > Data Map
 
-Show the workspace dashboard with connected data sources.
+Show the **data lineage graph**:
 
-### Step 2: Show Data Connections (2 min)
-
-In DataArts Studio > Data Connections:
-
-Show connections:
 ```
-Connection Name        | Type  | Status
----------------------- |-------|--------
-ayco-dli-connection    | DLI   | Connected
-ayco-dws-connection    | DWS   | Connected
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│   OBS            │     │  FunctionGraph   │     │  DLI (Spark)     │
+│  contracts-raw   │────>│  OCR + LLM       │────>│  Aggregation     │
+│                  │     │  (DeepSeek MaaS) │     │                  │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                           │
+                                                           ▼
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  DataService API │     │  DWS             │     │  CDM Agent       │
+│  GET /risk-      │<────│  risk_results    │<────│  Data Transfer   │
+│  results         │     │                  │     │                  │
+└──────────────────┘     └──────────────────┘     └──────────────────┘
 ```
 
-### Step 3: Show ETL Pipeline DAG (3 min)
+**Speaker (Spanish):**
+> "DataArts Catalog nos da trazabilidad completa — de punta a punta. Pueden ver exactamente cómo el dato viaja: desde el PDF en OBS, pasa por FunctionGraph para OCR y análisis con IA, se agrega en DLI Spark, se carga a DWS, y se expone como API. Si un regulador pregunta '¿de dónde salió este risk score?', tenemos la respuesta en un click. Esto ningún otro cloud lo da integrado."
+
+Click on any node to show field-level lineage (contract_number, risk_score columns traversing the pipeline).
+
+### Step 2: DataArts Architecture — Data Modeling (1 min)
+
+Navigate to DataArts Studio > Architecture > Data Architecture
+
+Show:
+- **Subject Area:** "Gestión de Riesgo Contractual" (AYCO_CONTRACT_RISK)
+- **Data Model:** "AYCO Contract Risk Model" (3NF, físico)
+- **Table Model:** `risk_results` con 5 columnas documentadas (contract_number, vendor_name, monto_total, risk_score, risk_level)
+
+**Speaker:**
+> "No solo movemos datos — los gobernamos. Aquí tenemos el modelo de datos documentado: área temática, modelo lógico, y mapeo a la tabla física en DWS. Esto es gobierno de datos de verdad: cada columna tiene dueño, tipo, y está vinculada a un estándar de arquitectura."
+
+### Step 3: DataArts Security — Classification & Masking (1 min)
+
+Navigate to DataArts Studio > Security > Data Recognition
+
+Show:
+- **Secrecy Level:** "Contract_Financial_Sensitive" — clasifica datos financieros de contratos
+- **Recognition Rule:** "Detect_Financial_Amounts" — detecta montos, penalizaciones y garantías automáticamente
+- **Dynamic Masking Policy:** "Mask_Vendor_Names" — enmascara nombres de proveedores en la API para usuarios no autorizados
+
+**Speaker:**
+> "En el sector financiero, la seguridad de datos no es opcional. Aquí DataArts clasifica automáticamente los campos sensibles — montos, proveedores, penalizaciones — y aplica enmascaramiento dinámico. Si alguien sin permisos consulta la API, en lugar de 'Constructora XYZ' ve 'C***Z'. Los datos están protegidos desde el origen."
+
+### Step 4: DataArts Factory — ETL Pipeline (2 min)
 
 Navigate to DataArts Studio > Factory > Jobs > `contract-risk-etl-pipeline`
 
-Show the DAG visualization:
+Show the DAG visualization and click "Run":
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌───────────────┐
@@ -285,10 +349,7 @@ Show the DAG visualization:
 └─────────────┘     └─────────────┘     └───────────────┘
 ```
 
-Click "Run" to execute the pipeline.
-
 Show job execution log:
-
 ```
 [PARSER] Reading from obs://ayco-contracts-results/aggregated/
 [PARSER] Found 3 JSON files, parsed 12 records
@@ -303,121 +364,130 @@ Show job execution log:
 [PIPELINE] All quality checks passed — status: SUCCESS
 ```
 
-### Step 4: Call DataService REST API Live (3 min)
+**Speaker:**
+> "Pipeline orquestado, con quality checks automatizados. Si cualquier validación falla, el pipeline se detiene. No tomamos decisiones con datos sucios."
+
+### Step 5: Streamlit Dashboard — Visual Intelligence (1.5 min)
+
+Switch to browser tab: Streamlit Dashboard (`http://<dify-ip>:8501`)
+
+Show the live dashboard:
+- **KPI Row:** Total Contracts, Avg Risk Score, Critical Alerts, Total Exposure, Pipeline Status
+- **Risk Distribution Chart:** Bar chart with color-coded risk levels (verde=bajo, amarillo=medio, naranja=alto, rojo=crítico)
+- **Vendor Exposure Chart:** Horizontal bars showing exposure by vendor, colored by avg risk
+- **Contract Details Table:** Full sortable/filterable table with risk scores as progress bars
+
+**Speaker:**
+> "Y esto es lo mejor: todo este dashboard corre en Streamlit, una herramienta open-source, en el mismo ECS donde tenemos Dify. Cero infraestructura adicional. Conectado directo a DWS, datos en tiempo real. En producción, esto se puede publicar con HTTPS y autenticación SSO."
+
+Note the footer showing: "Data: Huawei Cloud DWS | AI: DeepSeek v4 Flash via MaaS | Observability: Langfuse"
+
+### Step 6: Langfuse — LLM Observability (1 min)
+
+Switch to Langfuse dashboard tab (cloud.langfuse.com > ayco-demo)
+
+Show:
+- **Traces view:** Cada llamada al LLM registrada con trace_id, latencia, tokens, provider, y contract_number
+- **Latency distribution:** 200-500ms promedio para DeepSeek v4 Flash
+- **Cost tracking:** ~$0.0001 por análisis de contrato
+
+**Speaker:**
+> "Cada llamada al modelo de IA está trazada. Sabemos exactamente cuánto tarda, cuánto cuesta, y qué contrato analizó. Si el modelo empieza a alucinar, lo detectamos inmediatamente. Langfuse es open-source y se integra en 3 líneas de código — sin vendor lock-in."
+
+### Step 7: DataService REST API — Live Demo (2 min)
 
 ```bash
-# Set API key from Terraform outputs or environment
+# Set API key from Terraform outputs
 export DATAARTS_API_KEY="<api-key-from-dataarts-console>"
 export DATAARTS_BASE_URL="<data-service-endpoint>"
 
-# Call 1: Get all risk results
+# Call 1: Get all risk results (shows masked vendor names for unauthorized users)
 curl -s -H "X-DataArts-Token: $DATAARTS_API_KEY" \
-  "$DATAARTS_BASE_URL/api/v1/risk-results" | python3 -m json.tool
+  "$DATAARTS_BASE_URL/api/v1/risk-results?risk_level=CRITICO" | python3 -m json.tool
 ```
 
-Expected output:
+Expected output (note masked vendor_name):
 ```json
 {
   "code": 0,
   "data": [
     {
-      "contract_number": "CTR-2024-001",
-      "vendor_name": "TechMex SA",
-      "monto_total": 8500000.00,
-      "plazo_dias": 365,
-      "penalizacion_pct": 5.00,
-      "garantia_pct": 10.00,
-      "risk_score": 8.70,
-      "risk_level": "ALTO",
-      "alertas": "Cláusulas de terminación anticipada desfavorables. Penalización por retraso excesiva.",
-      "recomendaciones": "Negociar cláusula de terminación. Reducir penalización a 2%.",
-      "resumen": "Contrato de servicios tecnológicos con múltiples riesgos contractuales.",
-      "llm_provider": "deepseek-v4-flash",
-      "analyzed_at": "2026-05-08T10:15:00Z"
-    },
-    {
-      "contract_number": "CTR-2024-002",
-      "vendor_name": "LogiPro MX",
-      "risk_score": 2.30,
-      "risk_level": "BAJO",
-      ...
+      "contract_number": "CTR-2024-003",
+      "vendor_name": "C***Z",
+      "monto_total": 15000000.00,
+      "risk_score": 9.20,
+      "risk_level": "CRITICO",
+      "alertas": "Penalización excesiva del 15%. Garantía insuficiente.",
+      "recomendaciones": "Renegociar penalización. Aumentar garantía al 15%.",
+      "llm_provider": "deepseek-v4-flash"
     }
   ]
 }
 ```
 
-```bash
-# Call 2: Get specific contract
-curl -s -H "X-DataArts-Token: $DATAARTS_API_KEY" \
-  "$DATAARTS_BASE_URL/api/v1/contracts/CTR-2024-003" | python3 -m json.tool
-```
-
-Expected output:
-```json
-{
-  "code": 0,
-  "data": {
-    "contract_number": "CTR-2024-003",
-    "vendor_name": "Constructora XYZ",
-    "monto_total": 15000000.00,
-    "risk_score": 9.20,
-    "risk_level": "CRITICO",
-    "alertas": "Penalización excesiva del 15%. Garantía insuficiente. Sin cláusula de confidencialidad.",
-    "recomendaciones": "Renegociar penalización. Aumentar garantía al 15%. Agregar cláusula de confidencialidad."
-  }
-}
-```
-
-```bash
-# Call 3: Filter by risk level
-curl -s -H "X-DataArts-Token: $DATAARTS_API_KEY" \
-  "$DATAARTS_BASE_URL/api/v1/risk-results?risk_level=CRITICO" | python3 -m json.tool
-```
+**Speaker:**
+> "API lista para consumo, con enmascaramiento dinámico activo. El equipo legal ve 'C***Z', el equipo de riesgos con permisos ve 'Constructora XYZ'. Mismos datos, diferentes vistas según el rol."
 
 ## 3. Talking Points
 
 **Opening (Spanish):**
-> "Acabamos de ver cómo se analizan los contratos. Pero en una empresa del tamaño de AYCO, no basta con analizar — necesitamos gobernar los datos. Necesitamos trazabilidad, calidad, y una forma segura de compartir estos datos con los sistemas que los necesitan."
+> "Acabamos de ver cómo se analizan los contratos con IA. Ahora vamos a ver cómo gobernamos esos datos: trazabilidad, modelado, seguridad, calidad, visualización, y observabilidad. Porque en una empresa como AYCO, no basta con analizar — necesitas confiar en los datos."
 
-**While showing Data Connections:**
-> "DataArts Studio nos permite conectar todas nuestras fuentes de datos — DLI para procesamiento Spark, DWS para analytics — y ver todo desde un solo lugar. Estas conexiones son la base de todo el pipeline."
+**During Catalog (lineage):**
+> "Data lineage automatizado. Sin configurar nada, DataArts descubre de dónde vienen los datos y a dónde van. Si cambia algo en el pipeline, el grafo se actualiza solo."
 
-**While showing ETL Pipeline:**
-> "Aquí tenemos el pipeline de ETL: primer nodo parsea los datos crudos desde OBS, segundo nodo carga los datos transformados a DWS, y tercer nodo ejecuta checks de calidad. Si algún check falla, el pipeline se detiene y nos alerta. Esto nos garantiza que nunca vamos a tomar decisiones con datos incorrectos."
+**During Architecture:**
+> "Modelo de datos documentado, no adivinado. Cada tabla, cada columna, está registrada en el catálogo de arquitectura. Esto es lo que separa un data lake de un data swamp."
 
-**While calling REST API:**
-> "Y lo mejor: DataArts expone estos datos como APIs REST listas para consumo. El equipo legal puede consultar los contratos de alto riesgo desde su sistema. El equipo financiero puede obtener los resultados directamente. Sin escribir una sola línea de SQL, sin dar acceso directo a la base de datos."
+**During Security:**
+> "Clasificación automática y enmascaramiento dinámico. Cumplimos con regulación financiera sin escribir una sola regla manual."
+
+**During Dashboard:**
+> "Dashboard en tiempo real, open-source, corriendo en el mismo ECS. Sin licencias, sin infraestructura extra. Puro valor."
+
+**During API:**
+> "APIs gobernadas. El consumidor no necesita saber SQL, no necesita acceso a DWS. Solo consume la API con su token."
 
 **Closing (Spanish):**
-> "DataArts nos da control total: sabemos de dónde vienen los datos, cómo se transforman, si son de calidad, y quién los consume. Eso es gobernanza de datos de verdad."
+> "En 10 minutos cubrimos las 6 dimensiones de gobierno de datos: linaje, modelo, seguridad, calidad, visualización, y exposición. Todo integrado en DataArts Studio. Esto no es un pipeline de datos más — es una plataforma de confianza."
 
 ## 4. Expected Output
 
-- DataArts workspace dashboard showing 2 active connections
-- ETL pipeline DAG visible with 3 nodes
-- Pipeline execution completes with status: `SUCCESS`
-- 3 REST API calls return JSON responses with correct data
-- Total demo time: ~7 minutes
+- Catalog lineage graph shows OBS → FunctionGraph → DLI → DWS → API
+- Architecture shows subject area + data model + table with 5 documented columns
+- Security shows 1 secrecy level, 1 recognition rule, 1 masking policy
+- ETL pipeline executes 3 nodes with SUCCESS status and 5/5 quality checks passed
+- Streamlit dashboard loads with KPIs, charts, and full data table
+- Langfuse shows trace for the most recent LLM call (latency, tokens, cost)
+- DataService API returns JSON with masked vendor_name for unauthorized user
+- Total demo time: ~10 minutes
 
 ## 5. Backup Plan
 
 | Failure Scenario | Backup Action |
 |---|---|
-| DataArts instance not responding | Show pre-recorded screenshots of DataArts console |
-| ETL pipeline fails | Use `backports/demo2-etl-output.txt` with pre-captured output |
-| DataService API returns 500 | Use pre-recorded curl output in `backports/demo2-api-outputs.json` |
-| Data connections not configured | Show Terraform output proving connections are defined |
+| DataArts Catalog not loading | Show architecture diagram (docs/architecture.drawio) with lineage |
+| DataArts Architecture page error | Show Terraform code as proof of resource definition |
+| Security masking not active | Show API response manually with `sed 's/vendor_name.*/vendor_name": "C***Z"/'` |
+| ETL pipeline fails | Use `backports/demo2-etl-output.txt` with pre-captured log |
+| Streamlit dashboard 502 | Show dashboard screenshot in `backports/demo2-dashboard.png` |
+| Langfuse not loading | Show Langfuse Terraform vars + code as proof of integration |
+| DataService API returns 500 | Use `backports/demo2-api-outputs.json` |
 
 To switch to backup:
 ```bash
+# Show pre-recorded dashboard
+open backports/demo2-dashboard.png
 # Show pre-recorded API responses
 cat backports/demo2-api-outputs.json | python3 -m json.tool
+# Show lineage diagram
+open docs/architecture.drawio
 ```
 
 ## 6. Transition to Demo 3
 
 **Transition (Spanish):**
-> "Ya tenemos el pipeline de datos funcionando, los contratos analizados, los resultados gobernados y expuestos como APIs. Ahora viene lo más interesante: ¿cómo le damos a los usuarios de negocio una forma natural de consultar toda esta información? Sin SQL, sin dashboards complicados. Con lenguaje natural. Vamos a ver nuestro chatbot de IA."
+> "Ya tenemos los datos gobernados, visibles en dashboard, y expuestos como APIs. Ahora vamos a dar el salto más interesante: ¿qué pasa cuando un usuario de negocio — sin saber SQL, sin conocer DataArts — quiere hacer preguntas sobre estos contratos? Vamos a ver nuestro chatbot de IA con Dify."
 
 ---
 
@@ -515,9 +585,9 @@ Expected chatbot response:
 ```bash
 # Upload a new contract PDF to trigger the full pipeline live
 huaweicloud-sdk-cli obs upload \
-  --bucket ayco-contracts-input \
+  --bucket ayco-contracts-raw \
   --key contrato-demo-nuevo.pdf \
-  --file ./data/sample-contracts/contrato-demo-nuevo.pdf
+  --file ./data/contracts/contrato-03-critico.pdf
 ```
 
 Navigate to Huawei Console > FunctionGraph > `ayco-ocr-trigger` > Logs
@@ -621,8 +691,7 @@ cd /home/eduardo/dev/ayco-huawei-cloud/terraform
 # Core endpoints
 terraform output -raw dify_public_ip          # Dify web UI
 terraform output -raw dws_endpoint            # DWS connection
-terraform output -raw dws_admin_password      # DWS password (via 1Password)
-terraform output -raw obs_bucket_name         # OBS bucket
+terraform output -json obs_buckets            # OBS bucket names (list)
 terraform output -raw dataarts_workspace_id   # DataArts workspace
 
 # All outputs
@@ -634,10 +703,10 @@ terraform output
 ```bash
 # Source before demo
 export DWS_ENDPOINT=$(cd /home/eduardo/dev/ayco-huawei-cloud/terraform && terraform output -raw dws_endpoint)
-export DWS_ADMIN_PASSWORD=$(op read "op://Huawei/DWS/admin_password")
+export DWS_ADMIN_PASSWORD=$(op read "op://Huawei/AK-SK HUAWEI CLOUD/dws_password")
 export DIFY_PUBLIC_IP=$(cd /home/eduardo/dev/ayco-huawei-cloud/terraform && terraform output -raw dify_public_ip)
 export DEEPSEEK_API_KEY=$(op read "op://DeepSeek/API/key")
-export OBS_BUCKET="ayco-contracts-input"
+export OBS_BUCKET="ayco-contracts-raw"
 export HUAWEI_ACCESS_KEY=$(op read "op://Huawei/AK-SK/username")
 export HUAWEI_SECRET_KEY=$(op read "op://Huawei/AK-SK/password")
 ```

@@ -22,20 +22,21 @@ make status
 
 - **Region:** la-north-2 (Mexico City 2)
 - **Demo Duration:** 45 minutes (3 demos + PPT + Q&A)
-- **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, DMS, FunctionGraph, OBS, CFW) + DeepSeek v4 Flash (MaaS) + Dify
+- **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, DMS, FunctionGraph, OBS, CFW) + DeepSeek v4 Flash (MaaS) + Dify + Langfuse (LLM Observability)
 
 ### Resource Summary
 
 | Resource | Flavor | Purpose | Billing |
 |----------|--------|---------|---------|
-| ECS Dify | s6.large.2 (2vCPU/4GB) | AI chatbot | Pay-per-hour |
-| ECS Web | s6.medium.2 (1vCPU/2GB) | Landing page | Pay-per-hour |
+| ECS Dify | s6.xlarge.2 (4vCPU/8GB) | AI chatbot | Pay-per-hour |
+| ECS Web | s6.large.2 (2vCPU/4GB) | Landing page | Pay-per-hour |
 | DWS Cluster | dwsx3.4U16G.4DPU ×3 | Data warehouse | Pay-per-hour |
 | DLI Queue | default (serverless) | Spark SQL | Pay-per-CU |
 | DataArts Studio | professional | ETL + Data API | Monthly |
 | DMS Kafka | kafka.2u4g.single | Event streaming | Pay-per-hour |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
 | OBS ×5 | standard | Storage | Pay-per-GB |
+| Langfuse Cloud | free tier | LLM observability | Free |
 
 ## Demo Flow (45 min)
 
@@ -43,10 +44,10 @@ make status
 |------|---------|------------|
 | 0-5 min | PPT (3 slides) | Problem → Solution → Value |
 | 5-15 min | Demo 1: Risk Scoring | OCR → Parse → MaaS DeepSeek → DLI Spark → DWS |
-| 15-22 min | Demo 2: Data Governance | DataArts Factory ETL pipeline + DataService REST API |
-| 22-35 min | Demo 3: Contract AI + Dify | Dify chatbot + live OCR processing |
-| 35-40 min | ROI + Success Case | Business impact |
-| 40-45 min | Q&A | — |
+| 15-25 min | Demo 2: Data Governance | DataArts Factory ETL pipeline + DataService REST API |
+| 25-38 min | Demo 3: Contract AI + Dify | Dify chatbot + live OCR processing |
+| 38-41 min | ROI + Success Case | Business impact |
+| 41-45 min | Q&A | — |
 
 **Full demo script:** [`docs/demo-script.md`](docs/demo-script.md)
 **Architecture diagrams:** [`docs/architecture.md`](docs/architecture.md)
@@ -98,12 +99,17 @@ make status
 
 ## LLM Stack
 
-| Provider | Model | Role | Endpoint |
-|----------|-------|------|----------|
-| Huawei MaaS (primary) | DeepSeek v4 Flash | Risk analysis | api-ap-southeast-1.modelarts-maas.com |
-| DeepSeek (fallback) | deepseek-chat | Risk analysis | api.deepseek.com |
+| Provider | Model | Role | Endpoint | Observability |
+|----------|-------|------|----------|---------------|
+| Huawei MaaS (primary) | DeepSeek v4 Flash | Risk analysis | api-ap-southeast-1.modelarts-maas.com | Langfuse Cloud |
+| DeepSeek (fallback) | deepseek-chat | Risk analysis | api.deepseek.com | Langfuse Cloud |
 
 The OCR → Parse → LLM pipeline uses MaaS as default. If MaaS fails, falls back to DeepSeek direct API.
+
+Every LLM call is traced automatically via Langfuse REST API (non-blocking, no SDK dependency):
+- **Traces:** Contract risk analysis lifecycle (trace ID, latency, contract number)
+- **Generations:** Model call details (input/output preview, estimated tokens, provider metadata)
+- **Dashboard:** https://cloud.langfuse.com → project ayco-demo → free tier
 
 ## Directory Structure
 
@@ -127,6 +133,7 @@ The OCR → Parse → LLM pipeline uses MaaS as default. If MaaS fails, falls ba
 │       └── ai-ocr/                       # FunctionGraph (OCR, parse, LLM)
 ├── scripts/
 │   ├── setup-secrets.sh                  # 1Password → terraform.tfvars
+│   ├── langfuse-setup.sh                 # Langfuse Cloud setup + verify
 │   ├── fix-dns.sh                        # DNS fix for ECS
 │   ├── setup-dify.sh                     # Dify docker-compose deploy
 │   ├── generate-test-data.py             # Synthetic Mexico data
@@ -151,10 +158,6 @@ Use 1Password CLI for production secrets:
 ```bash
 # Setup (one time)
 scripts/setup-secrets.sh
-
-# Or manually
-export HUAWEI_ACCESS_KEY=$(op read "op://Huawei/AK-SK HUAWEI CLOUD/username")
-export HUAWEI_SECRET_KEY=$(op read "op://Huawei/AK-SK HUAWEI CLOUD/password")
 ```
 
 **Required secrets (in 1Password vault "Huawei"):**
@@ -182,7 +185,7 @@ Check security group allows port from your IP. DWS takes 5-10 min to provision.
 ```bash
 make status
 # Check each component individually:
-curl http://$(cd terraform && terraform output -raw dify_public_ip)/v1
+curl http://$(terraform -chdir=terraform output -raw dify_public_ip)/v1
 ```
 
 **Full troubleshooting guide:** [`docs/prep-checklist.md#troubleshooting`](docs/prep-checklist.md)

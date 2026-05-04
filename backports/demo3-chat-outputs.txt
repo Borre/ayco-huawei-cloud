@@ -1,0 +1,19 @@
+=== Query 1: "Cuales son los contratos de alto riesgo?" ===
+Actualmente hay 2 contratos con nivel de riesgo ALTO o CRITICO:
+
+1. CTR-2024-003 — Constructora XYZ (Riesgo CRITICO, Score: 9.2)
+   - Monto: $15,000,000 MXN
+   - Alertas: Penalizacion excesiva del 15%. Garantia insuficiente.
+
+2. CTR-2024-001 — TechMex SA (Riesgo ALTO, Score: 8.7)
+   - Monto: $8,500,000 MXN
+   - Alertas: Clausulas de terminacion anticipada desfavorables.
+
+=== Query 2: "Cual es la penalizacion del contrato 001?" ===
+El contrato CTR-2024-001 (TechMex SA) tiene las siguientes penalizaciones:
+
+- Penalizacion por terminacion anticipada: 5% del monto total
+- Penalizacion por retraso: $15,000 MXN por dia de retraso
+- Monto total del contrato: $8,500,000 MXN
+
+WARNING: Esta penalizacion del 5% esta por encima del promedio del mercado (2-3%).

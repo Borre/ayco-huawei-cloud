@@ -1,0 +1,6 @@
+# Demo 2 Dashboard Backport — Screenshot placeholder
+# Used if Streamlit is unavailable during live demo.
+# Replace with actual screenshot captured during dry run.
+
+AYCO Contract Risk Dashboard
+===...[truncated]

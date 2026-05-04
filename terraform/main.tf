@@ -26,7 +26,7 @@ module "foundation" {
   keypair_name = var.keypair_name
 }
 
-# ─── Module: Compute (ECS: Dify + Web) ───────────────────
+# ─── Module: Compute (ECS: Dify + Web + Dashboard) ────────
 module "compute" {
   source = "./modules/compute"
 
@@ -36,9 +36,15 @@ module "compute" {
   keypair_name      = var.keypair_name
   project_id        = var.project_id
 
-  # MVP flavors (override defaults)
-  dify_flavor = "s6.large.2"   # 2 vCPU, 4GB (was 4vCPU/8GB)
-  web_flavor  = "s6.medium.2"  # 1 vCPU, 2GB (was 2vCPU/4GB)
+  # DWS connectivity for Streamlit dashboard
+  dws_endpoint       = module.data_platform.dws_private_ip
+  dws_port           = 8000
+  dws_database       = var.dws_database
+  dws_admin_password = var.dws_admin_password
+
+  # Dify + Streamlit on same ECS (4 vCPU / 8GB)
+  dify_flavor = "s6.xlarge.2"
+  web_flavor  = "s6.large.2"
 }
 
 # ─── Module: Data Platform (DLI, DWS, DataArts, DMS) ─────
@@ -69,4 +75,8 @@ module "ai_ocr" {
   obs_contracts_raw     = "ayco-contracts-raw"
   obs_contracts_text    = "ayco-contracts-text"
   obs_contracts_results = "ayco-contracts-results"
+
+  langfuse_public_key = var.langfuse_public_key
+  langfuse_secret_key = var.langfuse_secret_key
+  langfuse_host       = var.langfuse_host
 }

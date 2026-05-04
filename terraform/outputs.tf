@@ -39,6 +39,11 @@ output "dataarts_api_app_key" {
   sensitive   = true
 }
 
+output "dashboard_url" {
+  description = "Streamlit Contract Risk Dashboard URL"
+  value       = "http://${module.compute.dify_public_ip}:8501"
+}
+
 output "vpc_id" {
   description = "VPC ID"
   value       = module.foundation.vpc_id

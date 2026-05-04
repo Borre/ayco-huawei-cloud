@@ -12,6 +12,13 @@ resource "huaweicloud_compute_instance" "dify" {
     uuid = var.subnet_id
   }
 
+  user_data = base64encode(templatefile("${path.module}/templates/dify-userdata.sh.tmpl", {
+    dws_endpoint = var.dws_endpoint
+    dws_port     = var.dws_port
+    dws_database = var.dws_database
+    dws_password = var.dws_admin_password
+  }))
+
   tags = {
     project = "ayco"
     role    = "dify"

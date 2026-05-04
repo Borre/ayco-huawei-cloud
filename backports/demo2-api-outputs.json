@@ -1,0 +1,20 @@
+{
+  "code": 0,
+  "data": [
+    {
+      "contract_number": "CTR-2024-003",
+      "vendor_name": "Constructora XYZ",
+      "monto_total": 15000000.0,
+      "risk_score": 9.2,
+      "risk_level": "CRITICO",
+      "alertas": "Penalizacion excesiva del 15%. Garantia insuficiente."
+    },
+    {
+      "contract_number": "CTR-2024-001",
+      "vendor_name": "TechMex SA",
+      "risk_score": 8.7,
+      "risk_level": "ALTO",
+      "alertas": "Clausulas de terminacion anticipada desfavorables."
+    }
+  ]
+}

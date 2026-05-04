@@ -53,7 +53,7 @@ resource "huaweicloud_networking_secgroup_rule" "http" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "demo_ports" {
-  for_each = toset(["8000", "8001", "8002", "8443"])
+  for_each = toset(["8000", "8001", "8002", "8443", "8501"])
 
   security_group_id = huaweicloud_networking_secgroup.main.id
   direction         = "ingress"

@@ -65,7 +65,7 @@ for pdf in "$CONTRACTS_DIR"/*.pdf; do
     fname=$(basename "$pdf")
     log "  Uploading: ${fname} → obs://${RAW_BUCKET}/${fname}"
     if upload_file "$pdf" "$RAW_BUCKET" "$fname"; then
-        ((pdf_count++))
+        pdf_count=$((pdf_count + 1))
     fi
 done
 
@@ -80,7 +80,7 @@ if [ -d "$TEXTS_DIR" ]; then
         fname=$(basename "$txt")
         log "  Uploading: ${fname} → obs://${TEXT_BUCKET}/${fname}"
         if upload_file "$txt" "$TEXT_BUCKET" "$fname"; then
-            ((txt_count++))
+            txt_count=$((txt_count + 1))
         fi
     done
 else

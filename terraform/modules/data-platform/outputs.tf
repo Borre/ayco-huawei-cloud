@@ -5,7 +5,7 @@ output "dws_endpoint" {
 
 output "dws_private_ip" {
   description = "DWS private IP"
-  value       = huaweicloud_dws_cluster.ayco.public_ip
+  value       = length(huaweicloud_dws_cluster.ayco.private_ip) > 0 ? huaweicloud_dws_cluster.ayco.private_ip[0] : ""
 }
 
 output "dli_database_name" {

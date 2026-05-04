@@ -1,0 +1,76 @@
+#!/bin/bash
+# ─── AYCO Dify + Streamlit Dashboard — First Boot Setup ────────
+# Runs as cloud-init user_data. Idempotent — safe to re-run.
+
+set -euo pipefail
+LOG="/var/log/ayco-setup.log"
+exec > >(tee -a "$LOG") 2>&1
+
+echo "=== AYCO ECS Setup — $(date) ==="
+echo "DWS Endpoint: ${dws_endpoint}:${dws_port}"
+
+# ─── System Updates ────────────────────────────────────────────
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq && apt-get install -y -qq python3-pip python3-venv 2>&1 | tail -3
+
+# ─── Create ayco user ──────────────────────────────────────────
+id -u ayco &>/dev/null || useradd -m -s /bin/bash ayco
+mkdir -p /opt/ayco/dashboards /opt/ayco/dify /opt/ayco/scripts
+chown -R ayco:ayco /opt/ayco
+
+# ─── Python venv ───────────────────────────────────────────────
+if [ ! -d /opt/ayco/venv ]; then
+    sudo -u ayco python3 -m venv /opt/ayco/venv
+fi
+sudo -u ayco /opt/ayco/venv/bin/pip install --upgrade pip -q
+sudo -u ayco /opt/ayco/venv/bin/pip install -q \
+    streamlit psycopg2-binary pandas plotly 2>&1 | tail -3
+
+echo "Python packages installed OK"
+
+# ─── Dify (optional — only if docker is available) ─────────────
+if command -v docker &>/dev/null && [ ! -d /opt/ayco/dify/docker ]; then
+    echo "Installing Dify..."
+    sudo -u ayco git clone --depth 1 https://github.com/langgenius/dify.git /opt/ayco/dify 2>&1 | tail -3
+    cd /opt/ayco/dify/docker
+    cp .env.example .env
+    # Note: Dify deployment is manual post-setup for demo control
+    echo "Dify cloned. Run 'cd /opt/ayco/dify/docker && docker-compose up -d' to start."
+fi
+
+# ─── Streamlit Dashboard (systemd service) ─────────────────────
+cat > /etc/systemd/system/ayco-dashboard.service << SYSTEMD
+[Unit]
+Description=AYCO Contract Risk Dashboard (Streamlit)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=ayco
+WorkingDirectory=/opt/ayco
+Environment="DWS_ENDPOINT=${dws_endpoint}"
+Environment="DWS_PORT=${dws_port}"
+Environment="DWS_DATABASE=${dws_database}"
+Environment="DWS_USER=ayco_admin"
+Environment="DWS_PASSWORD=${dws_password}"
+Environment="STREAMLIT_SERVER_PORT=8501"
+Environment="STREAMLIT_SERVER_HEADLESS=true"
+Environment="STREAMLIT_BROWSER_GATHER_USAGE_STATS=false"
+ExecStart=/opt/ayco/venv/bin/streamlit run /opt/ayco/dashboards/risk_dashboard.py --server.port 8501 --server.address 0.0.0.0
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+SYSTEMD
+
+# Note: dashboard code must be copied to /opt/ayco/dashboards/risk_dashboard.py
+# after deployment. The systemd service will start once the file exists.
+# systemctl daemon-reload
+# systemctl enable ayco-dashboard
+# systemctl restart ayco-dashboard || true
+
+echo "=== AYCO ECS Setup Complete — $(date) ==="
+echo "Dashboard will be available at http://<ecs-public-ip>:8501 once code is deployed."
+echo "Log: tail -f $LOG"

@@ -67,7 +67,7 @@ DEPLOY
 
 # Inject real MaaS API key
 ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
-  "sed -i 's|__MAAS_API_KEY_PLACEHOLDER__|${MAAS_KEY:-placeholder}|' /opt/dify/docker/.env"
+  "python3 -c "import sys; f=sys.argv[1]; t=open(f).read().replace('__MAAS_API_KEY_PLACEHOLDER__', sys.argv[2]); open(f,'w').write(t)" docker-compose.yml "${MAAS_KEY:-placeholder}" /opt/dify/docker/.env"
 
 # Restart to pick up new env
 ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
