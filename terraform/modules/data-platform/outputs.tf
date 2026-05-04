@@ -11,14 +11,14 @@ output "dws_private_ip" {
   value       = huaweicloud_dws_cluster.ayco.public_ip
 }
 
-output "mrs_cluster_id" {
-  description = "MRS cluster ID"
-  value       = huaweicloud_mapreduce_cluster.ayco.id
+output "dli_database_name" {
+  description = "DLI database name"
+  value       = huaweicloud_dli_database.ayco.name
 }
 
-output "mrs_master_ip" {
-  description = "MRS master node IP"
-  value       = huaweicloud_mapreduce_cluster.ayco.master_node_ip
+output "dli_database_id" {
+  description = "DLI database ID"
+  value       = huaweicloud_dli_database.ayco.id
 }
 
 output "kafka_connect_address" {

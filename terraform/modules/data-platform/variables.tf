@@ -41,20 +41,20 @@ variable "dws_node_count" {
   default     = 3
 }
 
-variable "dws_node_type" {
-  description = "DWS node flavor"
-  type        = string
-  default     = "dws2.m6.xlarge.8"
-}
-
-variable "mrs_version" {
-  description = "MRS cluster version"
-  type        = string
-  default     = "MRS 3.1.0-LTS.5"
-}
-
 variable "kafka_flavor" {
   description = "DMS Kafka flavor"
   type        = string
-  default     = "kafka.2u4g.cluster"
+  default     = "kafka.2u4g.single"
+}
+
+variable "obs_contracts_text" {
+  description = "OBS bucket for extracted contract text"
+  type        = string
+  default     = "ayco-contracts-text"
+}
+
+variable "obs_contracts_results" {
+  description = "OBS bucket for AI analysis results"
+  type        = string
+  default     = "ayco-contracts-results"
 }

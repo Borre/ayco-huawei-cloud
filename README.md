@@ -22,7 +22,7 @@ make status
 
 - **Region:** la-north-2 (Mexico City 2)
 - **Demo Duration:** 45 minutes (3 demos + PPT + Q&A)
-- **Stack:** Huawei Cloud (VPC, ECS, MRS, DWS, DataArts, DMS, FunctionGraph, OBS, CFW) + DeepSeek + Dify
+- **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, DMS, FunctionGraph, OBS, CFW) + DeepSeek + Dify
 
 ## What `make demo` does
 
@@ -55,7 +55,7 @@ make status
 | Time | Segment | Key Action |
 |------|---------|------------|
 | 0-5 min | PPT (3 slides) | Problem → Solution → Value |
-| 5-15 min | Demo 1: Risk Scoring | MRS Spark + DWS dashboard |
+| 5-15 min | Demo 1: Risk Scoring | DLI Spark SQL + DWS dashboard |
 | 15-22 min | Demo 2: Data Platform | DataArts + OBS pipeline |
 | 22-35 min | Demo 3: Contract AI + Dify | OCR → DeepSeek → Dify chatbot |
 | 35-40 min | ROI + Success Case | Business impact |
@@ -72,7 +72,7 @@ make status
 │   └── modules/
 │       ├── foundation/               # VPC, SG, OBS, KMS, IAM
 │       ├── compute/                  # ECS (Dify, Web), EIPs
-│       ├── data-platform/            # MRS, DWS, DataArts, DMS
+│       ├── data-platform/            # DLI, DWS, DataArts, DMS
 │       └── ai-ocr/                   # FunctionGraph, OCR
 ├── scripts/
 │   ├── fix-dns.sh                    # DNS fix for ECS

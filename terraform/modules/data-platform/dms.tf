@@ -1,10 +1,10 @@
 resource "huaweicloud_dms_kafka_instance" "ayco" {
   name              = "ayco-kafka"
-  flavor_id         = var.kafka_flavor
+  flavor_id         = "kafka.2u4g.single"
   engine_version    = "3.x"
   storage_spec_code = "dms.physical.storage.high.v2"
-  storage_space     = 300
-  broker_num        = 3
+  storage_space     = 100
+  broker_num        = 1
   vpc_id            = var.vpc_id
   network_id        = var.subnet_id
   security_group_id = var.security_group_id

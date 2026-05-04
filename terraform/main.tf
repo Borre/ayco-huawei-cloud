@@ -35,9 +35,13 @@ module "compute" {
   security_group_id = module.foundation.security_group_id
   keypair_name      = var.keypair_name
   project_id        = var.project_id
+
+  # MVP flavors (override defaults)
+  dify_flavor = "s6.large.2"   # 2 vCPU, 4GB (was 4vCPU/8GB)
+  web_flavor  = "s6.medium.2"  # 1 vCPU, 2GB (was 2vCPU/4GB)
 }
 
-# ─── Module: Data Platform (MRS, DWS, DataArts, DMS) ────
+# ─── Module: Data Platform (DLI, DWS, DataArts, DMS) ─────
 module "data_platform" {
   source = "./modules/data-platform"
 
@@ -47,6 +51,8 @@ module "data_platform" {
   project_id         = var.project_id
   dws_admin_password = var.dws_admin_password
   keypair_name       = var.keypair_name
+  obs_contracts_text    = "ayco-contracts-text"
+  obs_contracts_results = "ayco-contracts-results"
 }
 
 # ─── Module: AI/OCR (FunctionGraph + OCR) ────────────────
