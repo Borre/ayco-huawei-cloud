@@ -79,7 +79,17 @@ resource "huaweicloud_networking_secgroup_rule" "demo_ports" {
   protocol          = "tcp"
   port_range_min    = each.value
   port_range_max    = each.value
-  remote_ip_prefix  = "0.0.0.0/0"
+  remote_ip_prefix  = var.presenter_ip
+}
+
+resource "huaweicloud_networking_secgroup_rule" "internal_tcp" {
+  security_group_id = huaweicloud_networking_secgroup.main.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_ip_prefix  = var.vpc_cidr
 }
 
 resource "huaweicloud_networking_secgroup_rule" "egress_tcp" {

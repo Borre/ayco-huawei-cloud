@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import urllib.request
+import csv
 from pathlib import Path
 
 # Load env
@@ -76,7 +77,22 @@ def main():
     results_dir = Path(__file__).parent.parent / "data"
     contracts = []
 
-    # Check for generated risk reports
+    risk_csv = results_dir / "risk_results" / "risk_results.csv"
+    if risk_csv.exists():
+        with risk_csv.open(newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                contracts.append({
+                    "contract_number": row["contract_number"],
+                    "contratista": row["vendor_name"],
+                    "monto_total": row["monto_total"],
+                    "risk_score": row["risk_score"],
+                    "risk_level": row["risk_level"],
+                    "alertas": split_list(row.get("alertas", "")),
+                    "recomendaciones": split_list(row.get("recomendaciones", "")),
+                    "resumen": row.get("resumen", ""),
+                })
+
+    # Also index any live LLM reports written by FunctionGraph or downloaded locally.
     for f in results_dir.glob("risk_*.json"):
         try:
             contracts.append(json.loads(f.read_text()))
@@ -84,58 +100,9 @@ def main():
             print(f"  Warning: Could not read {f}: {e}")
 
     if not contracts:
-        # Generate sample contracts for demo
-        print("  No risk reports found, generating sample data...")
-        contracts = [
-            {
-                "contract_number": "AYCO-2024-0847",
-                "contratista": "Proveedor Industrial del Norte, S.A. de C.V.",
-                "monto_total": "4,750,000.00",
-                "risk_score": 7,
-                "risk_level": "Alto",
-                "alertas": [
-                    "Penalización por terminación anticipada del 15%",
-                    "Jurisdicción fuera de CDMX",
-                    "Monto superior a $2M requiere aprobación adicional",
-                ],
-                "recomendaciones": [
-                    "Negociar reducción de penalización a 10%",
-                    "Incluir cláusula de mediación antes de litigio",
-                    "Obtener aprobación del Comité de Riesgos",
-                ],
-                "resumen": "Contrato de alto riesgo por penalizaciones elevadas y jurisdicción foránea.",
-            },
-            {
-                "contract_number": "AYCO-2024-1203",
-                "contratista": "TechSolutions MX, S. de R.L.",
-                "monto_total": "1,200,000.00",
-                "risk_score": 3,
-                "risk_level": "Bajo",
-                "alertas": [],
-                "recomendaciones": ["Aprobar sin restricciones adicionales"],
-                "resumen": "Contrato estándar de servicios tecnológicos con riesgo bajo.",
-            },
-            {
-                "contract_number": "AYCO-2024-0992",
-                "contratista": "Constructora del Pacífico, S.A. de C.V.",
-                "monto_total": "8,500,000.00",
-                "risk_score": 9,
-                "risk_level": "Crítico",
-                "alertas": [
-                    "Sin garantía de cumplimiento",
-                    "Monto superior a $5M con débito ratio 0.87",
-                    "Contratista con historial de incumplimientos",
-                    "Confidencialidad de 10 años (excesiva)",
-                ],
-                "recomendaciones": [
-                    "RECHAZAR sin garantía de fianza al 10%",
-                    "Solicitar estados financieros auditados",
-                    "Reducir confidencialidad a 3 años",
-                    "Incluir cláusula de performance bond",
-                ],
-                "resumen": "Contrato de riesgo crítico. Sin garantías, monto alto, contratista con historial negativo.",
-            },
-        ]
+        print("ERROR: No canonical risk results found.")
+        print("  Run: python3 scripts/generate-contract-data.py")
+        sys.exit(1)
 
     # 3. Create documents in Dify
     for contract in contracts:
@@ -145,10 +112,10 @@ Monto: ${contract.get('monto_total', 'N/A')} MXN
 Nivel de Riesgo: {contract.get('risk_level', 'N/A')} (Score: {contract.get('risk_score', 'N/A')}/10)
 
 Alertas:
-{chr(10).join('- ' + a for a in contract.get('alertas', [])) or '- Ninguna'}
+{format_list(contract.get('alertas', [])) or '- Ninguna'}
 
 Recomendaciones:
-{chr(10).join('- ' + r for r in contract.get('recomendaciones', []))}
+{format_list(contract.get('recomendaciones', [])) or '- Ninguna'}
 
 Resumen: {contract.get('resumen', 'N/A')}
 """
@@ -164,6 +131,16 @@ Resumen: {contract.get('resumen', 'N/A')}
             print(f"  Error indexing {contract.get('contract_number')}: {e}")
 
     print(f"\n=== Done: {len(contracts)} contracts indexed in dataset {dataset_id} ===")
+
+
+def split_list(value):
+    return [item.strip() for item in value.split("|") if item.strip()]
+
+
+def format_list(value):
+    if isinstance(value, str):
+        value = split_list(value) or [value]
+    return "\n".join(f"- {item}" for item in value if item)
 
 
 if __name__ == "__main__":

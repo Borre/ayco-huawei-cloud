@@ -12,10 +12,10 @@ resource "huaweicloud_identity_role" "ayco_policy" {
     Version = "1.1"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "obs:*", "dws:*", "dli:*", "dataarts:*", "functiongraph:*",
-"dataarts:*", "ocr:*", "modelarts:*",
+          "ocr:*", "modelarts:*",
         ]
         Resource = "*"
       }

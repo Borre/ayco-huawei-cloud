@@ -287,11 +287,11 @@ resource "huaweicloud_dataarts_dataservice_api" "risk_query" {
   visibility   = "WORKSPACE"
 
   request_params {
-    name        = "risk_level"
-    position    = "REQUEST_PARAMETER_POSITION_QUERY"
-    type        = "REQUEST_PARAMETER_TYPE_STRING"
-    description = "Filtrar por nivel: BAJO, MEDIO, ALTO, CRITICO"
-    necessary   = false
+    name          = "risk_level"
+    position      = "REQUEST_PARAMETER_POSITION_QUERY"
+    type          = "REQUEST_PARAMETER_TYPE_STRING"
+    description   = "Filtrar por nivel: BAJO, MEDIO, ALTO, CRITICO"
+    necessary     = false
     default_value = "ALTO"
   }
   request_params {
@@ -302,11 +302,11 @@ resource "huaweicloud_dataarts_dataservice_api" "risk_query" {
     necessary   = false
   }
   request_params {
-    name        = "limit"
-    position    = "REQUEST_PARAMETER_POSITION_QUERY"
-    type        = "REQUEST_PARAMETER_TYPE_NUMBER"
-    description = "Maximo de resultados"
-    necessary   = false
+    name          = "limit"
+    position      = "REQUEST_PARAMETER_POSITION_QUERY"
+    type          = "REQUEST_PARAMETER_TYPE_NUMBER"
+    description   = "Maximo de resultados"
+    necessary     = false
     default_value = "50"
   }
 

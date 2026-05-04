@@ -2,7 +2,7 @@
 # scripts/test-dataarts-api.sh — Test DataArts DataService REST APIs
 # Calls the risk query and contract detail endpoints.
 #
-# Usage: bash scripts/test-dataarts-api.sh [DATARTS_HOST]
+# Usage: bash scripts/test-dataarts-api.sh [DATAARTS_HOST]
 # Requires: DataArts deployed and APIs published
 
 set -euo pipefail
@@ -15,14 +15,14 @@ if [ -f "$PROJECT_DIR/.env" ]; then
 fi
 
 # DataArts API host (from console or terraform output)
-HOST="${1:-${DATARTS_API_HOST:-}}"
+HOST="${1:-${DATAARTS_API_HOST:-}}"
 if [ -z "$HOST" ]; then
-    echo "Usage: $0 <DATARTS_API_HOST>"
+    echo "Usage: $0 <DATAARTS_API_HOST>"
     echo ""
     echo "Get the host from Huawei Cloud console:"
     echo "  DataArts Studio → DataService → API Management → GetRiskResults → Debug"
     echo ""
-    echo "Or set DATARTS_API_HOST in .env"
+    echo "Or set DATAARTS_API_HOST in .env"
     exit 1
 fi
 

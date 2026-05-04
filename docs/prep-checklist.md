@@ -65,7 +65,7 @@ bash scripts/setup-dify.sh
 
 - [ ] DWS seed script executed
   - [ ] Run: `PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f scripts/seed-dws.sql`
-  - [ ] Verify: `dm.vendor_risk_summary` materialized view has data
+  - [ ] Verify: `dm.contract_vendor_risk_summary` materialized view has data
   - [ ] Verify: `risk_results` table exists with indexes
 - [ ] Contract PDFs uploaded to OBS bucket
   - [ ] Upload sample contracts to the OBS bucket created by terraform (foundation module)
@@ -87,7 +87,7 @@ PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f
 
 # Verify DWS data
 psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT COUNT(*) FROM ods.vendors;"
-psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.vendor_risk_summary;"
+psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.contract_vendor_risk_summary;"
 
 # Test DLI Spark SQL
 bash scripts/spark-risk-aggregation.py
@@ -139,7 +139,7 @@ python scripts/index-knowledge-base.py
 - [ ] Dify accessible — open browser, navigate to `http://<DIFY_IP>/`, log in
 - [ ] DWS queries return data
   ```bash
-  psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.vendor_risk_summary;"
+  psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.contract_vendor_risk_summary;"
   psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.anomaly_summary LIMIT 5;"
   ```
 - [ ] Screen sharing tested

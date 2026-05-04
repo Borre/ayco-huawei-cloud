@@ -1,12 +1,12 @@
 {
-  "contract_number": "CTR-2024-001",
-  "vendor_name": "TechMex SA",
-  "monto_total": 8500000.0,
+  "contract_number": "AYCO-2026-0147",
+  "vendor_name": "Outsourcing del Sureste S. de R.L. de C.V.",
+  "monto_total": 3850000.0,
   "risk_score": 8.7,
   "risk_level": "ALTO",
-  "alertas": "Clausulas de terminacion anticipada desfavorables. Penalizacion por retraso excesiva.",
-  "recomendaciones": "Negociar clausula de terminacion. Reducir penalizacion a 2%.",
-  "resumen": "Contrato de servicios tecnologicos con multiples riesgos contractuales.",
-  "llm_provider": "deepseek-v4-flash",
+  "alertas": "Penalizacion por terminacion anticipada del 30%. Sin garantia de cumplimiento. Jurisdiccion fuera de CDMX.",
+  "recomendaciones": "Exigir fianza de cumplimiento. Reducir penalizacion. Revisar jurisdiccion y confidencialidad.",
+  "resumen": "Contrato de riesgo alto por penalizacion elevada, ausencia de garantia y exposicion operativa relevante.",
+  "llm_provider": "maas-deepseek-v4-flash",
   "analyzed_at": "2026-05-08T10:15:00Z"
 }

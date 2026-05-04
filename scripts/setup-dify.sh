@@ -67,13 +67,31 @@ DEPLOY
 
 # Inject real MaaS API key
 ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
-  "python3 -c "import sys; f=sys.argv[1]; t=open(f).read().replace('__MAAS_API_KEY_PLACEHOLDER__', sys.argv[2]); open(f,'w').write(t)" docker-compose.yml "${MAAS_KEY:-placeholder}" /opt/dify/docker/.env"
+  "python3 -c 'import sys; f=sys.argv[1]; t=open(f).read().replace(\"__MAAS_API_KEY_PLACEHOLDER__\", sys.argv[2]); open(f, \"w\").write(t)' /opt/dify/docker/.env '${MAAS_KEY:-placeholder}'"
 
 # Restart to pick up new env
 ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
   "cd /opt/dify/docker && docker compose restart api worker"
 
+echo "=== Deploying Streamlit dashboard ==="
+scp -o StrictHostKeyChecking=no "$(dirname "$0")/../dashboards/risk_dashboard.py" root@"$DIFY_IP":/tmp/risk_dashboard.py
+ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << 'DASHBOARD'
+set -euo pipefail
+mkdir -p /opt/ayco/dashboards
+cp /tmp/risk_dashboard.py /opt/ayco/dashboards/risk_dashboard.py
+chown -R ayco:ayco /opt/ayco/dashboards || true
+
+if [ -f /etc/systemd/system/ayco-dashboard.service ]; then
+  systemctl daemon-reload
+  systemctl enable ayco-dashboard
+  systemctl restart ayco-dashboard || true
+else
+  echo "WARN: ayco-dashboard.service not found. The ECS user_data may not have completed."
+fi
+DASHBOARD
+
 echo "=== Dify deploy complete ==="
 echo "    Web:  http://$DIFY_IP"
 echo "    API:  http://$DIFY_IP/v1"
+echo "    Dashboard: http://$DIFY_IP:8501"
 echo "    LLM:  MaaS DeepSeek v4 Flash (via Huawei Cloud)"

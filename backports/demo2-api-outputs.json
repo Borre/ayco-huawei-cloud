@@ -2,19 +2,20 @@
   "code": 0,
   "data": [
     {
-      "contract_number": "CTR-2024-003",
-      "vendor_name": "Constructora XYZ",
-      "monto_total": 15000000.0,
+      "contract_number": "AYCO-2026-0149",
+      "vendor_name": "C***o",
+      "monto_total": 12500000.0,
       "risk_score": 9.2,
       "risk_level": "CRITICO",
-      "alertas": "Penalizacion excesiva del 15%. Garantia insuficiente."
+      "alertas": "Penalizacion del 40%. Sin garantia. Arbitraje UNCITRAL en ingles. Confidencialidad indefinida."
     },
     {
-      "contract_number": "CTR-2024-001",
-      "vendor_name": "TechMex SA",
+      "contract_number": "AYCO-2026-0147",
+      "vendor_name": "O***e",
+      "monto_total": 3850000.0,
       "risk_score": 8.7,
       "risk_level": "ALTO",
-      "alertas": "Clausulas de terminacion anticipada desfavorables."
+      "alertas": "Penalizacion del 30%. Sin garantia. Jurisdiccion en Monterrey."
     }
   ]
 }

@@ -2,7 +2,7 @@
 """scripts/generate-contract-data.py — Datos sintéticos de contratos para AYCO demo.
 
 Genera:
-1. risk_results.csv — 50 resultados pre-calculados de análisis de riesgo (para DWS)
+1. risk_results.csv — 3 resultados canónicos de análisis de riesgo alineados a los PDFs del demo
 2. contract_texts/ — 20 archivos .txt de contratos sintéticos (para OBS + Dify KB)
 3. risk_summary.json — Resumen agregado (para dashboards)
 """
@@ -182,59 +182,56 @@ RISK_PROFILES = {
     },
 }
 
-# ─── Generar risk_results (50 contratos) ─────────────────────────
-print("Generando 50 resultados de análisis de riesgo...")
+# ─── Generar risk_results canónicos alineados a data/contracts/*.pdf ─────
+print("Generando 3 resultados canónicos de análisis de riesgo...")
 
-risk_results = []
-for i in range(1, 51):
-    profile_name = random.choices(
-        ["BAJO", "MEDIO", "ALTO", "CRITICO"],
-        weights=[30, 30, 25, 15]
-    )[0]
-    profile = RISK_PROFILES[profile_name]
-
-    proveedor = random.choice(PROVEEDORES)
-    contratante = random.choice(CONTRATANTES)
-    objeto = random.choice(OBJETOS_CONTRATO)
-
-    monto = round(random.uniform(*profile["monto"]), 2)
-    score = round(random.uniform(*profile["score_range"]), 1)
-    penalizacion = round(random.uniform(*profile["penalizacion"]), 1)
-    garantia = round(random.uniform(*profile["garantia"]), 1)
-    plazo = random.randint(*profile["plazo"])
-
-    n_alertas = random.randint(1, min(4, len(profile["alertas_posibles"])))
-    alertas = random.sample(profile["alertas_posibles"], n_alertas)
-
-    n_recom = random.randint(1, min(3, len(profile["recomendaciones"])))
-    recomendaciones = random.sample(profile["recomendaciones"], n_recom)
-
-    resumen = (
-        f"Contrato de {objeto[:60]}... "
-        f"Monto: ${monto:,.2f} MXN. "
-        f"Riesgo {profile_name} ({score}/100). "
-        f"Proveedor: {proveedor[0]}. "
-        f"Plazo: {plazo} días. "
-        f"Penalización: {penalizacion}%. Garantía: {garantia}%."
-    )
-
-    analyzed = datetime(2026, 4, random.randint(1, 30), random.randint(8, 18), random.randint(0, 59))
-
-    risk_results.append({
-        "contract_number": f"AYCO-2026-{i:04d}",
-        "vendor_name": proveedor[0],
-        "monto_total": monto,
-        "plazo_dias": plazo,
-        "penalizacion_pct": penalizacion,
-        "garantia_pct": garantia,
-        "risk_score": score,
-        "risk_level": profile_name,
-        "alertas": " | ".join(alertas),
-        "recomendaciones": " | ".join(recomendaciones),
-        "resumen": resumen,
-        "llm_provider": random.choice(["maas-deepseek-v4-flash", "deepseek-chat"]),
-        "analyzed_at": analyzed.isoformat(),
-    })
+risk_results = [
+    {
+        "contract_number": "AYCO-2026-0147",
+        "vendor_name": "Outsourcing del Sureste S. de R.L. de C.V.",
+        "monto_total": 3850000.00,
+        "plazo_dias": 365,
+        "penalizacion_pct": 30.0,
+        "garantia_pct": 0.0,
+        "risk_score": 8.7,
+        "risk_level": "ALTO",
+        "alertas": "Penalización por terminación anticipada del 30% | Sin garantía de cumplimiento | Jurisdicción fuera de CDMX",
+        "recomendaciones": "Exigir fianza de cumplimiento | Reducir penalización | Revisar jurisdicción y confidencialidad",
+        "resumen": "Contrato de riesgo alto por penalización elevada, ausencia de garantía y jurisdicción fuera de CDMX.",
+        "llm_provider": "maas-deepseek-v4-flash",
+        "analyzed_at": "2026-05-08T10:15:00",
+    },
+    {
+        "contract_number": "AYCO-2026-0148",
+        "vendor_name": "Consultoría Integral del Centro S.C.",
+        "monto_total": 450000.00,
+        "plazo_dias": 184,
+        "penalizacion_pct": 5.0,
+        "garantia_pct": 20.0,
+        "risk_score": 2.3,
+        "risk_level": "BAJO",
+        "alertas": "Sin alertas críticas | Garantía suficiente | Jurisdicción CDMX",
+        "recomendaciones": "Aprobar con monitoreo estándar | Verificar entrega de póliza de fianza",
+        "resumen": "Contrato de bajo riesgo por monto moderado, garantía del 20% y jurisdicción en CDMX.",
+        "llm_provider": "maas-deepseek-v4-flash",
+        "analyzed_at": "2026-05-08T10:16:00",
+    },
+    {
+        "contract_number": "AYCO-2026-0149",
+        "vendor_name": "Constructora y Desarrolladora del Golfo S.A. de C.V.",
+        "monto_total": 12500000.00,
+        "plazo_dias": 730,
+        "penalizacion_pct": 40.0,
+        "garantia_pct": 0.0,
+        "risk_score": 9.2,
+        "risk_level": "CRITICO",
+        "alertas": "Penalización por terminación anticipada del 40% | Sin garantía de cumplimiento | Arbitraje UNCITRAL en inglés | Confidencialidad indefinida",
+        "recomendaciones": "Reestructurar garantías | Renegociar penalización | Revisar arbitraje y confidencialidad con asesoría legal",
+        "resumen": "Contrato crítico por penalización extrema, ausencia de garantía y condiciones legales complejas.",
+        "llm_provider": "maas-deepseek-v4-flash",
+        "analyzed_at": "2026-05-08T10:17:00",
+    },
+]
 
 # Write CSV
 fieldnames = list(risk_results[0].keys())
@@ -436,7 +433,11 @@ for r in risk_results:
         f");"
     )
 
-sql_lines.extend(["", "-- Refresh materialized views (if applicable)", "-- REFRESH MATERIALIZED VIEW dm.vendor_risk_summary;"])
+sql_lines.extend([
+    "",
+    "-- Refresh materialized views",
+    "REFRESH MATERIALIZED VIEW dm.contract_vendor_risk_summary;",
+])
 
 with open(DATA_DIR / "seed_risk_results.sql", "w", encoding="utf-8") as f:
     f.write("\n".join(sql_lines))

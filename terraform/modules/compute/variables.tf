@@ -55,11 +55,11 @@ variable "dws_admin_password" {
 variable "dify_flavor" {
   description = "ECS flavor for Dify server"
   type        = string
-  default     = "s6.xlarge.2"  # 4 vCPU, 8GB
+  default     = "s6.xlarge.2" # 4 vCPU, 8GB
 }
 
 variable "web_flavor" {
   description = "ECS flavor for web/demo server"
   type        = string
-  default     = "s6.large.2"  # 2 vCPU, 4GB
+  default     = "s6.large.2" # 2 vCPU, 4GB
 }

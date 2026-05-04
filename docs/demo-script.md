@@ -79,13 +79,29 @@ Navigate to Huawei Console > FunctionGraph > `ayco-ocr-trigger` > Execution Logs
 Show the real-time log output:
 ```
 [OCR] Processing contrato-01-alto-riesgo.pdf
-[OCR] Text extracted: 4,523 characters
-[PARSE] Extracted 12 fields from contract text
+[OCR] Text extracted: ~4,500 characters
+[OBS] Text saved: contrato-01-alto-riesgo.txt
+[NEXT] Parse payload returned for ayco-parse-contract
+```
+
+Invoke parse and LLM functions with the returned payload:
+
+```bash
+huaweicloud-sdk-cli fg invoke \
+  --function-urn ayco-parse-contract \
+  --body '{"source_key":"contrato-01-alto-riesgo.pdf","text_key":"contrato-01-alto-riesgo.txt"}'
+
+huaweicloud-sdk-cli fg invoke \
+  --function-urn ayco-llm-inference \
+  --body @backports/demo1-llm-response.json
+```
+
+Expected LLM log:
+```
 [LLM] Calling DeepSeek v4 Flash for risk analysis...
-[LLM] Response received: risk_score=8.7, level=ALTO
-[OBS] Results saved: contrato-01-alto-riesgo.json
+[LLM] Response received: risk_score=8.7, level=ALTO, contract=AYCO-2026-0147
+[OBS] Results saved: risk_AYCO-2026-0147.json
 [Langfuse] ✓ Trace sent (450ms)
-[Langfuse] ✓ Trace sent (320ms)
 ```
 
 > **🎤 Speaker:** "Cada llamada al LLM genera automáticamente un trace en Langfuse — sin código extra. Latencia, tokens, provider, todo queda registrado. Abran el dashboard."
@@ -130,8 +146,8 @@ Show Spark UI output:
 +-----------------+------------------+------------+----------+----------+---------------------------+
 |contract_number  |contratista       |monto_total |risk_score|risk_level|alertas                    |
 +-----------------+------------------+------------+----------+----------+---------------------------+
-|CTR-2024-003     |Constructora XYZ |$15,000,000 |9.20      |CRITICO   |Penalización excesiva...   |
-|CTR-2024-001     |TechMex SA       |$8,500,000  |8.70      |ALTO      |Cláusulas de terminación...|
+|AYCO-2026-0149   |Constructora y Desarrolladora del Golfo |$12,500,000 |9.20 |CRITICO |40% penalty, no guarantee |
+|AYCO-2026-0147   |Outsourcing del Sureste                 |$3,850,000  |8.70 |ALTO    |30% penalty, no guarantee |
 +-----------------+------------------+------------+----------+----------+---------------------------+
 ```
 
@@ -172,8 +188,8 @@ Expected output:
 ```
  contract_number | vendor_name      | risk_score | risk_level | alertas
 -----------------+------------------+------------+------------+-------------------------------
- CTR-2024-003    | Constructora XYZ |       9.20 | CRITICO    | Penalización excesiva, ...
- CTR-2024-001    | TechMex SA       |       8.70 | ALTO       | Cláusulas de terminación...
+ AYCO-2026-0149  | Constructora y Desarrolladora del Golfo | 9.20 | CRITICO | Penalización 40%, sin garantía...
+ AYCO-2026-0147  | Outsourcing del Sureste                 | 8.70 | ALTO    | Penalización 30%, sin garantía...
 ```
 
 ```sql
@@ -190,15 +206,15 @@ Expected output:
 ```
    vendor_name   | contracts | total_exposure | avg_risk
 -----------------+-----------+----------------+-----------
- Constructora XYZ|         1 |  15000000.00   |   9.20
- TechMex SA      |         1 |   8500000.00   |   8.70
- LogiPro MX      |         1 |   2300000.00   |   2.30
+ Constructora y Desarrolladora del Golfo | 1 | 12500000.00 | 9.20
+ Outsourcing del Sureste                 | 1 |  3850000.00 | 8.70
+ Consultoría Integral del Centro         | 1 |   450000.00 | 2.30
 ```
 
 ```sql
 -- Query 4: Materialized view refresh (show governance)
-REFRESH MATERIALIZED VIEW dm.vendor_risk_summary;
-SELECT * FROM dm.vendor_risk_summary;
+REFRESH MATERIALIZED VIEW dm.contract_vendor_risk_summary;
+SELECT * FROM dm.contract_vendor_risk_summary;
 ```
 
 Exit psql with `\q`
@@ -244,8 +260,8 @@ To switch to backup:
 ```bash
 # Play recorded demo
 bash scripts/backup-record-demos.sh --play demo1
-# Or show pre-recorded screenshots
-open backports/demo1-screenshots/
+# Or show pre-captured terminal output
+cat backports/demo1-spark-output.txt
 ```
 
 ## 6. Transition to Demo 2
@@ -332,7 +348,7 @@ Show:
 - **Dynamic Masking Policy:** "Mask_Vendor_Names" — enmascara nombres de proveedores en la API para usuarios no autorizados
 
 **Speaker:**
-> "En el sector financiero, la seguridad de datos no es opcional. Aquí DataArts clasifica automáticamente los campos sensibles — montos, proveedores, penalizaciones — y aplica enmascaramiento dinámico. Si alguien sin permisos consulta la API, en lugar de 'Constructora XYZ' ve 'C***Z'. Los datos están protegidos desde el origen."
+> "En el sector financiero, la seguridad de datos no es opcional. Aquí DataArts clasifica campos sensibles — montos, proveedores, penalizaciones — y la política de enmascaramiento queda configurada para la tabla de riesgo. Antes de decir que está activo en vivo, validamos la respuesta de la API en el console/debugger de DataService."
 
 ### Step 4: DataArts Factory — ETL Pipeline (2 min)
 
@@ -412,13 +428,13 @@ Expected output (note masked vendor_name):
   "code": 0,
   "data": [
     {
-      "contract_number": "CTR-2024-003",
-      "vendor_name": "C***Z",
-      "monto_total": 15000000.00,
+      "contract_number": "AYCO-2026-0149",
+      "vendor_name": "C***o",
+      "monto_total": 12500000.00,
       "risk_score": 9.20,
       "risk_level": "CRITICO",
-      "alertas": "Penalización excesiva del 15%. Garantía insuficiente.",
-      "recomendaciones": "Renegociar penalización. Aumentar garantía al 15%.",
+      "alertas": "Penalización del 40%. Sin garantía. Arbitraje UNCITRAL.",
+      "recomendaciones": "Exigir garantía. Renegociar penalización. Revisar arbitraje.",
       "llm_provider": "deepseek-v4-flash"
     }
   ]
@@ -426,7 +442,7 @@ Expected output (note masked vendor_name):
 ```
 
 **Speaker:**
-> "API lista para consumo, con enmascaramiento dinámico activo. El equipo legal ve 'C***Z', el equipo de riesgos con permisos ve 'Constructora XYZ'. Mismos datos, diferentes vistas según el rol."
+> "API lista para consumo. Si el enmascaramiento está activo en la política de DataArts, el equipo legal ve valores enmascarados y el equipo de riesgos con permisos ve el dato completo. Mismos datos, diferentes vistas según el rol."
 
 ## 3. Talking Points
 
@@ -470,14 +486,14 @@ Expected output (note masked vendor_name):
 | DataArts Architecture page error | Show Terraform code as proof of resource definition |
 | Security masking not active | Show API response manually with `sed 's/vendor_name.*/vendor_name": "C***Z"/'` |
 | ETL pipeline fails | Use `backports/demo2-etl-output.txt` with pre-captured log |
-| Streamlit dashboard 502 | Show dashboard screenshot in `backports/demo2-dashboard.png` |
+| Streamlit dashboard 502 | Show dashboard text backport in `backports/demo2-dashboard-backport.txt` |
 | Langfuse not loading | Show Langfuse Terraform vars + code as proof of integration |
 | DataService API returns 500 | Use `backports/demo2-api-outputs.json` |
 
 To switch to backup:
 ```bash
 # Show pre-recorded dashboard
-open backports/demo2-dashboard.png
+cat backports/demo2-dashboard-backport.txt
 # Show pre-recorded API responses
 cat backports/demo2-api-outputs.json | python3 -m json.tool
 # Show lineage diagram
@@ -495,7 +511,7 @@ open docs/architecture.drawio
 
 ## 1. Pre-demo Setup
 
-- Dify deployed on ECS instance `s6.xlarge.2` (4vCPU/8GB) (confirmed via `make status`)
+- Dify deployed on ECS instance `ayco-dify` (`s6.xlarge.2`, 4vCPU/8GB) (confirmed via `make status`)
 - Dify accessible at ECS public IP (port 80)
 - Dify admin credentials available
 - Knowledge base `ayco-contracts-kb` created and indexed
@@ -514,10 +530,10 @@ open docs/architecture.drawio
 
 ```bash
 # Show ECS instance running Dify
-huaweicloud-sdk-cli ecs list-instances --name dify-ayco
+huaweicloud-sdk-cli ecs list-instances --name ayco-dify
 ```
 
-Navigate to Huawei Console > ECS > Show `dify-ayco` instance (s6.large.2)
+Navigate to Huawei Console > ECS > Show `ayco-dify` instance (`s6.xlarge.2`)
 
 Show docker-compose status:
 ```bash
@@ -555,30 +571,30 @@ Navigate to Dify UI > Apps > `ayco-contract-assistant` > Chat
 Expected chatbot response:
 > "Actualmente hay 2 contratos con nivel de riesgo ALTO o CRÍTICO:
 >
-> 1. **CTR-2024-003 — Constructora XYZ** (Riesgo CRÍTICO, Score: 9.2)
->    - Monto: $15,000,000 MXN
->    - Alertas: Penalización excesiva del 15%. Garantía insuficiente. Sin cláusula de confidencialidad.
->    - Recomendación: Renegociar penalización. Aumentar garantía al 15%. Agregar cláusula de confidencialidad.
+> 1. **AYCO-2026-0149 — Constructora y Desarrolladora del Golfo** (Riesgo CRÍTICO, Score: 9.2)
+>    - Monto: $12,500,000 MXN
+>    - Alertas: Penalización del 40%, sin garantía, arbitraje UNCITRAL y confidencialidad indefinida.
+>    - Recomendación: Exigir garantía, renegociar penalización y revisar arbitraje.
 >
-> 2. **CTR-2024-001 — TechMex SA** (Riesgo ALTO, Score: 8.7)
->    - Monto: $8,500,000 MXN
->    - Alertas: Cláusulas de terminación anticipada desfavorables. Penalización por retraso excesiva.
->    - Recomendación: Negociar cláusula de terminación. Reducir penalización a 2%.
+> 2. **AYCO-2026-0147 — Outsourcing del Sureste** (Riesgo ALTO, Score: 8.7)
+>    - Monto: $3,850,000 MXN
+>    - Alertas: Penalización del 30%, sin garantía y jurisdicción fuera de CDMX.
+>    - Recomendación: Exigir fianza, reducir penalización y revisar jurisdicción.
 >
-> El contrato de bajo riesgo es CTR-2024-002 (LogiPro MX, Score: 2.3)."
+> El contrato de bajo riesgo es AYCO-2026-0148 (Consultoría Integral del Centro, Score: 2.3)."
 
 ### Step 4: Chatbot — Query 2 (2 min)
 
-**User question:** "Cuál es la penalización del contrato 001?"
+**User question:** "Cuál es la penalización del contrato 0147?"
 
 Expected chatbot response:
-> "El contrato CTR-2024-001 (TechMex SA) tiene las siguientes penalizaciones:
+> "El contrato AYCO-2026-0147 tiene las siguientes penalizaciones:
 >
-> - **Penalización por terminación anticipada:** 5% del monto total
-> - **Penalización por retraso:** $15,000 MXN por día de retraso
-> - **Monto total del contrato:** $8,500,000 MXN
+> - **Penalización por terminación anticipada:** 30% del monto total
+> - **Penalización por retraso:** $50,000 MXN por día calendario de retraso
+> - **Monto total del contrato:** $3,850,000 MXN
 >
-> ⚠️ Esta penalización por terminación anticipada del 5% está por encima del promedio del mercado (2-3%). Se recomienda renegociar esta cláusula."
+> Esta penalización es material para el contrato y se recomienda renegociarla junto con la garantía de cumplimiento."
 
 ### Step 5: Live OCR Processing (3 min)
 
@@ -599,7 +615,7 @@ Show the real-time processing:
 [OCR] Extracting text from PDF...
 [OCR] 3,891 characters extracted
 [PARSE] Extracting fields...
-[PARSE] Found: contract_number=CTR-2024-005, monto_total=$5,200,000, penalizacion=3%
+[PARSE] Found: contract_number=AYCO-2026-0150, monto_total=$5,200,000, penalizacion=3%
 [LLM] Sending to DeepSeek v4 Flash...
 [LLM] Risk analysis complete: score=6.1, level=MEDIO
 [LLM] Alertas: Cláusula de jurisdicción ambigua. Falta definición de SLA.
@@ -613,7 +629,7 @@ Show the real-time processing:
 Expected chatbot response:
 > "Detecto que se acaba de procesar un nuevo contrato:
 >
-> **CTR-2024-005** — (Vendor pending)
+> **AYCO-2026-0150** — (Vendor pending)
 > - Monto: $5,200,000 MXN
 > - Riesgo: MEDIO (Score: 6.1)
 > - Alertas: Cláusula de jurisdicción ambigua. Falta definición de SLA.
@@ -634,7 +650,7 @@ Briefly show in Dify:
 > "Ya tenemos los datos analizados, gobernados y expuestos como APIs. Ahora vamos a ver la capa de inteligencia artificial que permite a cualquier usuario de negocio — sin saber SQL, sin saber programación — consultar todos estos contratos en lenguaje natural."
 
 **While showing Dify on ECS:**
-> "Dify está corriendo en una instancia ECS de Huawei Cloud, tipo s6.large.2. Usamos docker-compose para levantar todos los microservicios: el frontend, la API, el worker, la base de datos, Redis y Weaviate para la búsqueda vectorial. Todo en un solo servidor, sin costos innecesarios."
+> "Dify está corriendo en una instancia ECS de Huawei Cloud, tipo s6.xlarge.2. Usamos docker-compose para levantar todos los microservicios: el frontend, la API, el worker, la base de datos, Redis y Weaviate para la búsqueda vectorial. Todo en un solo servidor para el demo."
 
 **While showing Knowledge Base:**
 > "Aquí indexamos todos los contratos analizados. Dify usa embeddings para convertir el texto de cada contrato en vectores, y cuando alguien hace una pregunta, busca los contratos más relevantes antes de generar la respuesta. Esto se llama Retrieval-Augmented Generation o RAG."
@@ -664,7 +680,7 @@ Briefly show in Dify:
 | Dify ECS not responding | Show pre-recorded video of Dify chatbot interaction |
 | Knowledge base not indexed | Use `backports/demo3-chat-outputs.txt` with pre-captured responses |
 | Live OCR pipeline fails | Show pre-recorded FunctionGraph logs of OCR processing |
-| Chatbot gives wrong answer | Use pre-recorded screenshots of correct chatbot responses |
+| Chatbot gives wrong answer | Use `backports/demo3-chat-outputs.txt` with correct responses |
 | DeepSeek MaaS unavailable | Switch to backup LLM provider or use cached responses |
 
 To switch to backup:

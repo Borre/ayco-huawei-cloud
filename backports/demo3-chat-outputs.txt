@@ -1,19 +1,21 @@
 === Query 1: "Cuales son los contratos de alto riesgo?" ===
 Actualmente hay 2 contratos con nivel de riesgo ALTO o CRITICO:
 
-1. CTR-2024-003 — Constructora XYZ (Riesgo CRITICO, Score: 9.2)
-   - Monto: $15,000,000 MXN
-   - Alertas: Penalizacion excesiva del 15%. Garantia insuficiente.
+1. AYCO-2026-0149 - Constructora y Desarrolladora del Golfo (Riesgo CRITICO, Score: 9.2)
+   - Monto: $12,500,000 MXN
+   - Alertas: penalizacion del 40%, sin garantia, arbitraje UNCITRAL y confidencialidad indefinida.
 
-2. CTR-2024-001 — TechMex SA (Riesgo ALTO, Score: 8.7)
-   - Monto: $8,500,000 MXN
-   - Alertas: Clausulas de terminacion anticipada desfavorables.
+2. AYCO-2026-0147 - Outsourcing del Sureste (Riesgo ALTO, Score: 8.7)
+   - Monto: $3,850,000 MXN
+   - Alertas: penalizacion del 30%, sin garantia y jurisdiccion fuera de CDMX.
 
-=== Query 2: "Cual es la penalizacion del contrato 001?" ===
-El contrato CTR-2024-001 (TechMex SA) tiene las siguientes penalizaciones:
+El contrato de bajo riesgo es AYCO-2026-0148 (Consultoria Integral del Centro, Score: 2.3).
 
-- Penalizacion por terminacion anticipada: 5% del monto total
-- Penalizacion por retraso: $15,000 MXN por dia de retraso
-- Monto total del contrato: $8,500,000 MXN
+=== Query 2: "Cual es la penalizacion del contrato 0147?" ===
+El contrato AYCO-2026-0147 tiene las siguientes penalizaciones:
 
-WARNING: Esta penalizacion del 5% esta por encima del promedio del mercado (2-3%).
+- Penalizacion por terminacion anticipada: 30% del monto total
+- Penalizacion por retraso: $50,000 MXN por dia calendario de retraso
+- Monto total del contrato: $3,850,000 MXN
+
+WARNING: La penalizacion del 30% y la ausencia de garantia justifican una revision legal antes de firma.

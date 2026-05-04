@@ -9,10 +9,10 @@ deepseek_api_key   = ""
 region             = "la-north-2"
 project_id         = "fbb6435c497c41bda90a0cc5240573e0"
 keypair_name       = "hermes-agent"
+presenter_ip       = "YOUR_PUBLIC_IP/32"
 dws_database       = "ayco_db"
 dataarts_enabled   = true
 
 # LLM Endpoints
 maas_endpoint = "https://api-ap-southeast-1.modelarts-maas.com"
 deepseek_endpoint = "https://api.deepseek.com"
-presenter_ip = "0.0.0.0/0"  # CHANGE to your IP for demo security

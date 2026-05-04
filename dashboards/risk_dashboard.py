@@ -149,7 +149,7 @@ st.subheader("📋 Contract Risk Details")
 detail_query = """
     SELECT contract_number, vendor_name,
            '$' || TO_CHAR(monto_total, 'FM999,999,999') AS monto_total,
-           risco_score, risk_level,
+           risk_score, risk_level,
            alertas, llm_provider,
            TO_CHAR(analyzed_at, 'YYYY-MM-DD HH24:MI') AS analyzed_at
     FROM risk_results

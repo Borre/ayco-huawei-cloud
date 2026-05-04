@@ -112,14 +112,14 @@ resource "huaweicloud_dataarts_security_data_secrecy_level" "contract_sensitive"
 
 # ─── DataArts Security: Data Recognition Rule ─────────────────────────────
 resource "huaweicloud_dataarts_security_data_recognition_rule" "financial_amounts" {
-  count            = var.dataarts_enabled ? 1 : 0
-  workspace_id     = local.dataarts_workspace_id
-  name             = "Detect_Financial_Amounts"
-  rule_type        = "REGEX"
-  method           = "REGEX"
-  secrecy_level_id = huaweicloud_dataarts_security_data_secrecy_level.contract_sensitive[0].id
-  description      = "Detecta montos financieros, penalizaciones y garantías en columnas de contratos"
-  enable           = true
+  count              = var.dataarts_enabled ? 1 : 0
+  workspace_id       = local.dataarts_workspace_id
+  name               = "Detect_Financial_Amounts"
+  rule_type          = "REGEX"
+  method             = "REGEX"
+  secrecy_level_id   = huaweicloud_dataarts_security_data_secrecy_level.contract_sensitive[0].id
+  description        = "Detecta montos financieros, penalizaciones y garantías en columnas de contratos"
+  enable             = true
   content_expression = "^\\$?[\\d,]+(\\.[\\d]{2})?(\\s*(MXN|USD|EUR))?$"
 }
 

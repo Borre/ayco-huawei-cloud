@@ -9,5 +9,6 @@ domain_id  = "YOUR_DOMAIN_ID"
 project_id = "fbb6435c497c41bda90a0cc5240573e0"
 
 keypair_name      = "hermes-agent"
+presenter_ip      = "YOUR_PUBLIC_IP/32"
 dws_admin_password = "CHANGE_ME_Str0ng!"
 deepseek_api_key   = "sk-YOUR_DEEPSEEK_KEY"

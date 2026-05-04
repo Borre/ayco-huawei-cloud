@@ -34,6 +34,8 @@ SK=$(resolve_op "${HUAWEI_SECRET_KEY}")
 MAAS=$(resolve_op "${MAAS_API_KEY:-}")
 DEEPSEEK=$(resolve_op "${DEEPSEEK_API_KEY:-sk-placeholder}")
 DWS_PASS=$(resolve_op "${DWS_ADMIN_PASSWORD:-AycoD3mo2026!}")
+LANGFUSE_PUBLIC=$(resolve_op "${LANGFUSE_PUBLIC_KEY:-}")
+LANGFUSE_SECRET=$(resolve_op "${LANGFUSE_SECRET_KEY:-}")
 
 # Check for critical failures
 for name_val in "access_key:$AK" "secret_key:$SK"; do
@@ -56,9 +58,13 @@ secret_key = "$SK"
 project_id = "${HUAWEI_PROJECT_ID:-fbb6435c497c41bda90a0cc5240573e0}"
 
 keypair_name       = "${SSH_KEYPAIR_NAME:-hermes-agent}"
+presenter_ip       = "${PRESENTER_IP:-0.0.0.0/0}"
 dws_admin_password = "$DWS_PASS"
 maas_api_key       = "$MAAS"
 deepseek_api_key   = "$DEEPSEEK"
+langfuse_public_key = "$LANGFUSE_PUBLIC"
+langfuse_secret_key = "$LANGFUSE_SECRET"
+langfuse_host       = "${LANGFUSE_HOST:-https://cloud.langfuse.com}"
 EOF
 
 echo "✓ terraform.tfvars generated (secrets resolved from 1Password)"

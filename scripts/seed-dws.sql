@@ -128,6 +128,16 @@ CREATE INDEX IF NOT EXISTS idx_risk_results_level ON risk_results(risk_level);
 CREATE INDEX IF NOT EXISTS idx_risk_results_score ON risk_results(risk_score DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_results_vendor ON risk_results(vendor_name);
 
+CREATE MATERIALIZED VIEW IF NOT EXISTS dm.contract_vendor_risk_summary AS
+SELECT
+    vendor_name,
+    COUNT(*) AS contracts,
+    SUM(monto_total) AS total_exposure,
+    ROUND(AVG(risk_score), 2) AS avg_risk,
+    MAX(risk_level) AS highest_risk_level
+FROM risk_results
+GROUP BY vendor_name;
+
 -- ─── RPT: Queries de reportes listas ─────────────────
 -- (estas se corren en live durante el demo)
 
@@ -138,8 +148,8 @@ WHERE risk_level IN ('Alto', 'Crítico')
 ORDER BY risk_score DESC
 LIMIT 10;
 
--- Reporte 2: Exposición total por nivel de riesgo
-SELECT * FROM dm.vendor_risk_summary;
+-- Reporte 2: Exposición contractual por proveedor
+SELECT * FROM dm.contract_vendor_risk_summary;
 
 -- Reporte 3: Anomalías CNBV detectadas
 SELECT * FROM dm.anomaly_summary;

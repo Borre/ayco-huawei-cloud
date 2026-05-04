@@ -1,6 +1,6 @@
 # ─── DLI Database (serverless Spark SQL) ───────────────────────────
 resource "huaweicloud_dli_database" "ayco" {
-  name        = "ayco_contracts"
+  name = "ayco_contracts"
 
   tags = {
     project     = "ayco"
@@ -136,17 +136,17 @@ resource "huaweicloud_dli_table" "risk_results" {
 
 # ─── DLI Spark Job: risk aggregation query ────────────────────────
 resource "huaweicloud_dli_spark_job" "risk_aggregation" {
-  name        = "ayco-risk-aggregation"
-  queue_name  = "default"
-  app_name    = "obs://${var.obs_contracts_results}/spark/risk_aggregation.py"
+  name       = "ayco-risk-aggregation"
+  queue_name = "default"
+  app_name   = "obs://${var.obs_contracts_results}/spark/risk_aggregation.py"
 
   app_parameters = "--database ${huaweicloud_dli_database.ayco.name} --output obs://${var.obs_contracts_results}/aggregated/"
 
-  driver_cores   = 1
-  driver_memory  = "1g"
-  executor_cores = 1
+  driver_cores    = 1
+  driver_memory   = "1g"
+  executor_cores  = 1
   executor_memory = "1g"
-  executors      = 1
+  executors       = 1
 }
 
 # Upload Spark script to OBS (required by DLI Spark job)

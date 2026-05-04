@@ -24,6 +24,7 @@ module "foundation" {
 
   project_id   = var.project_id
   keypair_name = var.keypair_name
+  presenter_ip = var.presenter_ip
 }
 
 # ─── Module: Compute (ECS: Dify + Web + Dashboard) ────────
@@ -42,21 +43,21 @@ module "compute" {
   dws_database       = var.dws_database
   dws_admin_password = var.dws_admin_password
 
-  # Dify + Streamlit on same ECS (4 vCPU / 8GB)
+  # Dify + Streamlit on same ECS
   dify_flavor = "s6.xlarge.2"
   web_flavor  = "s6.large.2"
 }
 
-# ─── Module: Data Platform (DLI, DWS, DataArts, DMS) ─────
+# ─── Module: Data Platform (DLI, DWS, DataArts) ─────
 module "data_platform" {
   source = "./modules/data-platform"
 
-  vpc_id             = module.foundation.vpc_id
-  subnet_id          = module.foundation.subnet_id
-  security_group_id  = module.foundation.security_group_id
-  project_id         = var.project_id
-  dws_admin_password = var.dws_admin_password
-  dws_database       = var.dws_database
+  vpc_id                = module.foundation.vpc_id
+  subnet_id             = module.foundation.subnet_id
+  security_group_id     = module.foundation.security_group_id
+  project_id            = var.project_id
+  dws_admin_password    = var.dws_admin_password
+  dws_database          = var.dws_database
   obs_contracts_text    = "ayco-contracts-text"
   obs_contracts_results = "ayco-contracts-results"
 }

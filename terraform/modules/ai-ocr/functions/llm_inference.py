@@ -91,7 +91,7 @@ def call_llm(user_message, context):
     """Call LLM with MaaS primary, DeepSeek fallback. Traces via Langfuse."""
 
     # ─── Try MaaS (Huawei Cloud) first ───────────────────
-    maas_key = os.environ.get("MAAS_API_KEY", context.get("maas_api_key", ""))
+    maas_key = os.environ.get("MAAS_API_KEY", _context_get(context, "maas_api_key", ""))
     if maas_key:
         try:
             t0 = time.time()
@@ -111,7 +111,7 @@ def call_llm(user_message, context):
             print(f"[MaaS] Failed: {e}, falling back to DeepSeek direct")
 
     # ─── Fallback: DeepSeek API direct ───────────────────
-    ds_key = os.environ.get("DEEPSEEK_API_KEY", context.get("deepseek_api_key", ""))
+    ds_key = os.environ.get("DEEPSEEK_API_KEY", _context_get(context, "deepseek_api_key", ""))
     if ds_key:
         try:
             t0 = time.time()
@@ -277,8 +277,8 @@ def upload_to_obs(bucket, key, data, context):
     """Upload to OBS."""
     try:
         from obs import ObsClient
-        ak = context.get("access_key", os.environ.get("HUAWEI_ACCESS_KEY", ""))
-        sk = context.get("secret_key", os.environ.get("HUAWEI_SECRET_KEY", ""))
+        ak = _context_get(context, "access_key", os.environ.get("HUAWEI_ACCESS_KEY", ""))
+        sk = _context_get(context, "secret_key", os.environ.get("HUAWEI_SECRET_KEY", ""))
         endpoint = os.environ.get("OBS_ENDPOINT", "obs.la-north-2.myhuaweicloud.com")
         client = ObsClient(access_key_id=ak, secret_access_key=sk, server=f"https://{endpoint}")
         client.putContent(bucket, key, data)
@@ -294,3 +294,9 @@ def index_in_dify(risk_report, context):
         print("[Dify] No DIFY_API_URL configured, skipping indexing")
         return
     print(f"[Dify] Would index risk report for contract {risk_report.get('contract_number')}")
+
+
+def _context_get(context, key, default=""):
+    if isinstance(context, dict):
+        return context.get(key, default)
+    return getattr(context, key, default)
