@@ -11,3 +11,7 @@ project_id         = "fbb6435c497c41bda90a0cc5240573e0"
 keypair_name       = "hermes-agent"
 dws_database       = "ayco_db"
 dataarts_enabled   = true
+
+# LLM Endpoints
+maas_endpoint = "https://api-ap-southeast-1.modelarts-maas.com"
+deepseek_endpoint = "https://api.deepseek.com"

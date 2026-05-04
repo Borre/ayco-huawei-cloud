@@ -495,7 +495,7 @@ open docs/architecture.drawio
 
 ## 1. Pre-demo Setup
 
-- Dify deployed on ECS instance `s6.large.2` (confirmed via `make status`)
+- Dify deployed on ECS instance `s6.xlarge.2` (4vCPU/8GB) (confirmed via `make status`)
 - Dify accessible at ECS public IP (port 80)
 - Dify admin credentials available
 - Knowledge base `ayco-contracts-kb` created and indexed
@@ -727,9 +727,9 @@ export HUAWEI_SECRET_KEY=$(op read "op://Huawei/AK-SK/password")
 | Demo script | `docs/demo-script.md` |
 | Spark aggregation job | `scripts/spark-risk-aggregation.py` |
 | DWS seed SQL | `scripts/seed-dws.sql` |
-| Contract parser | `terraform/modules/ai-ocr/functions/parse_contract.py` |
-| LLM inference | `terraform/modules/ai-ocr/functions/llm_inference.py` |
-| OCR trigger | `terraform/modules/ai-ocr/functions/ocr_trigger.py` |
+| Contract parser | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
+| LLM inference | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
+| OCR trigger | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
 | Health check | `scripts/health-check.sh` |
 | Backup recordings | `scripts/backup-record-demos.sh` |
 | Dify setup | `scripts/setup-dify.sh` |

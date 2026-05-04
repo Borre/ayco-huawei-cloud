@@ -88,7 +88,7 @@ upload-contracts:
 # ─── Test DataArts APIs ───────────────────────────────
 test-dataarts:
 	@echo "=== Testing DataArts DataService APIs ==="
-	bash $(SCRIPTS)/test-dataarts-api.sh "$${DATARTS_API_HOST:-}"
+	bash $(SCRIPTS)/test-dataarts-api.sh "$${DATAARTS_API_HOST:-}"
 
 # ─── Generate all demo data ───────────────────────────
 generate-data:

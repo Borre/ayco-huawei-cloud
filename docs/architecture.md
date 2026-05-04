@@ -243,11 +243,11 @@
 ## Security Architecture
 
 ```
-  Internet ──► CFW (Firewall) ──► VPC (10.0.0.0/16)
+  Internet ──► CFW (Firewall) ──► VPC (10.1.0.0/16)
                                       │
                     ┌─────────────────┼─────────────────┐
                     │                 │                 │
-              Subnet (10.0.1.0/24)    │                 │
+              Subnet (10.1.1.0/24)    │                 │
                     │                 │                 │
               ┌─────┴─────┐    ┌─────┴─────┐    ┌─────┴─────┐
               │ SG: SSH   │    │ SG: HTTP  │    │ SG: DWS   │
