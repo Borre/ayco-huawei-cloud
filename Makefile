@@ -80,6 +80,22 @@ status:
 	@echo ""
 	bash $(SCRIPTS)/health-check.sh
 
+# ─── Upload contracts to OBS (triggers OCR pipeline) ───
+upload-contracts:
+	@echo "=== Uploading contracts to OBS ==="
+	bash $(SCRIPTS)/upload-contracts-to-obs.sh
+
+# ─── Test DataArts APIs ───────────────────────────────
+test-dataarts:
+	@echo "=== Testing DataArts DataService APIs ==="
+	bash $(SCRIPTS)/test-dataarts-api.sh
+
+# ─── Generate all demo data ───────────────────────────
+generate-data:
+	@echo "=== Generating synthetic data ==="
+	python3 $(SCRIPTS)/generate-test-data.py
+	python3 $(SCRIPTS)/generate-contract-data.py
+
 # ─── Help ─────────────────────────────────────────────
 help:
 	@echo "AYCO Huawei Cloud — Terraform Automation"
@@ -91,6 +107,9 @@ help:
 	@echo "  make demo              Deploy + datos de demo + health check"
 	@echo "  make destroy           Destruir toda la infraestructura"
 	@echo "  make status            Health check de servicios"
+	@echo "  make upload-contracts  Subir PDFs a OBS (dispara OCR)"
+	@echo "  make test-dataarts     Probar APIs DataArts DataService"
+	@echo "  make generate-data     Generar datos sintéticos"
 	@echo ""
 	@echo "  Fases individuales:"
 	@echo "    make apply-foundation"
