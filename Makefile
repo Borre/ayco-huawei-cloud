@@ -55,9 +55,12 @@ deploy: init apply-foundation apply-compute apply-data-platform apply-ai-ocr pos
 demo: deploy
 	@echo "=== Generando datos sintéticos México ==="
 	python3 $(SCRIPTS)/generate-test-data.py
+	@echo "=== Generando datos de contratos ==="
+	python3 $(SCRIPTS)/generate-contract-data.py
 	@echo "=== Seed DWS schema ==="
 	@if command -v psql &>/dev/null && [ -n "$${DWS_ENDPOINT:-}" ]; then \
-	  PGPASSWORD="$${DWS_ADMIN_PASSWORD}" psql -h "$${DWS_ENDPOINT}" -U ayco_admin -d ayco -f $(SCRIPTS)/seed-dws.sql; \
+	  PGPASSWORD="$${DWS_ADMIN_PASSWORD}" psql -h "$${DWS_ENDPOINT}" -U ayco_admin -d ayco_db -f $(SCRIPTS)/seed-dws.sql; \
+	  PGPASSWORD="$${DWS_ADMIN_PASSWORD}" psql -h "$${DWS_ENDPOINT}" -U ayco_admin -d ayco_db -f data/seed_risk_results.sql; \
 	else \
 	  echo "  (DWS seed — set DWS_ENDPOINT + DWS_ADMIN_PASSWORD to run manually)"; \
 	fi

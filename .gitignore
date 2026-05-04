@@ -27,7 +27,10 @@ terraform/terraform.tfvars
 # Generated data
 data/*.csv
 data/*.json
-# Demo PDFs committed to repo
+data/risk_results/
+data/contract_texts/
+data/seed_risk_results.sql
+
 # data/contracts/
 
 # Backups
