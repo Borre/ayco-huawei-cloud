@@ -107,7 +107,28 @@ FROM ods.transactions
 WHERE anomaly_type != 'normal'
 GROUP BY anomaly_type;
 
--- ─── RPT: Queries de reporte listas ─────────────────
+-- ─── Contract Risk Results (used by DataArts + DataService) ─────
+CREATE TABLE IF NOT EXISTS risk_results (
+    contract_number    VARCHAR(50) PRIMARY KEY,
+    vendor_name        VARCHAR(200),
+    monto_total        NUMERIC(15,2),
+    plazo_dias         INT,
+    penalizacion_pct   NUMERIC(5,2),
+    garantia_pct       NUMERIC(5,2),
+    risk_score         NUMERIC(5,2),
+    risk_level         VARCHAR(20) CHECK (risk_level IN ('BAJO','MEDIO','ALTO','CRITICO')),
+    alertas            TEXT,
+    recomendaciones    TEXT,
+    resumen            TEXT,
+    llm_provider       VARCHAR(50),
+    analyzed_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_risk_results_level ON risk_results(risk_level);
+CREATE INDEX IF NOT EXISTS idx_risk_results_score ON risk_results(risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_results_vendor ON risk_results(vendor_name);
+
+-- ─── RPT: Queries de reportes listas ─────────────────
 -- (estas se corren en live durante el demo)
 
 -- Reporte 1: Top vendors por riesgo

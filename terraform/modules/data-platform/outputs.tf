@@ -27,6 +27,28 @@ output "kafka_connect_address" {
 }
 
 output "dataarts_id" {
+  description = "DataArts studio instance ID"
+  value       = var.dataarts_enabled ? huaweicloud_dataarts_studio_instance.ayco[0].id : null
+}
+
+output "dataarts_workspace_id" {
   description = "DataArts workspace ID"
-  value       = huaweicloud_dataarts_studio_instance.ayco.id
+  value       = local.dataarts_workspace_id
+}
+
+output "dataarts_api_app_key" {
+  description = "DataService API app key"
+  value       = var.dataarts_enabled ? huaweicloud_dataarts_dataservice_app.ayco[0].app_key : null
+  sensitive   = true
+}
+
+output "dataarts_api_app_secret" {
+  description = "DataService API app secret"
+  value       = var.dataarts_enabled ? huaweicloud_dataarts_dataservice_app.ayco[0].app_secret : null
+  sensitive   = true
+}
+
+output "dataarts_etl_job_name" {
+  description = "DataArts Factory ETL job name"
+  value       = var.dataarts_enabled ? huaweicloud_dataarts_factory_job.contract_etl[0].name : null
 }

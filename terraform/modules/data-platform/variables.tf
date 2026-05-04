@@ -7,10 +7,16 @@ terraform {
   }
 }
 
-variable "keypair_name" {
-  description = "SSH keypair name for MRS cluster"
+variable "dws_database" {
+  description = "DWS database name (created manually or via seed script)"
   type        = string
-  default     = "hermes-agent"
+  default     = "ayco_db"
+}
+
+variable "dataarts_enabled" {
+  description = "Enable DataArts Studio (set false to skip for faster deploys)"
+  type        = bool
+  default     = true
 }
 
 variable "vpc_id" {

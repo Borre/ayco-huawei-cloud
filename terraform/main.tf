@@ -50,7 +50,7 @@ module "data_platform" {
   security_group_id  = module.foundation.security_group_id
   project_id         = var.project_id
   dws_admin_password = var.dws_admin_password
-  keypair_name       = var.keypair_name
+  dws_database       = var.dws_database
   obs_contracts_text    = "ayco-contracts-text"
   obs_contracts_results = "ayco-contracts-results"
 }

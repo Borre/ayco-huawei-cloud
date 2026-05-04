@@ -56,7 +56,7 @@ make status
 |------|---------|------------|
 | 0-5 min | PPT (3 slides) | Problem → Solution → Value |
 | 5-15 min | Demo 1: Risk Scoring | DLI Spark SQL + DWS dashboard |
-| 15-22 min | Demo 2: Data Platform | DataArts + OBS pipeline |
+| 15-22 min | Demo 2: Data Governance | DataArts Factory ETL + DataService REST API + DWS analytics |
 | 22-35 min | Demo 3: Contract AI + Dify | OCR → DeepSeek → Dify chatbot |
 | 35-40 min | ROI + Success Case | Business impact |
 | 40-45 min | Q&A | — |

@@ -40,6 +40,12 @@ variable "dws_admin_password" {
   sensitive   = true
 }
 
+variable "dws_database" {
+  description = "DWS database name"
+  type        = string
+  default     = "ayco_db"
+}
+
 variable "maas_api_key" {
   description = "MaaS (ModelArts) API key — primary LLM provider"
   type        = string
