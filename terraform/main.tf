@@ -15,7 +15,7 @@ provider "huaweicloud" {
   region     = var.region
   access_key = var.access_key
   secret_key = var.secret_key
-  domain_id  = var.domain_id
+  # domain_id = var.domain_id  # Optional: inferred from AK/SK
 }
 
 # ─── Module: Foundation (VPC, SG, OBS, KMS, IAM) ─────────

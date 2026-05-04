@@ -17,8 +17,9 @@ variable "secret_key" {
 }
 
 variable "domain_id" {
-  description = "Huawei Cloud domain ID"
+  description = "Huawei Cloud domain ID (optional, inferred from AK/SK)"
   type        = string
+  default     = ""
 }
 
 variable "project_id" {
