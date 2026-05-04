@@ -10,7 +10,7 @@ resource "huaweicloud_fgs_function" "ocr_trigger" {
   description = "Triggers OCR on contract PDF upload to OBS"
 
   user_data = jsonencode({
-    OCR_ENDPOINT        = "ocr.ap-southeast-1.myhuaweicloud.com"
+    OCR_ENDPOINT        = "ocr.la-north-2.myhuaweicloud.com"
     OBS_ENDPOINT        = "obs.la-north-2.myhuaweicloud.com"
     OBS_BUCKET          = var.obs_contracts_raw
     OBS_TEXT_BUCKET     = var.obs_contracts_text
@@ -53,4 +53,16 @@ resource "huaweicloud_fgs_function" "llm_inference" {
     DIFY_API_URL        = var.dify_api_url
     OBS_RESULTS_BUCKET  = var.obs_contracts_results
   })
+}
+
+# ─── Trigger: OBS upload → OCR pipeline ──────────────────────
+resource "huaweicloud_fgs_trigger" "obs_upload" {
+  function_urn = huaweicloud_fgs_function.ocr_trigger.urn
+  type         = "OBS"
+  obs {
+    bucket_name             = var.obs_contracts_raw
+    event_notification_name = "ayco-ocr-trigger-notification"
+    events                  = ["ObjectCreated:*"]
+    suffix                  = ".pdf"
+  }
 }

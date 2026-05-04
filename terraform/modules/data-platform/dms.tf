@@ -10,8 +10,8 @@ resource "huaweicloud_dms_kafka_instance" "ayco" {
   security_group_id = var.security_group_id
   availability_zones = ["la-north-2a"]
 
-  manager_user     = "admin"
-  manager_password = var.dws_admin_password
+  access_user = "admin"
+  password    = var.dws_admin_password
 
   tags = {
     project = "ayco"

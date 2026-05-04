@@ -45,6 +45,7 @@ resource "huaweicloud_dataarts_studio_data_connection" "dws" {
   type         = "DWS"
   name         = "ayco-dws-conn"
   env_type     = 0
+  agent_id     = huaweicloud_cdm_cluster.ayco[0].id
 
   config = jsonencode({
     "db_port"     = tostring(huaweicloud_dws_cluster.ayco.port)
@@ -54,6 +55,8 @@ resource "huaweicloud_dataarts_studio_data_connection" "dws" {
     "instance_ip" = "auto"
   })
 }
+
+
 
 # ─── Factory Scripts ──────────────────────────────────────────────
 resource "huaweicloud_dataarts_factory_script" "dli_parse_contracts" {

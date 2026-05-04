@@ -77,6 +77,9 @@ make status
 | `make apply-compute` | Apply compute only |
 | `make apply-data-platform` | Apply data platform only |
 | `make apply-ai-ocr` | Apply AI/OCR only |
+| `make upload-contracts` | Upload PDFs to OBS (triggers OCR pipeline) |
+| `make test-dataarts` | Test DataArts DataService REST APIs |
+| `make generate-data` | Generate all synthetic demo data |
 
 ## Demo Data
 

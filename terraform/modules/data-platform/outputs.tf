@@ -1,6 +1,6 @@
 output "dws_endpoint" {
-  description = "DWS cluster public IP"
-  value       = length(huaweicloud_dws_cluster.ayco.public_ip) > 0 ? huaweicloud_dws_cluster.ayco.public_ip[0].eip_id : ""
+  description = "DWS cluster public connect string (host:port)"
+  value       = length(huaweicloud_dws_cluster.ayco.public_endpoints) > 0 ? huaweicloud_dws_cluster.ayco.public_endpoints[0].public_connect_info : ""
 }
 
 output "dws_private_ip" {

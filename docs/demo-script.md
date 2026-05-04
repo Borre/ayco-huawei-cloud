@@ -665,3 +665,7 @@ export HUAWEI_SECRET_KEY=$(op read "op://Huawei/AK-SK/password")
 | Backup recordings | `scripts/backup-record-demos.sh` |
 | Dify setup | `scripts/setup-dify.sh` |
 | KB indexing | `scripts/index-knowledge-base.py` |
+| Contract data gen | `scripts/generate-contract-data.py` |
+| Upload to OBS | `scripts/upload-contracts-to-obs.sh` |
+| DataArts test | `scripts/test-dataarts-api.sh` |
+| Financial data gen | `scripts/generate-test-data.py` |

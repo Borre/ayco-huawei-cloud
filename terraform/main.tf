@@ -65,4 +65,8 @@ module "ai_ocr" {
   maas_api_key     = var.maas_api_key
   deepseek_api_key = var.deepseek_api_key
   dify_api_url     = "http://${module.compute.dify_public_ip}/v1"
+
+  obs_contracts_raw     = "ayco-contracts-raw"
+  obs_contracts_text    = "ayco-contracts-text"
+  obs_contracts_results = "ayco-contracts-results"
 }
