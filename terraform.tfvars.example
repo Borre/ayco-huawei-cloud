@@ -1,1 +1,13 @@
-dws_database = "ayco_db"
+# Required
+access_key         = ""
+secret_key         = ""
+dws_admin_password = ""
+maas_api_key       = ""
+deepseek_api_key   = ""
+
+# Optional (defaults shown)
+region             = "la-north-2"
+project_id         = "fbb6435c497c41bda90a0cc5240573e0"
+keypair_name       = "hermes-agent"
+dws_database       = "ayco_db"
+dataarts_enabled   = true

@@ -1,9 +1,6 @@
 output "dws_endpoint" {
-  description = "DWS cluster endpoint"
-  value       = huaweicloud_dws_cluster.ayco.public_ip[0].public_bind_type != "" ? (
-    length(huaweicloud_dws_cluster.ayco.public_ip) > 0 ?
-    "${huaweicloud_dws_cluster.ayco.public_ip[0].eip_id}" : ""
-  ) : ""
+  description = "DWS cluster public IP"
+  value       = length(huaweicloud_dws_cluster.ayco.public_ip) > 0 ? huaweicloud_dws_cluster.ayco.public_ip[0].eip_id : ""
 }
 
 output "dws_private_ip" {

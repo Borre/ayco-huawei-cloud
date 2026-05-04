@@ -1,6 +1,6 @@
 -- scripts/seed-dws.sql
 -- Seed DWS schema + sample queries para AYCO demo
--- Ejecutar: PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco -f seed-dws.sql
+-- Ejecutar: PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f seed-dws.sql
 
 -- ─── Schema (si no existe) ──────────────────────────
 CREATE SCHEMA IF NOT EXISTS ods;
