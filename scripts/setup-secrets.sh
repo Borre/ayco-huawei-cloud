@@ -14,7 +14,7 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-# Source .env
+# Source .env (handle quoted values with spaces)
 set -a
 source "$ENV_FILE"
 set +a
@@ -29,15 +29,18 @@ resolve_op() {
   fi
 }
 
-AK=$(resolve_op "$HUAWEI_ACCESS_KEY")
-SK=$(resolve_op "$HUAWEI_SECRET_KEY")
+AK=$(resolve_op "${HUAWEI_ACCESS_KEY}")
+SK=$(resolve_op "${HUAWEI_SECRET_KEY}")
+MAAS=$(resolve_op "${MAAS_API_KEY:-}")
 DEEPSEEK=$(resolve_op "${DEEPSEEK_API_KEY:-sk-placeholder}")
 DWS_PASS=$(resolve_op "${DWS_ADMIN_PASSWORD:-AycoD3mo2026!}")
 
-# Check for failures
-for val in "$AK" "$SK"; do
+# Check for critical failures
+for name_val in "access_key:$AK" "secret_key:$SK"; do
+  name="${name_val%%:*}"
+  val="${name_val#*:}"
   if [[ "$val" == RESOLVE_FAILED:* ]]; then
-    echo "ERROR: Could not resolve ${val#RESOLVE_FAILED:}"
+    echo "ERROR: Could not resolve $name from ${val#RESOLVE_FAILED:}"
     echo "  Make sure 1Password CLI is authenticated: op whoami"
     exit 1
   fi
@@ -54,9 +57,11 @@ project_id = "${HUAWEI_PROJECT_ID:-fbb6435c497c41bda90a0cc5240573e0}"
 
 keypair_name       = "${SSH_KEYPAIR_NAME:-hermes-agent}"
 dws_admin_password = "$DWS_PASS"
+maas_api_key       = "$MAAS"
 deepseek_api_key   = "$DEEPSEEK"
 EOF
 
 echo "✓ terraform.tfvars generated (secrets resolved from 1Password)"
 echo "  File: $TFVARS_FILE"
+echo "  LLM:  MaaS DeepSeek v4 Flash (primary) + DeepSeek direct (fallback)"
 echo "  DO NOT commit this file — it contains credentials"

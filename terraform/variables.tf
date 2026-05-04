@@ -40,6 +40,12 @@ variable "dws_admin_password" {
   sensitive   = true
 }
 
+variable "maas_api_key" {
+  description = "MaaS (ModelArts) API key — primary LLM provider"
+  type        = string
+  sensitive   = true
+}
+
 variable "deepseek_api_key" {
   description = "DeepSeek API key"
   type        = string

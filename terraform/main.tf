@@ -56,6 +56,7 @@ module "ai_ocr" {
   project_id       = var.project_id
   vpc_id           = module.foundation.vpc_id
   subnet_id        = module.foundation.subnet_id
+  maas_api_key     = var.maas_api_key
   deepseek_api_key = var.deepseek_api_key
   dify_api_url     = "http://${module.compute.dify_public_ip}/v1"
 }

@@ -1,5 +1,6 @@
 #!/bin/bash
 # scripts/setup-dify.sh — Deploy Dify en ECS vía docker-compose
+# LLM: MaaS DeepSeek v4 Flash (primary) + DeepSeek direct (fallback)
 
 set -euo pipefail
 
@@ -14,6 +15,12 @@ fi
 # Load env
 if [ -f "$(dirname "$0")/../.env" ]; then
   set -a; source "$(dirname "$0")/../.env"; set +a
+fi
+
+# Resolve MaaS key
+MAAS_KEY="${MAAS_API_KEY:-}"
+if [[ "$MAAS_KEY" == op://* ]]; then
+  MAAS_KEY=$(op read "$MAAS_KEY" 2>/dev/null || echo "")
 fi
 
 echo "=== Deploying Dify on $DIFY_IP ==="
@@ -41,11 +48,16 @@ fi
 cd dify/docker
 cp -n .env.example .env || true
 
-# Configurar DeepSeek como LLM default
+# ─── Configure LLM provider ─────────────────────────
 cat >> .env << 'ENVVARS'
-# DeepSeek API (AYCO demo)
-DEEPSEEK_API_KEY=__DEEPSEEK_API_KEY_PLACEHOLDER__
-DEEPSEEK_API_BASE=https://api.deepseek.com/v1
+
+# === AYCO Demo — LLM Configuration ===
+# Primary: Huawei Cloud MaaS (DeepSeek v4 Flash)
+DEEPSEEK_API_KEY=__MAAS_API_KEY_PLACEHOLDER__
+DEEPSEEK_API_BASE=https://api-ap-southeast-1.modelarts-maas.com/openai/v1
+
+# Note: Using OpenAI-compatible endpoint for Dify
+# Model: deepseek-v4-flash
 ENVVARS
 
 docker compose up -d
@@ -53,10 +65,15 @@ docker compose up -d
 echo "=== Dify running on http://$(curl -s ifconfig.me) ==="
 DEPLOY
 
-# Reemplazar placeholder con API key real
+# Inject real MaaS API key
 ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
-  "sed -i 's|__DEEPSEEK_API_KEY_PLACEHOLDER__|${DEEPSEEK_API_KEY:-sk-placeholder}|' /opt/dify/docker/.env"
+  "sed -i 's|__MAAS_API_KEY_PLACEHOLDER__|${MAAS_KEY:-placeholder}|' /opt/dify/docker/.env"
+
+# Restart to pick up new env
+ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
+  "cd /opt/dify/docker && docker compose restart api worker"
 
 echo "=== Dify deploy complete ==="
-echo "    Web: http://$DIFY_IP"
-echo "    API: http://$DIFY_IP/v1"
+echo "    Web:  http://$DIFY_IP"
+echo "    API:  http://$DIFY_IP/v1"
+echo "    LLM:  MaaS DeepSeek v4 Flash (via Huawei Cloud)"

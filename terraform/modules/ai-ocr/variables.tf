@@ -19,6 +19,24 @@ variable "subnet_id" {
   type = string
 }
 
+variable "maas_api_key" {
+  description = "MaaS (ModelArts) API key — primary LLM"
+  type        = string
+  sensitive   = true
+}
+
+variable "maas_endpoint" {
+  description = "MaaS API endpoint"
+  type        = string
+  default     = "https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions"
+}
+
+variable "maas_model" {
+  description = "MaaS model name"
+  type        = string
+  default     = "deepseek-v4-flash"
+}
+
 variable "deepseek_api_key" {
   description = "DeepSeek API key"
   type        = string

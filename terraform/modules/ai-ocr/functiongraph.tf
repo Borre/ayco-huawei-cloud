@@ -44,8 +44,10 @@ resource "huaweicloud_fgs_function" "llm_inference" {
   description = "DeepSeek inference for contract risk analysis"
 
   user_data = jsonencode({
+    MAAS_API_KEY        = var.maas_api_key
+    MAAS_ENDPOINT       = var.maas_endpoint
+    MAAS_MODEL          = var.maas_model
     DEEPSEEK_API_KEY    = var.deepseek_api_key
-    DEEPSEEK_MODEL      = "deepseek-chat"
     DIFY_API_URL        = var.dify_api_url
     OBS_RESULTS_BUCKET  = var.obs_contracts_results
   })
