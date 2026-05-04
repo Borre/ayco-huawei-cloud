@@ -1,0 +1,13 @@
+# AYCO Huawei Cloud
+.env
+*.tfstate
+*.tfstate.*
+.terraform/
+plan.out
+plan.json
+*.swp
+*.swo
+*~
+.DS_Store
+__pycache__/
+*.pyc
