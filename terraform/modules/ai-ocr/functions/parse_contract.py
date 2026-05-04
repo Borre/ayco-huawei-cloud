@@ -66,7 +66,7 @@ def parse_contract_text(text, source_key):
         "vigencia_inicio": extract_field(r"(?:VIGENCIA|del)\s+(\d+\s+de\s+\w+\s+de\s+\d{4})", text),
         "vigencia_fin": extract_field(r"(?:al|hasta)\s+(\d+\s+de\s+\w+\s+de\s+\d{4})", text),
         "penalizacion_anticipada": extract_field(r"[Tt]erminaci[oó]n\s+anticipada[:\s]+(\d+%)", text),
-        "penalizacion_retraso": extract_field(r"retraso[:\s]+\$?([\d,]+\s*MXN)", text),
+        "penalizacion_retraso": extract_field(r"retraso[:\s]+\$?([\d,]+\.?\d*\s*MXN)", text),
         "garantia": extract_field(r"[Gg]arant[ií]a[:\s]+([^\n]+)", text),
         "jurisdiccion": extract_field(r"[Jj]urisdicci[oó]n[:\s]+([^\n]+)", text),
         "confidencialidad": extract_field(r"[Cc]onfidencialidad[:\s]+([^\n]+)", text),

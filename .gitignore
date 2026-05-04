@@ -27,7 +27,8 @@ terraform/terraform.tfvars
 # Generated data
 data/*.csv
 data/*.json
-data/contracts/
+# Demo PDFs committed to repo
+# data/contracts/
 
 # Backups
 backups/
