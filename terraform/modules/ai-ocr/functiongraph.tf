@@ -1,5 +1,11 @@
 resource "huaweicloud_fgs_function" "ocr_trigger" {
   name        = "ayco-ocr-trigger"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
   app         = "default"
   handler     = "index.handler"
   runtime     = "Python3.10"
@@ -20,6 +26,12 @@ resource "huaweicloud_fgs_function" "ocr_trigger" {
 
 resource "huaweicloud_fgs_function" "parse_contract" {
   name        = "ayco-parse-contract"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
   app         = "default"
   handler     = "index.handler"
   runtime     = "Python3.10"
@@ -35,6 +47,12 @@ resource "huaweicloud_fgs_function" "parse_contract" {
 
 resource "huaweicloud_fgs_function" "llm_inference" {
   name        = "ayco-llm-inference"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
   app         = "default"
   handler     = "index.handler"
   runtime     = "Python3.10"

@@ -1,6 +1,12 @@
 # ─── DLI Database (serverless Spark SQL) ───────────────────────────
 resource "huaweicloud_dli_database" "ayco" {
   name        = "ayco_contracts"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
   description = "AYCO contract risk analysis database (serverless Spark)"
 }
 

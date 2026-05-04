@@ -28,6 +28,12 @@ variable "project_id" {
   default     = "fbb6435c497c41bda90a0cc5240573e0"
 }
 
+variable "presenter_ip" {
+  description = "Presenter IP for SSH (e.g. 189.203.100.50/32). Use 0.0.0.0/0 for open access."
+  type        = string
+  default     = "0.0.0.0/0"
+}
+
 variable "keypair_name" {
   description = "SSH keypair name"
   type        = string

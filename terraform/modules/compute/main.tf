@@ -20,8 +20,10 @@ resource "huaweicloud_compute_instance" "dify" {
   }))
 
   tags = {
-    project = "ayco"
-    role    = "dify"
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+    role        = "chatbot"
   }
 }
 
@@ -40,7 +42,9 @@ resource "huaweicloud_compute_instance" "web" {
   }
 
   tags = {
-    project = "ayco"
-    role    = "web"
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+    role        = "web"
   }
 }

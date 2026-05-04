@@ -16,7 +16,9 @@ resource "huaweicloud_dws_cluster" "ayco" {
   }
 
   tags = {
-    project = "ayco"
-    role    = "data-warehouse"
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+    role        = "data-warehouse"
   }
 }

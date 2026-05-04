@@ -15,3 +15,4 @@ dataarts_enabled   = true
 # LLM Endpoints
 maas_endpoint = "https://api-ap-southeast-1.modelarts-maas.com"
 deepseek_endpoint = "https://api.deepseek.com"
+presenter_ip = "0.0.0.0/0"  # CHANGE to your IP for demo security

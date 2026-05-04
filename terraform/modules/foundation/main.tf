@@ -2,6 +2,12 @@
 resource "huaweicloud_vpc" "main" {
   name = "ayco-vpc"
   cidr = var.vpc_cidr
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
 }
 
 # ─── Subnet ──────────────────────────────────────────────
@@ -14,12 +20,24 @@ resource "huaweicloud_vpc_subnet" "main" {
   # Huawei Cloud DNS + Google fallback
   primary_dns   = "100.125.1.250"
   secondary_dns = "8.8.8.8"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
 }
 
 # ─── Security Group ──────────────────────────────────────
 resource "huaweicloud_networking_secgroup" "main" {
   name        = "ayco-sg"
   description = "AYCO demo security group"
+
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
 }
 
 resource "huaweicloud_networking_secgroup_rule" "ssh" {
@@ -29,7 +47,7 @@ resource "huaweicloud_networking_secgroup_rule" "ssh" {
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
+  remote_ip_prefix  = var.presenter_ip
 }
 
 resource "huaweicloud_networking_secgroup_rule" "https" {
