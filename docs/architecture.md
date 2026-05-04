@@ -72,7 +72,7 @@
                            │  └──────────────────────────────────────────────┘   │
                            │                                                      │
                            │  ┌──────────────────────────────────────────────┐   │
-                           │  │  Foundation: VPC, SG, KMS, IAM, CFW, DMS     │   │
+                           │  │  Foundation: VPC, SG, KMS, IAM, CFW, DataArts     │   │
                            │  └──────────────────────────────────────────────┘   │
                            └──────────────────────────────────────────────────────┘
 ```
@@ -232,7 +232,7 @@
 | DWS Cluster | dwsx3.4U16G.4DPU ×3 | Data warehouse | Yes |
 | DLI Queue | default (serverless) | Spark SQL | Pay-per-query |
 | DataArts Studio | professional | ETL + Catalog + Architecture + Security + Data API | Yes (monthly) |
-| DMS Kafka | kafka.2u4g.single | Event streaming | Yes |
+|  | Event streaming | Yes |
 | CDM Cluster | cdm.large (8vCPU/16GB) | DataArts Agent | Yes (demo) |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
 | OBS ×5 | standard | Storage | Pay-per-GB |

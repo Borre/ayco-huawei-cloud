@@ -41,7 +41,7 @@ terraform -chdir=terraform plan
 - [ ] `terraform apply` — full infrastructure deploy
   - [ ] foundation module (VPC, subnets, SGs, OBS buckets, KMS, IAM)
   - [ ] compute module (ECS for Dify, web server, EIPs)
-  - [ ] data-platform module (DLI, DWS, DataArts, DMS)
+  - [ ] data-platform module (DLI, DWS, DataArts)
   - [ ] ai-ocr module (FunctionGraph functions)
 - [ ] DNS resolution works from all ECS instances
   - [ ] Run `scripts/fix-dns.sh`
@@ -286,5 +286,5 @@ make demo   # Full redeploy takes ~20-30 min
 | `bash scripts/backup-record-demos.sh` | Generate Plan B recordings |
 | `make apply-foundation` | Deploy VPC, OBS, KMS, IAM only |
 | `make apply-compute` | Deploy ECS + EIPs only |
-| `make apply-data-platform` | Deploy DLI, DWS, DataArts, DMS only |
+| `make apply-data-platform` | Deploy DLI, DWS, DataArts only |
 | `make apply-ai-ocr` | Deploy FunctionGraph functions only |

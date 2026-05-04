@@ -47,13 +47,10 @@ echo -e "${CYAN}Terraform Outputs:${NC}"
 DIFY_IP=$(terraform -chdir="$TF_DIR" output -raw dify_public_ip 2>/dev/null || echo "")
 WEB_IP=$(terraform -chdir="$TF_DIR" output -raw web_public_ip 2>/dev/null || echo "")
 DWS_ENDPOINT=$(terraform -chdir="$TF_DIR" output -raw dws_endpoint 2>/dev/null || echo "")
-KAFKA_ADDR=$(terraform -chdir="$TF_DIR" output -raw kafka_connect_address 2>/dev/null || echo "")
-DATARTS_WS=$(terraform -chdir="$TF_DIR" output -raw dataarts_workspace_id 2>/dev/null || echo "")
 
 [ -n "$DIFY_IP" ] && echo -e "  Dify IP:       ${GREEN}$DIFY_IP${NC}" || warn_check "Dify IP" "not found in terraform outputs"
 [ -n "$WEB_IP" ] && echo -e "  Web IP:        ${GREEN}$WEB_IP${NC}" || warn_check "Web IP" "not found"
 [ -n "$DWS_ENDPOINT" ] && echo -e "  DWS Endpoint:  ${GREEN}$DWS_ENDPOINT${NC}" || warn_check "DWS Endpoint" "not found"
-[ -n "$KAFKA_ADDR" ] && echo -e "  Kafka:         ${GREEN}$KAFKA_ADDR${NC}" || warn_check "Kafka" "not found"
 [ -n "$DATARTS_WS" ] && echo -e "  DataArts WS:   ${GREEN}$DATARTS_WS${NC}" || warn_check "DataArts" "not found"
 echo ""
 
@@ -75,14 +72,9 @@ echo -e "${CYAN}Demo 1 — Data Platform:${NC}"
 if [ -n "$DWS_ENDPOINT" ]; then
   check "DWS Endpoint" "https://$DWS_ENDPOINT" "200|302|400"
 fi
-if [ -n "$KAFKA_ADDR" ]; then
-  # Kafka doesn't have HTTP health, just check if address resolves
-  KAFKA_HOST=$(echo "$KAFKA_ADDR" | cut -d: -f1)
   if host "$KAFKA_HOST" &>/dev/null || nslookup "$KAFKA_HOST" &>/dev/null 2>&1; then
-    echo -e "  ${GREEN}✓${NC} Kafka DNS resolves"
     PASS=$((PASS + 1))
   else
-    warn_check "Kafka" "DNS does not resolve (may need time)"
   fi
 fi
 echo ""
@@ -107,7 +99,7 @@ echo ""
 # ─── Demo 3: LLM APIs ────────────────────────────────────────
 echo -e "${CYAN}Demo 3 — LLM APIs:${NC}"
 if [ -n "${MAAS_API_KEY:-}" ]; then
-  if curl -sf -H "Authorization: Bearer ${MAAS_API_KEY}" \
+  if curl -sf -H "Authorization: Bearer *** \
      "https://api-ap-southeast-1.modelarts-maas.com/v2/models" 2>/dev/null | grep -q "model"; then
     echo -e "  ${GREEN}✓${NC} MaaS DeepSeek API"
     PASS=$((PASS + 1))
@@ -119,7 +111,7 @@ else
 fi
 
 if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
-  if curl -sf -H "Authorization: Bearer ${DEEPSEEK_API_KEY}" \
+  if curl -sf -H "Authorization: Bearer *** \
      "https://api.deepseek.com/v1/models" 2>/dev/null | grep -q "deepseek"; then
     echo -e "  ${GREEN}✓${NC} DeepSeek API (fallback)"
     PASS=$((PASS + 1))

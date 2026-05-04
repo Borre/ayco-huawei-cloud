@@ -15,7 +15,7 @@ resource "huaweicloud_identity_role" "ayco_policy" {
         Effect   = "Allow"
         Action   = [
           "obs:*", "dws:*", "dli:*", "dataarts:*", "functiongraph:*",
-          "dataarts:*", "dms:*", "ocr:*", "modelarts:*"
+"dataarts:*", "ocr:*", "modelarts:*",
         ]
         Resource = "*"
       }

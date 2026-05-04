@@ -23,11 +23,6 @@ output "obs_buckets" {
   value       = module.foundation.obs_bucket_names
 }
 
-output "kafka_connect_address" {
-  description = "DMS Kafka connect address"
-  value       = module.data_platform.kafka_connect_address
-}
-
 output "dataarts_workspace_id" {
   description = "DataArts workspace ID"
   value       = module.data_platform.dataarts_workspace_id

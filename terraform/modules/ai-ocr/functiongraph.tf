@@ -30,7 +30,6 @@ resource "huaweicloud_fgs_function" "parse_contract" {
   description = "Parses OCR text into structured contract data"
 
   user_data = jsonencode({
-    DMS_TOPIC = "ayco-contract-parsed"
   })
 }
 

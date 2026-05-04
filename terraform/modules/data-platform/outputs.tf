@@ -18,11 +18,6 @@ output "dli_database_id" {
   value       = huaweicloud_dli_database.ayco.id
 }
 
-output "kafka_connect_address" {
-  description = "Kafka connect address"
-  value       = huaweicloud_dms_kafka_instance.ayco.connect_address
-}
-
 output "dataarts_id" {
   description = "DataArts studio instance ID"
   value       = var.dataarts_enabled ? huaweicloud_dataarts_studio_instance.ayco[0].id : null

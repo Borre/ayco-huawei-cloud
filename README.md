@@ -22,7 +22,7 @@ make status
 
 - **Region:** la-north-2 (Mexico City 2)
 - **Demo Duration:** 45 minutes (3 demos + PPT + Q&A)
-- **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, DMS, FunctionGraph, OBS, CFW) + DeepSeek v4 Flash (MaaS) + Dify + Langfuse (LLM Observability)
+- **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, FunctionGraph, OBS, CFW) + DeepSeek v4 Flash (MaaS) + Dify + Langfuse (LLM Observability)
 
 ### Resource Summary
 
@@ -33,7 +33,6 @@ make status
 | DWS Cluster | dwsx3.4U16G.4DPU ×3 | Data warehouse | Pay-per-hour |
 | DLI Queue | default (serverless) | Spark SQL | Pay-per-CU |
 | DataArts Studio | professional | ETL + Data API | Monthly |
-| DMS Kafka | kafka.2u4g.single | Event streaming | Pay-per-hour |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
 | OBS ×5 | standard | Storage | Pay-per-GB |
 | Langfuse Cloud | free tier | LLM observability | Free |
@@ -129,7 +128,7 @@ Every LLM call is traced automatically via Langfuse REST API (non-blocking, no S
 │   └── modules/
 │       ├── foundation/                   # VPC, SG, OBS, KMS, IAM, CFW
 │       ├── compute/                      # ECS (Dify, Web), EIPs
-│       ├── data-platform/                # DLI, DWS, DataArts, DMS Kafka
+│       ├── data-platform/                # DLI, DWS, DataArts
 │       └── ai-ocr/                       # FunctionGraph (OCR, parse, LLM)
 ├── scripts/
 │   ├── setup-secrets.sh                  # 1Password → terraform.tfvars

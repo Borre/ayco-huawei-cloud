@@ -56,8 +56,8 @@
     56|                context,
     57|            )
     58|
-    59|            # Trigger parse_contract via DMS message
-    60|            publish_to_dms({
+            # Direct invoke of parse_contract (Kafka removed)
+            invoke_next_function({
     61|                "source_key": key,
     62|                "text_key": text_key,
     63|                "text_length": len(ocr_text),
@@ -277,7 +277,7 @@
    276|        print(f"[OBS] Would upload {key} to {bucket}")
    277|
    278|
-   279|def publish_to_dms(message):
-   280|    """Publish parsed contract info to DMS/Kafka topic."""
+def invoke_next_function(message):
+    """Invoke parse_contract directly (was DMS, now direct)."""
    281|    print(f"[DMS] Would publish to topic ayco-contract-parsed: {json.dumps(message)}")
    282|
