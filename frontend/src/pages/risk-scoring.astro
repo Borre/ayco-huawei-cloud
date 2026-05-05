@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+import MetricCard from '../components/MetricCard.astro';
+import RiskGauge from '../components/RiskGauge.astro';
+import PipelineDiagram from '../components/PipelineDiagram.astro';
+---
+
+<BaseLayout title="Risk Scoring" description="Evaluación de riesgo financiero en tiempo real — DLI Spark + DWS + Dashboards">
+  <Header slot="header" />
+
+  <!-- Page Hero -->
+  <section class="bg-gradient-to-br from-gs-navy to-gs-navy-light text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center space-x-2 mb-4">
+        <a href="/" class="text-gs-gray-300 hover:text-white text-sm">Inicio</a>
+        <span class="text-gs-gray-600">/</span>
+        <span class="text-sm text-gs-gold">Demo 1</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Risk Scoring</h1>
+      <p class="text-lg text-gs-gray-300">Evaluación de riesgo financiero en tiempo real con DLI Spark y Data Warehouse.</p>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="bg-white border-b border-gs-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline de Datos</h2>
+      <PipelineDiagram variant="risk" />
+    </div>
+  </section>
+
+  <!-- KPIs -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
+      <MetricCard value="2,347" label="Proveedores Activos" trend="+5.2%" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' />
+      <MetricCard value="5,128" label="Transacciones Analizadas" trend="+18% vs mes anterior" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>' />
+      <MetricCard value="47" label="Alertas CNBV Activas" trend="12 críticas" trendUp={false} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>' />
+      <MetricCard value="$2.1B" label="Exposición Total MXN" trend="-3.4% reducción" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
+    </div>
+  </section>
+
+  <!-- Risk Distribution + Gauge -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Risk Distribution Chart (placeholder for Grafana embed) -->
+      <div class="lg:col-span-2 card p-6">
+        <h3 class="text-lg font-bold text-gs-navy mb-4">Distribución de Riesgo por Estado</h3>
+        <div class="aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200">
+          <div class="text-center">
+            <p class="text-6xl mb-4">📊</p>
+            <p class="text-sm text-gs-gray-600">Dashboard Grafana embebido</p>
+            <p class="text-xs text-gs-gray-400 mt-1">vendor-exposure.json</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Risk Gauge -->
+      <div class="card p-6 flex flex-col items-center justify-center">
+        <h3 class="text-lg font-bold text-gs-navy mb-6">Riesgo Promedio</h3>
+        <RiskGauge score={5.8} label="Global" size="lg" />
+        <div class="mt-6 w-full space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-low mr-2"/>Bajo (0-3)</span>
+            <span class="font-semibold">847 proveedores</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-medium mr-2"/>Medio (3-5)</span>
+            <span class="font-semibold">1,024 proveedores</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-high mr-2"/>Alto (5-7)</span>
+            <span class="font-semibold">389 proveedores</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-critical mr-2"/>Crítico (7-10)</span>
+            <span class="font-semibold">87 proveedores</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Risk Vendors Table -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+    <div class="card overflow-hidden">
+      <div class="p-6 border-b border-gs-gray-100">
+        <h3 class="text-lg font-bold text-gs-navy">Top 5 Proveedores de Mayor Riesgo</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gs-gray-50 text-gs-gray-600">
+            <tr>
+              <th class="text-left px-6 py-3 font-semibold">Proveedor</th>
+              <th class="text-left px-6 py-3 font-semibold">Estado</th>
+              <th class="text-left px-6 py-3 font-semibold">Score</th>
+              <th class="text-left px-6 py-3 font-semibold">Exposición</th>
+              <th class="text-left px-6 py-3 font-semibold">Alertas</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gs-gray-100">
+            {[
+              { name: 'Constructora Delta MX', state: 'Nuevo León', score: 8.7, exposure: '$385M', alerts: 3 },
+              { name: 'Servicios Integrales SA', state: 'Jalisco', score: 8.2, exposure: '$290M', alerts: 2 },
+              { name: 'TechSupply Corp', state: 'CDMX', score: 7.9, exposure: '$210M', alerts: 4 },
+              { name: 'Logística Nacional', state: 'Estado de México', score: 7.5, exposure: '$175M', alerts: 1 },
+              { name: 'Materiales del Bajío', state: 'Guanajuato', score: 7.1, exposure: '$140M', alerts: 2 },
+            ].map((v) => (
+              <tr class="hover:bg-gs-gray-50 transition-colors">
+                <td class="px-6 py-4 font-medium text-gs-navy">{v.name}</td>
+                <td class="px-6 py-4 text-gs-gray-600">{v.state}</td>
+                <td class="px-6 py-4">
+                  <span class={v.score >= 8 ? 'badge-risk-critical' : 'badge-risk-high'}>{v.score}</span>
+                </td>
+                <td class="px-6 py-4 font-semibold">{v.exposure}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-risk-high/10 text-risk-high text-xs font-bold">{v.alerts}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+  <ChatWidget />
+</BaseLayout>

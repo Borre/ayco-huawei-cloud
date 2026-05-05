@@ -58,6 +58,7 @@ module "data_platform" {
   project_id            = var.project_id
   dws_admin_password    = var.dws_admin_password
   dws_database          = var.dws_database
+  dataarts_enabled      = var.dataarts_enabled
   obs_contracts_text    = "ayco-contracts-text"
   obs_contracts_results = "ayco-contracts-results"
 }

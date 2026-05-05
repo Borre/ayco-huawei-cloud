@@ -1,0 +1,33 @@
+---
+export interface Props {
+  value: string;
+  label: string;
+  trend?: string;
+  trendUp?: boolean;
+  icon?: string;
+}
+
+const { value, label, trend, trendUp = true, icon } = Astro.props;
+---
+
+<div class="card p-6 group">
+  <div class="flex items-start justify-between">
+    <div>
+      <p class="metric-label mb-1">{label}</p>
+      <p class="metric-value" data-counter={value}>{value}</p>
+      {trend && (
+        <div class={`flex items-center mt-2 text-sm font-medium ${trendUp ? 'text-risk-low' : 'text-risk-high'}`}>
+          <svg class={`w-4 h-4 mr-1 ${trendUp ? '' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+          </svg>
+          {trend}
+        </div>
+      )}
+    </div>
+    {icon && (
+      <div class="w-12 h-12 rounded-xl bg-gs-blue/10 flex items-center justify-center text-gs-blue group-hover:bg-gs-blue group-hover:text-white transition-all duration-300">
+        <Fragment set:html={icon} />
+      </div>
+    )}
+  </div>
+</div>

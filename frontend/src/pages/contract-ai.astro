@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+import ContractUploader from '../components/ContractUploader.astro';
+import RiskGauge from '../components/RiskGauge.astro';
+import PipelineDiagram from '../components/PipelineDiagram.astro';
+
+const contracts = [
+  { id: 'AYCO-2026-0147', name: 'Constructora Delta MX', risk: 8.7, amount: '$3.85M MXN', type: 'Alto Riesgo', factors: ['Penalización 30%', 'Sin garantía', 'Cláusula de rescisión ambigua'] },
+  { id: 'AYCO-2026-0148', name: 'Servicios Logísticos SA', risk: 2.3, amount: '$450K MXN', type: 'Bajo Riesgo', factors: ['Penalización 5%', 'Garantía 20%', 'Arbitraje ICC'] },
+  { id: 'AYCO-2026-0149', name: 'TechGlobal Corp', risk: 9.2, amount: '$12.5M MXN', type: 'Crítico', factors: ['Penalización 40%', 'Arbitraje UNCITRAL', 'Sin límite de responsabilidad'] },
+];
+---
+
+<BaseLayout title="Contract AI" description="Análisis inteligente de contratos con OCR + DeepSeek v4 Flash — Chatbot RAG">
+  <Header slot="header" />
+
+  <!-- Page Hero -->
+  <section class="bg-gradient-to-br from-amber-700 to-amber-500 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center space-x-2 mb-4">
+        <a href="/" class="text-amber-200 hover:text-white text-sm">Inicio</a>
+        <span class="text-amber-400">/</span>
+        <span class="text-sm text-amber-200">Demo 3</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Contract AI</h1>
+      <p class="text-lg text-amber-100">Análisis inteligente de contratos con OCR, DeepSeek v4 Flash y chatbot RAG.</p>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="bg-white border-b border-gs-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline de Análisis</h2>
+      <PipelineDiagram variant="contract" />
+    </div>
+  </section>
+
+  <!-- Main Content: Uploader + Contracts -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Upload Zone -->
+      <div>
+        <h2 class="section-title mb-4">Subir Contrato</h2>
+        <p class="text-sm text-gs-gray-600 mb-6">
+          Arrastra un PDF o haz clic para analizar. El pipeline OCR + IA extraerá cláusulas, evaluará riesgos y generará un score en segundos.
+        </p>
+        <ContractUploader />
+      </div>
+
+      <!-- Chatbot CTA -->
+      <div>
+        <h2 class="section-title mb-4">Consultar con IA</h2>
+        <p class="text-sm text-gs-gray-600 mb-6">
+          Usa el chatbot RAG para hacer preguntas sobre contratos, cláusulas, proveedores y riesgos. Powered by DeepSeek v4 Flash.
+        </p>
+
+        <div class="card p-6">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-gs-navy flex items-center justify-center">
+              <span class="text-sm text-gs-gold font-bold">A</span>
+            </div>
+            <div>
+              <p class="font-semibold text-gs-navy">AYCO — Asistente de Contratos</p>
+              <p class="text-xs text-emerald-600 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse-soft"/>
+                En línea · DeepSeek v4 Flash
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-gs-gray-50 rounded-xl p-4 mb-4">
+            <p class="text-sm text-gs-gray-600 italic">
+              "Puedo analizar contratos, identificar cláusulas de riesgo, comparar términos entre proveedores y generar resúmenes ejecutivos. Prueba con las preguntas de abajo."
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Analiza el contrato AYCO-2026-0147 y dime los principales riesgos">
+              <span class="text-gs-blue mr-2">→</span> Analiza el contrato AYCO-2026-0147 y dime los principales riesgos
+            </button>
+            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Compara las cláusulas de penalización entre los 3 contratos de demo">
+              <span class="text-gs-blue mr-2">→</span> Compara las cláusulas de penalización entre los 3 contratos
+            </button>
+            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="¿Qué proveedores tienen exposición superior a $500M MXN?">
+              <span class="text-gs-blue mr-2">→</span> ¿Qué proveedores tienen exposición superior a $500M MXN?
+            </button>
+          </div>
+
+          <p class="text-xs text-gs-gray-400 mt-4 text-center">
+            Haz clic en una pregunta o usa el chat flotante ↘
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pre-analyzed Contracts -->
+  <section class="bg-white py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="section-title mb-2">Contratos Pre-analizados</h2>
+      <p class="section-subtitle mb-8">Resultados del pipeline OCR + DeepSeek v4 Flash para los contratos de demostración.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
+        {contracts.map((c) => (
+          <div class="card p-6 hover:-translate-y-1 transition-transform">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <p class="text-xs text-gs-gray-400 font-mono">{c.id}</p>
+                <h3 class="text-lg font-bold text-gs-navy">{c.name}</h3>
+              </div>
+              <RiskGauge score={c.risk} size="sm" animated={false} />
+            </div>
+
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-sm text-gs-gray-600">Monto</span>
+              <span class="text-sm font-bold text-gs-navy">{c.amount}</span>
+            </div>
+
+            <div class="border-t border-gs-gray-100 pt-4">
+              <p class="text-xs text-gs-gray-400 uppercase tracking-wider mb-2">Factores de riesgo</p>
+              <ul class="space-y-1">
+                {c.factors.map((f) => (
+                  <li class="text-sm text-gs-gray-600 flex items-center">
+                    <span class={`w-1.5 h-1.5 rounded-full mr-2 ${
+                      c.risk >= 8 ? 'bg-risk-critical' : c.risk >= 6 ? 'bg-risk-high' : c.risk >= 4 ? 'bg-risk-medium' : 'bg-risk-low'
+                    }`}/>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- LLM Observability -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h2 class="section-title mb-2">Observabilidad LLM</h2>
+    <p class="section-subtitle mb-8">Trazas en tiempo real de cada llamada al modelo via Langfuse.</p>
+
+    <div class="card p-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[
+          { label: 'Traces Hoy', value: '127' },
+          { label: 'Latencia Media', value: '3.8s' },
+          { label: 'Tokens Totales', value: '45.2K' },
+          { label: 'Tasa de Éxito', value: '99.1%' },
+        ].map((m) => (
+          <div class="text-center">
+            <p class="metric-value text-2xl">{m.value}</p>
+            <p class="metric-label">{m.label}</p>
+          </div>
+        ))}
+      </div>
+      <div class="mt-6 aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200">
+        <div class="text-center">
+          <p class="text-4xl mb-2">📈</p>
+          <p class="text-sm text-gs-gray-600">Langfuse Dashboard embebido</p>
+          <p class="text-xs text-gs-gray-400 mt-1">cloud.langfuse.com → project ayco-demo</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+  <ChatWidget />
+
+  <!-- Script to wire quick-chat buttons to the global chat widget -->
+  <script>
+    document.querySelectorAll('.quick-chat').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const query = btn.getAttribute('data-query');
+        // Open chat widget
+        const chatWindow = document.getElementById('chat-window');
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+        const chatForm = document.getElementById('chat-form');
+
+        if (chatWindow?.classList.contains('hidden')) {
+          chatToggle?.click();
+        }
+
+        setTimeout(() => {
+          if (chatInput && chatForm) {
+            chatInput.value = query || '';
+            chatForm.dispatchEvent(new Event('submit'));
+          }
+        }, 300);
+      });
+    });
+  </script>
+</BaseLayout>

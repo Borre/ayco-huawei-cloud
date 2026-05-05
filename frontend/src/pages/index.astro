@@ -1,0 +1,210 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+import MetricCard from '../components/MetricCard.astro';
+
+const demoCards = [
+  {
+    href: '/risk-scoring/',
+    title: 'Risk Scoring',
+    subtitle: 'Demo 1',
+    description: 'Evaluación de riesgo financiero en tiempo real con DLI Spark, DWS y dashboards interactivos. Análisis de 2,300+ proveedores.',
+    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
+    color: 'from-blue-500 to-blue-700',
+    badge: 'En vivo',
+  },
+  {
+    href: '/data-governance/',
+    title: 'Data Governance',
+    subtitle: 'Demo 2',
+    description: 'Pipeline ETL con DataArts Studio y DataService API. Transformación de datos crudos a información gobernada y accesible.',
+    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>',
+    color: 'from-emerald-500 to-emerald-700',
+    badge: 'Pipeline',
+  },
+  {
+    href: '/contract-ai/',
+    title: 'Contract AI',
+    subtitle: 'Demo 3',
+    description: 'Análisis inteligente de contratos con OCR + DeepSeek v4 Flash. Chatbot RAG para consultas sobre cláusulas y riesgos.',
+    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>',
+    color: 'from-amber-500 to-amber-700',
+    badge: 'IA + RAG',
+  },
+];
+---
+
+<BaseLayout title="Inicio">
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="bg-hero-gradient text-white relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"/>
+      <div class="absolute bottom-0 right-0 w-80 h-80 bg-gs-gold/10 rounded-full translate-x-1/3 translate-y-1/3"/>
+      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"/>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative">
+      <div class="max-w-3xl">
+        <div class="flex items-center space-x-2 mb-6">
+          <span class="px-3 py-1 bg-gs-gold/20 text-gs-gold text-sm font-semibold rounded-full">Huawei Cloud × AYCO</span>
+          <span class="px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full">Workshop Mayo 2026</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">
+          Inteligencia Artificial para la
+          <span class="text-gs-gold">Gestión de Riesgo</span>
+          Financiero
+        </h1>
+
+        <p class="text-lg md:text-xl text-white/80 mb-8 leading-relaxed">
+          Plataforma de análisis de contratos, scoring de proveedores y gobernanza de datos
+          construida sobre Huawei Cloud para AYCO — Aplicaciones y Cobranza, Grupo Salinas.
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+          <a href="/contract-ai/" class="btn-primary bg-gs-gold text-gs-navy hover:bg-gs-gold-light shadow-lg">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Probar Demo en Vivo
+          </a>
+          <a href="#demos" class="btn-outline border-white text-white hover:bg-white hover:text-gs-navy">
+            Ver las 3 Demostraciones
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI Bar -->
+  <section class="bg-white border-b border-gs-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
+        <MetricCard
+          value="2,300+"
+          label="Proveedores Analizados"
+          trend="+12% este mes"
+          trendUp={true}
+          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'
+        />
+        <MetricCard
+          value="99.6%"
+          label="Reducción Tiempo Análisis"
+          trend="De 3 días a 4 min"
+          trendUp={true}
+          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+        />
+        <MetricCard
+          value="$35"
+          label="Costo Diario Infra"
+          trend="USD/día"
+          trendUp={true}
+          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+        />
+        <MetricCard
+          value="4"
+          label="Minutos por Análisis"
+          trend="vs 3 días manual"
+          trendUp={true}
+          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>'
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Cards -->
+  <section id="demos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12" data-animate>
+      <h2 class="section-title">Tres Demostraciones en Vivo</h2>
+      <p class="section-subtitle mx-auto">
+        Cada demo muestra una capacidad diferente de la plataforma, desde el procesamiento de datos hasta la inferencia con IA.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-children">
+      {demoCards.map((demo, i) => (
+        <a href={demo.href} class="card-interactive group block">
+          <!-- Card header with gradient -->
+          <div class={`bg-gradient-to-br ${demo.color} p-6 text-white relative overflow-hidden`}>
+            <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-8 -translate-y-8"/>
+            <div class="relative">
+              <span class="text-xs font-semibold uppercase tracking-wider opacity-80">{demo.subtitle}</span>
+              <div class="flex items-center justify-between mt-2">
+                <h3 class="text-2xl font-bold">{demo.title}</h3>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Fragment set:html={demo.icon} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card body -->
+          <div class="p-6">
+            <p class="text-sm text-gs-gray-600 leading-relaxed mb-4">{demo.description}</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold px-2.5 py-1 bg-gs-blue/10 text-gs-blue rounded-full">{demo.badge}</span>
+              <span class="text-sm font-medium text-gs-blue group-hover:translate-x-1 transition-transform flex items-center">
+                Ver demo
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Architecture Overview -->
+  <section class="bg-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12" data-animate>
+        <h2 class="section-title">Arquitectura en Huawei Cloud</h2>
+        <p class="section-subtitle mx-auto">
+          Infraestructura completa desplegada en la-north-2 (Ciudad de México) con DeepSeek v4 Flash como LLM principal.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-children">
+        {[
+          { name: 'VPC + CFW', desc: 'Red aislada', icon: '🔒' },
+          { name: 'ECS ×2', desc: 'Dify + Web', icon: '🖥️' },
+          { name: 'DLI + DWS', desc: 'Analytics', icon: '📊' },
+          { name: 'DataArts', desc: 'ETL + API', icon: '🔄' },
+          { name: 'FunctionGraph', desc: 'OCR + LLM', icon: '⚡' },
+          { name: 'OBS ×5', desc: 'Storage', icon: '📁' },
+          { name: 'MaaS DeepSeek', desc: 'v4 Flash', icon: '🧠' },
+          { name: 'Langfuse', desc: 'Observabilidad', icon: '📈' },
+        ].map((svc) => (
+          <div class="card p-4 text-center hover:-translate-y-1 transition-transform">
+            <div class="text-3xl mb-2">{svc.icon}</div>
+            <p class="text-sm font-bold text-gs-navy">{svc.name}</p>
+            <p class="text-xs text-gs-gray-600">{svc.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-gs-navy text-white py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Listo para ver la IA en acción?</h2>
+      <p class="text-lg text-gs-gray-300 mb-8">
+        Prueba el chatbot de análisis de contratos impulsado por DeepSeek v4 Flash y RAG.
+      </p>
+      <a href="/contract-ai/" class="btn-primary bg-gs-gold text-gs-navy hover:bg-gs-gold-light text-lg px-8 py-4">
+        Iniciar Demo Interactiva
+      </a>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+  <ChatWidget />
+</BaseLayout>

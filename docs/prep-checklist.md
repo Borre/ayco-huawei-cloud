@@ -98,13 +98,22 @@ bash scripts/spark-risk-aggregation.py
 ## T-1 day (Thursday, May 7)
 
 - [ ] Full demo dry run — all 3 demos end-to-end
-  - [ ] Demo 1 (Risk Scoring): DLI Spark SQL + DWS dashboard queries
-    - Top vendors by risk level
-    - Total exposure by risk level
-    - CNBV anomaly summary
-  - [ ] Demo 2 (Data Governance): DataArts ETL + DataService REST API + DWS analytics
-  - [ ] Demo 3 (Contract AI + Dify): OCR -> DeepSeek -> Dify chatbot Q&A
+  - [ ] **Frontend dry run:**
+    - [ ] Landing loads: `http://149.232.129.39/` — KPIs visible, 3 cards render
+    - [ ] Risk Scoring page: gauge animates, tabla de proveedores visible
+    - [ ] Data Governance page: pipeline diagram, ETL steps, API endpoints
+    - [ ] Contract AI page: uploader drag&drop funciona, chatbot responde
+    - [ ] ChatWidget abre/cierra en todas las páginas, streaming funciona
+  - [ ] Demo 1 (Risk Scoring): frontend `/risk-scoring/` + Huawei Console
+  - [ ] Demo 2 (Data Governance): frontend `/data-governance/` + DataArts Console
+  - [ ] Demo 3 (Contract AI): frontend `/contract-ai/` chatbot + uploader en vivo
 - [ ] Health check passes — run `scripts/health-check.sh` (0 failures)
+- [ ] **Frontend health check:**
+  - [ ] `curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/` → 200
+  - [ ] `curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/risk-scoring/` → 200
+  - [ ] `curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/data-governance/` → 200
+  - [ ] `curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/contract-ai/` → 200
+  - [ ] Dify proxy test: `curl -s -X POST http://149.232.129.39/api/dify/chat-messages -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" -H "Content-Type: application/json" -d '{"query":"test","user":"healthcheck","response_mode":"blocking","inputs":{}}'` → 200
 - [ ] Backup/recording setup
   - [ ] Run `scripts/backup-record-demos.sh` to generate Plan B videos
   - [ ] Verify ffmpeg and Xvfb installed (`sudo apt install ffmpeg xvfb`)
@@ -136,7 +145,12 @@ python scripts/index-knowledge-base.py
   ```bash
   bash scripts/health-check.sh
   ```
-- [ ] Dify accessible — open browser, navigate to `http://<DIFY_IP>/`, log in
+- [ ] **Frontend check:**
+  - [ ] Open `http://149.232.129.39/` in browser — landing loads, KPIs animate
+  - [ ] Click through all 3 demos — pages load, chatbot responds
+  - [ ] Upload a test PDF in Contract AI — processing animation + result
+  - [ ] ChatWidget streaming works (ask "¿Cuáles son los contratos de alto riesgo?")
+- [ ] Dify accessible — open browser, navigate to `http://101.44.185.139/admin`, log in
 - [ ] DWS queries return data
   ```bash
   psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.contract_vendor_risk_summary;"
@@ -250,6 +264,24 @@ Common fixes:
 - **Dify model config:** In Dify web UI: Settings > Model Provider > Verify DeepSeek is connected and shows "Active"
 - **Slow responses:** First request may take 30-60s (cold start). Run a test query before the demo.
 
+### Frontend not loading or chatbot not responding
+
+- **nginx down:** `ssh -i ~/.ssh/ayco-demo root@149.232.129.39 "systemctl status nginx"`
+- **Restart nginx:** `ssh -i ~/.ssh/ayco-demo root@149.232.129.39 "systemctl restart nginx"`
+- **Dify proxy 502:** Dify ECS may be down. Check: `ssh -i ~/.ssh/ayco-demo root@101.44.185.139 "cd /opt/dify/docker && docker compose ps"`
+- **Rebuild frontend:**
+  ```bash
+  cd /home/eduardo/dev/ayco-huawei-cloud/frontend
+  npm run build && bash deploy.sh
+  ```
+- **Check nginx logs:** `ssh -i ~/.ssh/ayco-demo root@149.232.129.39 "tail -50 /var/log/nginx/error.log"`
+- **Dify API key wrong:** Verify key matches Dify DB:
+  ```bash
+  ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \
+    "docker exec docker-db_postgres-1 psql -U postgres -d dify \
+     -c \"SELECT a.name, t.token FROM api_tokens t JOIN apps a ON t.app_id = a.id WHERE t.type='app';\""
+  ```
+
 ### Live demo fails — use backup Plan
 
 ```bash
@@ -278,6 +310,8 @@ ls backports/
 | Command | Purpose |
 |---------|---------|
 | `make demo` | Full deploy + test data + health check |
+| `make frontend` | Build branded frontend (Astro + Tailwind) |
+| `make frontend-deploy` | Build + deploy frontend to ECS |
 | `bash scripts/langfuse-setup.sh` | Langfuse Cloud setup + verify |
 | `make status` | Run health check |
 | `make destroy` | Tear down all resources |
@@ -289,3 +323,16 @@ ls backports/
 | `make apply-compute` | Deploy ECS + EIPs only |
 | `make apply-data-platform` | Deploy DLI, DWS, DataArts only |
 | `make apply-ai-ocr` | Deploy FunctionGraph functions only |
+
+### URLs Quick Reference
+
+| Recurso | URL |
+|---------|-----|
+| Frontend Landing | `http://149.232.129.39/` |
+| Demo 1 — Risk Scoring | `http://149.232.129.39/risk-scoring/` |
+| Demo 2 — Data Governance | `http://149.232.129.39/data-governance/` |
+| Demo 3 — Contract AI | `http://149.232.129.39/contract-ai/` |
+| Dify Admin | `http://101.44.185.139/admin` |
+| Dify API (via proxy) | `http://149.232.129.39/api/dify/chat-messages` |
+| Langfuse | `https://cloud.langfuse.com` → ayco-demo |
+| Dify API Key | `app-Y8MxfRygyUWOAfyTlo1MQSJx` |

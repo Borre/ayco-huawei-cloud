@@ -65,7 +65,7 @@ resource "huaweicloud_fgs_function" "llm_inference" {
   timeout     = 120
   description = "DeepSeek inference for contract risk analysis"
 
-  user_data = jsonencode({
+  user_data = jsonencode({ for k, v in {
     MAAS_API_KEY        = var.maas_api_key
     MAAS_ENDPOINT       = var.maas_endpoint
     MAAS_MODEL          = var.maas_model
@@ -75,7 +75,7 @@ resource "huaweicloud_fgs_function" "llm_inference" {
     LANGFUSE_PUBLIC_KEY = var.langfuse_public_key
     LANGFUSE_SECRET_KEY = var.langfuse_secret_key
     LANGFUSE_HOST       = var.langfuse_host
-  })
+  } : k => v if v != "" })
 }
 
 # ─── Trigger: OBS upload → OCR pipeline ──────────────────────
@@ -85,7 +85,7 @@ resource "huaweicloud_fgs_trigger" "obs_upload" {
   obs {
     bucket_name             = var.obs_contracts_raw
     event_notification_name = "ayco-ocr-trigger-notification"
-    events                  = ["ObjectCreated:*"]
+    events                  = ["ObjectCreated"]
     suffix                  = ".pdf"
   }
 }

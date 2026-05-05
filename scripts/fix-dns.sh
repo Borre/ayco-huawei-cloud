@@ -14,7 +14,7 @@ fi
 
 for ip in $ECS_IPS; do
   echo "=== Fixing DNS on $ip ==="
-  ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 root@"$ip" "
+  ssh -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no -o ConnectTimeout=5 root@"$ip" "
     echo 'nameserver 8.8.8.8' > /etc/resolv.conf
     echo 'nameserver 1.1.1.1' >> /etc/resolv.conf
     if nslookup google.com > /dev/null 2>&1; then

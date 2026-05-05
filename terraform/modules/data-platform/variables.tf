@@ -58,3 +58,4 @@ variable "obs_contracts_results" {
   type        = string
   default     = "ayco-contracts-results"
 }
+

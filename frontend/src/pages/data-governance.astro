@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+import PipelineDiagram from '../components/PipelineDiagram.astro';
+
+const apiEndpoints = [
+  { method: 'GET', path: '/api/v1/vendors', desc: 'Lista de proveedores con scores', status: '200 OK', latency: '45ms' },
+  { method: 'GET', path: '/api/v1/vendors/{id}/risk', desc: 'Detalle de riesgo por proveedor', status: '200 OK', latency: '32ms' },
+  { method: 'GET', path: '/api/v1/transactions', desc: 'Transacciones con anomalías CNBV', status: '200 OK', latency: '58ms' },
+  { method: 'POST', path: '/api/v1/analyze', desc: 'Análisis on-demand de contrato', status: '201 Created', latency: '4.2s' },
+  { method: 'GET', path: '/api/v1/alerts', desc: 'Alertas activas de compliance', status: '200 OK', latency: '28ms' },
+];
+
+const etlSteps = [
+  { name: 'Extract', desc: 'Lectura de datos crudos desde OBS (CSV, JSON, PDFs)', status: 'complete', icon: '📥' },
+  { name: 'Transform', desc: 'Limpieza, normalización CNBV, deduplicación', status: 'complete', icon: '🔄' },
+  { name: 'Validate', desc: 'Reglas de calidad: nulos, rangos, consistencia', status: 'complete', icon: '✅' },
+  { name: 'Load', desc: 'Escritura a DWS con particionamiento por fecha', status: 'complete', icon: '📤' },
+  { name: 'Publish', desc: 'DataService API REST con cache y rate limiting', status: 'active', icon: '🌐' },
+];
+---
+
+<BaseLayout title="Data Governance" description="Pipeline ETL con DataArts Studio y DataService API — Gobernanza de datos">
+  <Header slot="header" />
+
+  <!-- Page Hero -->
+  <section class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center space-x-2 mb-4">
+        <a href="/" class="text-emerald-200 hover:text-white text-sm">Inicio</a>
+        <span class="text-emerald-400">/</span>
+        <span class="text-sm text-emerald-200">Demo 2</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Data Governance</h1>
+      <p class="text-lg text-emerald-100">Pipeline ETL con DataArts Studio y DataService API para datos gobernados.</p>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="bg-white border-b border-gs-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline ETL — DataArts Factory</h2>
+      <PipelineDiagram variant="governance" />
+    </div>
+  </section>
+
+  <!-- ETL Steps -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h2 class="section-title mb-8">Etapas del Pipeline</h2>
+    <div class="space-y-4 stagger-children">
+      {etlSteps.map((step, i) => (
+        <div class="card p-5 flex items-center space-x-5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-2xl flex-shrink-0">
+            {step.icon}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center space-x-3">
+              <span class="text-xs font-bold text-gs-gray-400">PASO {i + 1}</span>
+              <h3 class="text-lg font-bold text-gs-navy">{step.name}</h3>
+              <span class={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                step.status === 'complete'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-gs-blue/10 text-gs-blue animate-pulse-soft'
+              }`}>
+                {step.status === 'complete' ? 'Completado' : 'Activo'}
+              </span>
+            </div>
+            <p class="text-sm text-gs-gray-600 mt-1">{step.desc}</p>
+          </div>
+          <div class="hidden md:flex items-center">
+            {step.status === 'complete' ? (
+              <svg class="w-6 h-6 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            ) : (
+              <div class="w-6 h-6 rounded-full border-2 border-gs-blue border-t-transparent animate-spin"/>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- DataService API Explorer -->
+  <section class="bg-white py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="section-title mb-2">DataService API</h2>
+      <p class="section-subtitle mb-8">Endpoints REST publicados desde DataArts Studio para acceso programático a los datos gobernados.</p>
+
+      <div class="card overflow-hidden">
+        <div class="p-4 border-b border-gs-gray-100 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse-soft"/>
+            <span class="text-sm font-semibold text-gs-navy">API en vivo</span>
+          </div>
+          <code class="text-xs text-gs-gray-600 bg-gs-gray-100 px-3 py-1 rounded-lg">
+            https://dataarts.la-north-2.myhuaweicloud.com/api/v1
+          </code>
+        </div>
+        <div class="divide-y divide-gs-gray-100">
+          {apiEndpoints.map((ep) => (
+            <div class="p-4 flex items-center space-x-4 hover:bg-gs-gray-50 transition-colors">
+              <span class={`text-xs font-bold px-2.5 py-1 rounded-md flex-shrink-0 ${
+                ep.method === 'GET' ? 'bg-emerald-100 text-emerald-700' : 'bg-gs-blue/10 text-gs-blue'
+              }`}>
+                {ep.method}
+              </span>
+              <code class="text-sm font-mono text-gs-navy flex-shrink-0">{ep.path}</code>
+              <span class="text-sm text-gs-gray-600 flex-1 hidden md:block">{ep.desc}</span>
+              <div class="flex items-center space-x-3 flex-shrink-0">
+                <span class="text-xs text-emerald-600 font-semibold">{ep.status}</span>
+                <span class="text-xs text-gs-gray-400">{ep.latency}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Quality Metrics -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h2 class="section-title mb-8">Métricas de Calidad de Datos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
+      {[
+        { label: 'Completitud', value: '98.7%', desc: 'Campos no nulos vs total', color: 'bg-emerald-500' },
+        { label: 'Consistencia', value: '99.2%', desc: 'Reglas de negocio válidas', color: 'bg-emerald-500' },
+        { label: 'Freshness', value: '<5min', desc: 'Latencia de datos actualizados', color: 'bg-gs-blue' },
+      ].map((m) => (
+        <div class="card p-6">
+          <p class="metric-label mb-1">{m.label}</p>
+          <p class="metric-value">{m.value}</p>
+          <p class="text-sm text-gs-gray-600 mt-1">{m.desc}</p>
+          <div class="mt-4 h-2 bg-gs-gray-100 rounded-full overflow-hidden">
+            <div class={`h-full ${m.color} rounded-full`} style={`width: ${m.value.includes('%') ? m.value : '85%'}`}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+  <ChatWidget />
+</BaseLayout>

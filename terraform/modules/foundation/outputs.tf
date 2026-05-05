@@ -1,6 +1,6 @@
 output "vpc_id" {
   description = "VPC ID"
-  value       = huaweicloud_vpc.main.id
+  value       = data.huaweicloud_vpc.existing.id
 }
 
 output "subnet_id" {

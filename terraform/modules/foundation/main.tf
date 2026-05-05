@@ -1,21 +1,13 @@
-# ─── VPC ─────────────────────────────────────────────────
-resource "huaweicloud_vpc" "main" {
-  name = "ayco-vpc"
-  cidr = var.vpc_cidr
-
-  tags = {
-    project     = "ayco"
-    environment = "demo"
-    managed_by  = "terraform"
-  }
+# ─── VPC (reusing existing default flexus VPC to avoid quota limit) ──────────
+data "huaweicloud_vpc" "existing" {
+  name = "vpc-default-flexus"
 }
 
-# ─── Subnet ──────────────────────────────────────────────
 resource "huaweicloud_vpc_subnet" "main" {
-  name       = "ayco-subnet"
+  name       = "ayco-demo-subnet"
   cidr       = var.subnet_cidr
   gateway_ip = var.subnet_gateway
-  vpc_id     = huaweicloud_vpc.main.id
+  vpc_id     = data.huaweicloud_vpc.existing.id
 
   # Huawei Cloud DNS + Google fallback
   primary_dns   = "100.125.1.250"
@@ -30,7 +22,7 @@ resource "huaweicloud_vpc_subnet" "main" {
 
 # ─── Security Group ──────────────────────────────────────
 resource "huaweicloud_networking_secgroup" "main" {
-  name        = "ayco-sg"
+  name        = "ayco-demo-sg"
   description = "AYCO demo security group"
 
   tags = {

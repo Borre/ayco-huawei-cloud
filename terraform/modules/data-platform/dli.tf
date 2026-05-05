@@ -1,3 +1,19 @@
+# ─── DLI Queue (serverless compute) ────────────────────────────────
+# NOTE: Commented out — queue capacity sold out in la-north-2.
+# Use the "default" DLI queue for Spark SQL jobs instead.
+# resource "huaweicloud_dli_queue" "ayco" {
+#   name       = "ayco_queue"
+#   queue_type = "sql"
+#   platform   = "x86_64"
+#   cu_count   = 16
+#
+#   tags = {
+#     project     = "ayco"
+#     environment = "demo"
+#     managed_by  = "terraform"
+#   }
+# }
+
 # ─── DLI Database (serverless Spark SQL) ───────────────────────────
 resource "huaweicloud_dli_database" "ayco" {
   name = "ayco_contracts"
@@ -10,146 +26,53 @@ resource "huaweicloud_dli_database" "ayco" {
   description = "AYCO contract risk analysis database (serverless Spark)"
 }
 
-# ─── DLI Table: parsed contracts (OBS-backed) ─────────────────────
-resource "huaweicloud_dli_table" "contracts" {
-  database_name = huaweicloud_dli_database.ayco.name
-  name          = "contracts"
-  description   = "Parsed contract data from OCR pipeline"
-  data_location = "obs://${var.obs_contracts_text}/parsed/"
-  data_format   = "json"
+# ─── DLI Tables ───────────────────────────────────────────────────
+# Tables created manually via DLI SQL API (Terraform provider has
+# "data_location is illegal" bug with huaweicloud_dli_table).
+# Queue: "default" (serverless) since dedicated queue sold out in la-north-2.
+#
+# IMPORTANT: OBS data must be in json/ subdirectory (not root) to avoid
+# DLI reading non-JSON files (CSV, Python scripts) as JSON.
+#
+# Created 2026-05-05 via Huawei Cloud SDK (DliClient.create_sql_job):
+#
+#   -- risk_results: LLM analysis output (20 records)
+#   CREATE TABLE risk_results (
+#     contract_number STRING, vendor_name STRING, monto_total DOUBLE,
+#     plazo_dias INT, penalizacion_pct DOUBLE, garantia_pct DOUBLE,
+#     risk_score INT, risk_level STRING,
+#     alertas ARRAY<STRING>, recomendaciones ARRAY<STRING>,
+#     resumen STRING, llm_provider STRING, analyzed_at STRING
+#   ) USING json OPTIONS (path 'obs://ayco-contracts-results/json/');
+#
+#   -- contracts_raw: original contract text as JSON (23 records)
+#   CREATE TABLE contracts_raw (
+#     file_name STRING, contract_id STRING, content STRING, char_count INT
+#   ) USING json OPTIONS (path 'obs://ayco-contracts-text/json/');
+#
+# Demo queries:
+#   SELECT risk_level, COUNT(*), ROUND(AVG(risk_score),1)
+#   FROM risk_results WHERE risk_level IS NOT NULL
+#   GROUP BY risk_level ORDER BY AVG(risk_score) DESC;
+#
+#   SELECT contract_number, vendor_name, risk_score, risk_level
+#   FROM risk_results WHERE risk_level IS NOT NULL
+#   ORDER BY risk_score DESC LIMIT 5;
 
-  columns {
-    name = "contract_number"
-    type = "string"
-  }
-  columns {
-    name = "contratante"
-    type = "string"
-  }
-  columns {
-    name = "contratista"
-    type = "string"
-  }
-  columns {
-    name = "monto_total"
-    type = "string"
-  }
-  columns {
-    name = "moneda"
-    type = "string"
-  }
-  columns {
-    name = "vigencia_inicio"
-    type = "string"
-  }
-  columns {
-    name = "vigencia_fin"
-    type = "string"
-  }
-  columns {
-    name = "penalizacion_anticipada"
-    type = "string"
-  }
-  columns {
-    name = "penalizacion_retraso"
-    type = "string"
-  }
-  columns {
-    name = "garantia"
-    type = "string"
-  }
-  columns {
-    name = "jurisdiccion"
-    type = "string"
-  }
-  columns {
-    name = "confidencialidad"
-    type = "string"
-  }
-  columns {
-    name = "text_length"
-    type = "int"
-  }
-}
+# ─── DLI Spark Job: disabled (provider crash on v1.91.0) ──────────
+# resource "huaweicloud_dli_spark_job" "risk_aggregation" {
+#   name       = "ayco-risk-aggregation"
+#   queue_name = "default"
+#   app_name   = "obs://${var.obs_contracts_results}/spark/risk_aggregation.py"
+#   app_parameters = "--database ${huaweicloud_dli_database.ayco.name} --output obs://${var.obs_contracts_results}/aggregated/"
+#   driver_cores    = 1
+#   driver_memory   = "1g"
+#   executor_cores  = 1
+#   executor_memory = "1g"
+#   executors       = 1
+# }
 
-# ─── DLI Table: risk analysis results (OBS-backed) ────────────────
-resource "huaweicloud_dli_table" "risk_results" {
-  database_name = huaweicloud_dli_database.ayco.name
-  name          = "risk_results"
-  description   = "LLM risk analysis results"
-  data_location = "obs://${var.obs_contracts_results}/"
-  data_format   = "json"
-
-  columns {
-    name = "contract_number"
-    type = "string"
-  }
-  columns {
-    name = "risk_score"
-    type = "int"
-  }
-  columns {
-    name = "risk_level"
-    type = "string"
-  }
-  columns {
-    name = "alertas"
-    type = "string"
-  }
-  columns {
-    name = "recomendaciones"
-    type = "string"
-  }
-  columns {
-    name = "resumen"
-    type = "string"
-  }
-  columns {
-    name = "llm_provider"
-    type = "string"
-  }
-  columns {
-    name = "vendor_name"
-    type = "string"
-  }
-  columns {
-    name = "monto_total"
-    type = "double"
-  }
-  columns {
-    name = "plazo_dias"
-    type = "int"
-  }
-  columns {
-    name = "penalizacion_pct"
-    type = "double"
-  }
-  columns {
-    name = "garantia_pct"
-    type = "double"
-  }
-  columns {
-    name = "source_contract"
-    type = "string"
-  }
-}
-
-# ─── DLI Spark Job: risk aggregation query ────────────────────────
-resource "huaweicloud_dli_spark_job" "risk_aggregation" {
-  name       = "ayco-risk-aggregation"
-  queue_name = "default"
-  app_name   = "obs://${var.obs_contracts_results}/spark/risk_aggregation.py"
-
-  app_parameters = "--database ${huaweicloud_dli_database.ayco.name} --output obs://${var.obs_contracts_results}/aggregated/"
-
-  driver_cores    = 1
-  driver_memory   = "1g"
-  executor_cores  = 1
-  executor_memory = "1g"
-  executors       = 1
-}
-
-# Upload Spark script to OBS (required by DLI Spark job)
+# Upload Spark script to OBS (for future use)
 resource "huaweicloud_obs_bucket_object" "spark_script" {
   bucket = var.obs_contracts_results
   key    = "spark/risk_aggregation.py"

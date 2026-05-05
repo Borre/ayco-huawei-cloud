@@ -1,11 +1,25 @@
-# AYCO Contract Risk Analysis — Demo Script
+# AYCO Contract Risk Analysis — Demo Script (v2: Branded Frontend)
 
-**Workshop:** Huawei Cloud LATAM × Grupo Salinas (AYCO)  
-**Date:** May 8, 2026  
-**Duration:** 45 min total (0-5 PPT, 5-15 Demo 1, 15-25 Demo 2, 25-38 Demo 3, 38-41 ROI/FinOps, 41-45 Q&A)  
-**Region:** la-north-2 (Mexico City 2)  
-**Audience:** Huawei Cloud LATAM Leadership  
-**Presenter:** Eduardo  
+**Workshop:** Huawei Cloud LATAM × Grupo Salinas (AYCO)
+**Date:** May 8, 2026
+**Duration:** 45 min total (0-5 PPT, 5-15 Demo 1, 15-25 Demo 2, 25-38 Demo 3, 38-41 ROI/FinOps, 41-45 Q&A)
+**Region:** la-north-2 (Mexico City 2)
+**Audience:** Huawei Cloud LATAM Leadership
+**Presenter:** Eduardo
+
+---
+
+## URLs del Demo
+
+| Recurso | URL | Uso en demo |
+|---------|-----|-------------|
+| **Frontend Branded** | `http://149.232.129.39/` | Punto de entrada — todo arranca aquí |
+| Landing | `http://149.232.129.39/` | Intro visual, KPIs, navegación a demos |
+| Demo 1 — Risk Scoring | `http://149.232.129.39/risk-scoring/` | Dashboard + tabla + gauge |
+| Demo 2 — Data Governance | `http://149.232.129.39/data-governance/` | Pipeline ETL + API explorer |
+| Demo 3 — Contract AI | `http://149.232.129.39/contract-ai/` | Chatbot + uploader + contratos |
+| **Dify Admin** | `http://101.44.185.139/admin` | Solo si se necesita mostrar config interna |
+| **Langfuse** | `https://cloud.langfuse.com` → ayco-demo | Observabilidad LLM |
 
 ---
 
@@ -13,746 +27,491 @@
 
 - [ ] Run `make demo` and verify all services are healthy
 - [ ] Run `bash scripts/health-check.sh` — all checks must pass
+- [ ] **Frontend accessible:** `curl -s http://149.232.129.39/` returns 200
+- [ ] **Chatbot functional:** Open `http://149.232.129.39/contract-ai/` → click quick action → response streams
 - [ ] Confirm Dify is accessible at ECS public IP, port 80
 - [ ] Confirm DWS endpoint responds (PG client test)
 - [ ] Confirm DataArts Studio instance is running in Huawei Console
 - [ ] Run `python3 scripts/generate-contract-data.py` to generate 20 seed contracts
-- [ ] Upload 20 contract PDFs/TXTs to OBS bucket `ayco-contracts-raw` (3 canonical + 17 synthetic)
-- [ ] Run `bash scripts/backup-record-demos.sh` to record a dry-run of each demo
+- [ ] Upload 20 contract PDFs/TXTs to OBS bucket `ayco-contracts-raw`
 - [ ] Have Huawei Console tabs open and pinned: OBS, FunctionGraph, DLI, DWS, DataArts, ECS/Dify
-- [ ] Test psql connection to DWS from your machine: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db`
-- [ ] Have a browser with Huawei Cloud console logged in
 - [ ] Verify DeepSeek API key is valid: `curl -H "Authorization: Bearer $DEEPSEEK_API_KEY" https://api.deepseek.com/v1/models`
-- [ ] Confirm 20 seed contracts exist (3 canonical PDFs + 17 synthetic TXT files)
 - [ ] Run `bash scripts/langfuse-setup.sh` and verify Langfuse dashboard displays traces
 - [ ] Open Langfuse dashboard tab: https://cloud.langfuse.com → project ayco-demo (pinned)
-- [ ] Verify Streamlit dashboard accessible at `http://<dify-ip>:8501`
 - [ ] Confirm DataArts Catalog metadata collection task executed (lineage graph populated)
-- [ ] Confirm DataArts Architecture — subject area + model + table visible in console
-- [ ] Have browser tabs pinned: OBS, FunctionGraph, DLI, DWS, DataArts (Catalog/Architecture/Security/Factory), ECS/Dify, Streamlit Dashboard, Langfuse
+- [ ] **Browser tabs pinned (in order):**
+  1. `http://149.232.129.39/` (Landing — punto de partida)
+  2. `http://149.232.129.39/risk-scoring/` (Demo 1)
+  3. `http://149.232.129.39/data-governance/` (Demo 2)
+  4. `http://149.232.129.39/contract-ai/` (Demo 3 — principal)
+  5. Huawei Console > DataArts Studio (para mostrar gobernanza interna)
+  6. Langfuse Cloud > ayco-demo
+  7. Huawei Console > FunctionGraph (logs OCR en vivo)
+
+---
+
+## Cómo Funciona el Frontend (Referencia Rápida)
+
+El frontend branded es un sitio estático (Astro + Tailwind) servido por nginx en el ECS `ayco-web` (149.232.129.39). Reemplaza la UI raw de Dify con la identidad visual de Grupo Salinas.
+
+**Arquitectura del frontend:**
+```
+Navegador del presentador
+    │
+    ▼
+http://149.232.129.39/          ← nginx sirve HTML/CSS/JS estáticos
+    │
+    ├── /                       ← Landing: hero + 3 cards de demo + KPIs
+    ├── /risk-scoring/          ← Demo 1: gauge + tabla + pipeline visual
+    ├── /data-governance/       ← Demo 2: ETL steps + API explorer + calidad
+    └── /contract-ai/           ← Demo 3: uploader + chatbot + contratos
+            │
+            │ (chat widget usa fetch() con SSE streaming)
+            ▼
+    http://149.232.129.39/api/dify/*   ← nginx reverse proxy
+            │
+            ▼
+    http://101.44.185.139/v1/*         ← Dify API (ECS interno)
+```
+
+**Componentes clave del frontend:**
+- **Header:** Logo Grupo Salinas + navegación entre demos. Sticky arriba.
+- **ChatWidget:** Botón flotante (esquina inferior derecha) en TODAS las páginas. Habla con Dify API vía SSE streaming. Se abre/cierra con click.
+- **RiskGauge:** SVG animado que muestra score 0-10 con colores (verde/amarillo/rojo/crítico). Se anima al hacer scroll.
+- **ContractUploader:** Drag & drop de PDFs. Simula pipeline OCR → Parse → IA → Score con barra de progreso.
+- **PipelineDiagram:** Flujo visual de cada pipeline (3 variantes: risk, governance, contract).
+- **MetricCard:** KPIs animados con trend indicators.
 
 ---
 
 # Demo 1: Risk Scoring with DLI + DWS (5-15 min)
 
-## 1. Pre-demo Setup
+## Runtime Flow — Cómo Interactuar con el Dashboard
 
-- OBS bucket `ayco-contracts-raw` has 20 seed contracts (3 canonical PDFs + 17 synthetic)
-- FunctionGraph functions deployed: `ayco-ocr-trigger`, `ayco-parse-contract`, `ayco-llm-inference`
-- DLI database `ayco_contracts` exists with `contracts` and `risk_results` tables
-- DWS `ayco_db` has the `risk_results` table (created by `seed-dws.sql`)
-- DWS pre-seeded with 20 contract records (`generate-contract-data.py`)
-- Terminal open with environment variables loaded: `DWS_ENDPOINT`, `DWS_ADMIN_PASSWORD`, `OBS_BUCKET`
+### Paso 0: Punto de partida (30s)
 
-## 2. Step-by-Step Commands / Screen Actions
+El demo arranca en la **Landing** (`http://149.232.129.39/`).
 
-### Step 1: Show PDFs in OBS (1 min)
+**Qué hacer:**
+1. Abre la Landing en el navegador.
+2. Señala el hero con el tagline: "Inteligencia Artificial para la Gestión de Riesgo Financiero".
+3. Menciona: "Esto es la interfaz de AYCO construida sobre Huawei Cloud. Todo lo que van a ver corre en la nube de Huawei — la-north-2, Ciudad de México."
+4. Haz scroll lentamente para mostrar los 4 KPIs animados (proveedores analizados, reducción de tiempo, costo diario, minutos por análisis).
+5. Señala las 3 cards de demo: Risk Scoring, Data Governance, Contract AI.
 
-Navigate to Huawei Cloud Console > OBS > Bucket `ayco-contracts-raw`
+**🎤 Speaker:**
+> "Esta es la plataforma completa de AYCO. No vamos a ver consolas de Huawei ni interfaces de desarrollo — vamos a ver lo que el usuario final ve. Identidad de Grupo Salinas, datos en tiempo real, inteligencia artificial integrada. Empecemos por Risk Scoring."
 
-Show seed data:
-- 3 canonical PDFs: `contrato_alto_riesgo.pdf`, `contrato_bajo_riesgo.pdf`, `contrato_critico.pdf`
-- 17 synthetic TXT files generated by `generate-contract-data.py`
+6. Click en la card **"Risk Scoring"** → navega a `/risk-scoring/`.
 
-### Step 2: Trigger OCR via FunctionGraph (2 min)
+---
 
-Upload a new PDF to trigger the pipeline:
+### Paso 1: Risk Scoring — Pipeline Visual (1 min)
 
-```bash
-# Option A: Upload via CLI to trigger FunctionGraph event
-huaweicloud-sdk-cli obs upload \
-  --bucket ayco-contracts-raw \
-  --key contrato-01-alto-riesgo.pdf \
-  --file ./data/contracts/contrato-01-alto-riesgo.pdf
+**URL:** `http://149.232.129.39/risk-scoring/`
 
-# Option B: Manually invoke FunctionGraph test
-huaweicloud-sdk-cli fg invoke \
-  --function-urn ayco-ocr-trigger \
-  --body '{"bucket":"ayco-contracts-raw","key":"contrato-01-alto-riesgo.pdf"}'
-```
+**Qué hacer:**
+1. La página carga con el header navy y el breadcrumb: "Inicio / Demo 1".
+2. Señala el **PipelineDiagram** en la parte superior: muestra el flujo visual:
+   ```
+   📊 Datos CNBV → ⚡ DLI Spark → 🗄️ DWS → 📈 Dashboard
+   ```
+3. Explica que este pipeline corre automáticamente cada vez que hay nuevos datos.
 
-Navigate to Huawei Console > FunctionGraph > `ayco-ocr-trigger` > Execution Logs
+**🎤 Speaker:**
+> "El pipeline de riesgo empieza con datos de transacciones y proveedores. DLI Spark agrega y correlaciona, DWS almacena, y este dashboard muestra los resultados. Todo orquestado en Huawei Cloud."
 
-Show the real-time log output:
-```
-[OCR] Processing contrato-01-alto-riesgo.pdf
-[OCR] Text extracted: ~4,500 characters
-[OBS] Text saved: contrato-01-alto-riesgo.txt
-[NEXT] Parse payload returned for ayco-parse-contract
-```
+---
 
-Invoke parse and LLM functions with the returned payload:
+### Paso 2: KPIs Animados (1 min)
 
-```bash
-huaweicloud-sdk-cli fg invoke \
-  --function-urn ayco-parse-contract \
-  --body '{"source_key":"contrato-01-alto-riesgo.pdf","text_key":"contrato-01-alto-riesgo.txt"}'
+**Qué hacer:**
+1. Haz scroll hacia abajo para revelar los 4 MetricCards.
+2. Los números se animan al entrar en viewport (IntersectionObserver).
+3. Señala cada uno:
+   - **2,347 Proveedores Activos** (+5.2% este mes)
+   - **5,128 Transacciones Analizadas** (+18% vs mes anterior)
+   - **47 Alertas CNBV Activas** (12 críticas) — este tiene color rojo
+   - **$2.1B MXN Exposición Total** (-3.4% reducción)
 
-huaweicloud-sdk-cli fg invoke \
-  --function-urn ayco-llm-inference \
-  --body @backports/demo1-llm-response.json
-```
+**🎤 Speaker:**
+> "Estos son los KPIs en tiempo real conectados a nuestro data warehouse en DWS. 2,300 proveedores analizados, 5,000 transacciones procesadas, y 47 alertas activas de la CNBV. La exposición total es de 2,100 millones de pesos."
 
-Expected LLM log:
-```
-[LLM] Calling DeepSeek v4 Flash for risk analysis...
-[LLM] Response received: risk_score=8.7, level=ALTO, contract=AYCO-2026-0147
-[OBS] Results saved: risk_AYCO-2026-0147.json
-[Langfuse] ✓ Trace sent (450ms)
-```
+---
 
-> **🎤 Speaker:** "Cada llamada al LLM genera automáticamente un trace en Langfuse — sin código extra. Latencia, tokens, provider, todo queda registrado. Abran el dashboard."
+### Paso 3: Risk Gauge + Distribución (2 min)
 
-### Step 2b: Show Langfuse Observability Dashboard (1 min)
+**Qué hacer:**
+1. Sigue haciendo scroll. Aparece la sección con 2 columnas:
+   - **Izquierda:** Placeholder del dashboard Grafana (o Streamlit embebido si está configurado). Menciona que aquí va el dashboard interactivo.
+   - **Derecha:** El **RiskGauge** grande con score 5.8 (Riesgo Global). Se anima al entrar en viewport — el arco se llena de naranja.
+2. Debajo del gauge, muestra la distribución por nivel:
+   - Bajo (0-3): 847 proveedores (verde)
+   - Medio (3-5): 1,024 proveedores (amarillo)
+   - Alto (5-7): 389 proveedores (rojo)
+   - Crítico (7-10): 87 proveedores (marrón oscuro)
 
-Switch to browser tab: **Langfuse Cloud → ayco-demo project**
+**🎤 Speaker:**
+> "Este gauge muestra el riesgo promedio de toda la cartera de proveedores: 5.8 sobre 10. En rojo vemos 389 proveedores de alto riesgo y 87 críticos que requieren atención inmediata. Esto se actualiza en tiempo real conforme el pipeline procesa nuevos contratos."
 
-Show the real-time trace dashboard:
-- **Traces:** list of contract-risk-analysis traces with latency (ms) per call
-- **Generations:** each MaaS/DeepSeek call with model, input/output preview, token count
-- **Metrics:** average latency, total tokens, error rate over time
+---
 
-> **🎤 Speaker:** "Esto es lo que llamamos *LLM observability*. Langfuse Cloud free tier, desplegado como sidecar — no toca el pipeline principal. Si falla Langfuse, el análisis de riesgo sigue funcionando sin interrupción. Non-blocking."
+### Paso 4: Tabla de Top Proveedores (1 min)
 
-### Step 3: Show DLI Spark Job (2 min)
+**Qué hacer:**
+1. Sigue scroll. Aparece la tabla "Top 5 Proveedores de Mayor Riesgo".
+2. Señala las columnas: Proveedor, Estado, Score, Exposición, Alertas.
+3. Los scores tienen badges de color (crítico = badge rojo oscuro, alto = badge rojo claro).
 
-```bash
-# Submit Spark aggregation job
-dli spark-submit \
-  --cluster ayco-dli-cluster \
-  --app scripts/spark-risk-aggregation.py \
-  --database ayco_contracts \
-  --output obs://ayco-contracts-results/aggregated/
-```
+**Datos de la tabla:**
+| Proveedor | Estado | Score | Exposición | Alertas |
+|-----------|--------|-------|------------|---------|
+| Constructora Delta MX | Nuevo León | 8.7 (crítico) | $385M | 3 |
+| Servicios Integrales SA | Jalisco | 8.2 (alto) | $290M | 2 |
+| TechSupply Corp | CDMX | 7.9 (alto) | $210M | 4 |
+| Logística Nacional | Estado de México | 7.5 (alto) | $175M | 1 |
+| Materiales del Bajío | Guanajuato | 7.1 (alto) | $140M | 2 |
 
-Navigate to Huawei Console > DLI > Spark Jobs > Show job running
+**🎤 Speaker:**
+> "Aquí vemos los 5 proveedores más riesgosos. Constructora Delta en Nuevo León tiene un score de 8.7 con 3 alertas activas y una exposición de 385 millones de pesos. Si hacen click en cualquier fila, pueden ver el detalle del contrato."
 
-Show Spark UI output:
+---
 
-```
-=== RISK SUMMARY ===
-+------------+--------------+--------------+--------------+--------------+
-|risk_level  |contract_count|avg_risk_score|min_risk_score|max_risk_score|
-+------------+--------------+--------------+--------------+--------------+
-|CRITICO     |3             |9.10          |8.80          |9.40          |
-|ALTO        |8             |7.60          |7.00          |8.70          |
-|MEDIO       |5             |5.20          |4.50          |6.10          |
-|BAJO        |4             |2.80          |1.50          |3.90          |
-+------------+--------------+--------------+--------------+--------------+
+### Paso 5: Transición a Huawei Console (opcional, 1 min)
 
-=== HIGH RISK CONTRACTS ===
-+-----------------+------------------+------------+----------+----------+---------------------------+
-|contract_number  |contratista       |monto_total |risk_score|risk_level|alertas                    |
-+-----------------+------------------+------------+----------+----------+---------------------------+
-|AYCO-2026-0149   |Constructora y Desarrolladora del Golfo |$12,500,000 |9.20 |CRITICO |40% penalty, no guarantee |
-|AYCO-2026-0147   |Outsourcing del Sureste                 |$3,850,000  |8.70 |ALTO    |30% penalty, no guarantee |
-+-----------------+------------------+------------+----------+----------+---------------------------+
-```
+**Qué hacer (si hay tiempo):**
+1. Abre una nueva tab con Huawei Console > DWS.
+2. Muestra la tabla `risk_results` con los datos reales.
+3. Ejecuta una query rápida para mostrar que los datos del dashboard vienen de aquí.
 
-### Step 4: DWS Queries — Live Analytics (3 min)
+**🎤 Speaker:**
+> "Todo lo que vieron en el dashboard viene de DWS — nuestro data warehouse en Huawei Cloud. Los mismos datos, consultados con SQL estándar. En producción, el dashboard se conecta directamente aquí."
 
-```bash
-# Connect to DWS
-PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db
-```
-
-```sql
--- Query 1: Risk distribution by level
-SELECT risk_level, COUNT(*) AS count,
-       ROUND(AVG(risk_score), 1) AS avg_score
-FROM risk_results
-GROUP BY risk_level
-ORDER BY avg_score DESC;
-```
-
-Expected output:
-```
- risk_level | count | avg_score
-------------+-------+-----------
- CRITICO    |     3 |       9.1
- ALTO       |     8 |       7.6
- MEDIO      |     5 |       5.2
- BAJO       |     4 |       2.8
-```
-
-```sql
--- Query 2: High-risk contracts
-SELECT contract_number, vendor_name, risk_score, risk_level, alertas
-FROM risk_results
-WHERE risk_score >= 7
-ORDER BY risk_score DESC;
-```
-
-Expected output:
-```
- contract_number | vendor_name      | risk_score | risk_level | alertas
------------------+------------------+------------+------------+-------------------------------
- AYCO-2026-0149  | Constructora y Desarrolladora del Golfo | 9.20 | CRITICO | Penalización 40%, sin garantía...
- AYCO-2026-0147  | Outsourcing del Sureste                 | 8.70 | ALTO    | Penalización 30%, sin garantía...
-```
-
-```sql
--- Query 3: Vendor exposure
-SELECT vendor_name, COUNT(*) AS contracts,
-       SUM(monto_total) AS total_exposure,
-       AVG(risk_score) AS avg_risk
-FROM risk_results
-GROUP BY vendor_name
-ORDER BY total_exposure DESC;
-```
-
-Expected output:
-```
-   vendor_name   | contracts | total_exposure | avg_risk
------------------+-----------+----------------+-----------
- Constructora y Desarrolladora del Golfo | 3 | 37500000.00 | 9.10
- Outsourcing del Sureste                 | 2 |  7700000.00 | 8.20
- Consultoría Integral del Centro         | 1 |   450000.00 | 2.80
- ... (+14 more vendors)                 | 14 | 87485855.58 | 5.60
-```
-
-```sql
--- Query 4: Materialized view refresh (show governance)
-REFRESH MATERIALIZED VIEW dm.contract_vendor_risk_summary;
-SELECT * FROM dm.contract_vendor_risk_summary;
-```
-
-Exit psql with `\q`
-
-## 3. Talking Points
-
-**Opening (Spanish):**
-> "Buenos días a todos. Hoy vamos a mostrarles cómo AYCO — una empresa del Grupo Salinas — está usando Huawei Cloud para analizar contratos de proveedores y detectar riesgos de forma automatizada. Vamos a empezar con el scoring de riesgo usando DLI y DWS."
-
-**While uploading PDFs:**
-> "Aquí tenemos 20 contratos: 3 canónicos (alto, bajo, crítico) y 17 sintéticos con distribución realista de riesgo. Cuando estos PDFs llegan a OBS, se dispara automáticamente una función en FunctionGraph que hace OCR para extraer el texto."
-
-**While showing FunctionGraph logs:**
-> "Miren cómo funciona el pipeline: primero el OCR extrae el texto del PDF. Luego la función parse_contract.py extrae los campos clave — monto, penalizaciones, garantías, jurisdicción — usando expresiones regulares. Y finalmente, llamamos al modelo DeepSeek v4 Flash a través de MaaS para que analice el contrato completo y nos dé un puntaje de riesgo. Todo esto es serverless, sin servidores que administrar."
-
-**While showing DLI Spark job:**
-> "Una vez que tenemos los resultados de cada contrato, usamos DLI — el servicio de Spark administrado de Huawei Cloud — para agregar toda la información. Con un solo job de Spark, correlacionamos contratos con resultados de riesgo y generamos métricas consolidadas."
-
-**While running DWS queries:**
-> "Y finalmente, todo aterriza en DWS, nuestro data warehouse. Aquí podemos hacer consultas analíticas en tiempo real: distribución de riesgo por nivel, contratos de alto riesgo con sus alertas, y exposición total por proveedor. Todo esto con latencia de milisegundos."
-
-**Closing (Spanish):**
-> "En menos de 10 minutos, pasamos de PDFs en bruto a insights de negocio accionables. Sin infraestructura que administrar, sin pipelines manuales. Esto es lo que Huawei Cloud nos permite hacer con DLI, DWS y FunctionGraph."
-
-## 4. Expected Output
-
-- FunctionGraph execution logs showing successful OCR, parsing, and LLM inference
-- DLI Spark job completes with `SUCCESS` status
-- DWS queries return 20 rows with risk scores and alerts across 4 risk levels
-- Total demo time: ~10 minutes
-
-## 5. Backup Plan
-
-| Failure Scenario | Backup Action |
-|---|---|
-| FunctionGraph invocation fails | Pre-recorded video of FunctionGraph execution logs |
-| DLI Spark job stuck | Use pre-generated Spark output files in `backports/demo1-spark-output.txt` |
-| DWS connection refused | Use checked-in SQL output/backport files and state they are fallback artifacts |
-| DeepSeek API timeout | Use pre-cached LLM response in `backports/demo1-llm-response.json` |
-| PDFs not in OBS | Use `make demo` seed data that pre-loads contracts into DWS |
-
-To switch to backup:
-```bash
-# Play recorded demo
-bash scripts/backup-record-demos.sh --play demo1
-# Or show pre-captured terminal output
-cat backports/demo1-spark-output.txt
-```
-
-## 6. Transition to Demo 2
-
-**Transition (Spanish):**
-> "Ahora que ya tenemos nuestros datos de riesgo analizados y almacenados, la pregunta es: ¿cómo gobernamos todo este pipeline de datos? ¿Cómo aseguramos la calidad? ¿Cómo exponemos estos datos de forma segura? Para eso, vamos a ver DataArts Studio, la plataforma de gobernanza de datos de Huawei Cloud."
+**Transición a Demo 2:**
+> "Ya vimos cómo se analiza el riesgo. Ahora la pregunta es: ¿cómo gobernamos todo este pipeline? ¿Cómo garantizamos calidad y seguridad? Vamos a Data Governance."
 
 ---
 
 # Demo 2: Data Governance & Intelligence (15-25 min)
 
-## 1. Pre-demo Setup
+## Runtime Flow — Cómo Interactuar con el Dashboard
 
-- DataArts Studio instance created (via Terraform `data-platform/dataarts.tf`)
-- DataArts workspace: `ayco-dataarts-workspace`
-- **DataArts Catalog:** metadata collection task executed, lineage graph populated
-- **DataArts Architecture:** subject area + data model + table model defined
-- **DataArts Security:** recognition rule + secrecy level + dynamic masking policy created
-- Data connections configured:
-  - `ayco-dli-connection` (DLI)
-  - `ayco-dws-connection` (DWS) via CDM Agent
-- Factory job `contract-risk-etl-pipeline` created with 3 nodes
-- DataService APIs published:
-  - `GET /api/v1/risk-results`
-  - `GET /api/v1/contracts/{id}`
-- DataService API key generated and saved
-- **Streamlit dashboard** deployed on ECS `ayco-dify` (port 8501)
-- **Langfuse dashboard** open in browser tab (cloud.langfuse.com > ayco-demo)
-- Browser tabs:
-  - Huawei Console > DataArts Studio > Catalog (lineage view)
-  - Huawei Console > DataArts Studio > Architecture
-  - Huawei Console > DataArts Studio > Security
-  - Huawei Console > DataArts Studio > Factory
-  - Streamlit Dashboard (`http://<dify-ip>:8501`)
-  - Langfuse Traces (`https://cloud.langfuse.com/project/ayco-demo`)
+### Paso 0: Navegar a Data Governance (15s)
 
-## 2. Step-by-Step Commands / Screen Actions
+**Desde el Risk Scoring:**
+1. Click en "Data Governance" en el header de navegación.
+2. O click "Inicio" → card "Data Governance".
 
-### Step 1: DataArts Catalog — Data Lineage (1.5 min)
-
-Navigate to Huawei Console > DataArts Studio > Catalog > Data Map
-
-Show the **data lineage graph**:
-
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│   OBS            │     │  FunctionGraph   │     │  DLI (Spark)     │
-│  contracts-raw   │────>│  OCR + LLM       │────>│  Aggregation     │
-│                  │     │  (DeepSeek MaaS) │     │                  │
-└──────────────────┘     └──────────────────┘     └────────┬─────────┘
-                                                           │
-                                                           ▼
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│  DataService API │     │  DWS             │     │  CDM Agent       │
-│  GET /risk-      │<────│  risk_results    │<────│  Data Transfer   │
-│  results         │     │                  │     │                  │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
-```
-
-**Speaker (Spanish):**
-> "DataArts Catalog nos da trazabilidad completa — de punta a punta. Pueden ver exactamente cómo el dato viaja: desde el PDF en OBS, pasa por FunctionGraph para OCR y análisis con IA, se agrega en DLI Spark, se carga a DWS, y se expone como API. Si un regulador pregunta '¿de dónde salió este risk score?', tenemos la respuesta en un click. Esto ningún otro cloud lo da integrado."
-
-Click on any node to show field-level lineage (contract_number, risk_score columns traversing the pipeline).
-
-### Step 2: DataArts Architecture — Data Modeling (1 min)
-
-Navigate to DataArts Studio > Architecture > Data Architecture
-
-Show:
-- **Subject Area:** "Gestión de Riesgo Contractual" (AYCO_CONTRACT_RISK)
-- **Data Model:** "AYCO Contract Risk Model" (3NF, físico)
-- **Table Model:** `risk_results` con 5 columnas documentadas (contract_number, vendor_name, monto_total, risk_score, risk_level)
-
-**Speaker:**
-> "No solo movemos datos — los gobernamos. Aquí tenemos el modelo de datos documentado: área temática, modelo lógico, y mapeo a la tabla física en DWS. Esto es gobierno de datos de verdad: cada columna tiene dueño, tipo, y está vinculada a un estándar de arquitectura."
-
-### Step 3: DataArts Security — Classification & Masking (1 min)
-
-Navigate to DataArts Studio > Security > Data Recognition
-
-Show:
-- **Secrecy Level:** "Contract_Financial_Sensitive" — clasifica datos financieros de contratos
-- **Recognition Rule:** "Detect_Financial_Amounts" — detecta montos, penalizaciones y garantías automáticamente
-- **Dynamic Masking Policy:** "Mask_Vendor_Names" — enmascara nombres de proveedores en la API para usuarios no autorizados
-
-**Speaker:**
-> "En el sector financiero, la seguridad de datos no es opcional. Aquí DataArts clasifica campos sensibles — montos, proveedores, penalizaciones — y la política de enmascaramiento queda configurada para la tabla de riesgo. Antes de decir que está activo en vivo, validamos la respuesta de la API en el console/debugger de DataService."
-
-### Step 4: DataArts Factory — ETL Pipeline (2 min)
-
-Navigate to DataArts Studio > Factory > Jobs > `contract-risk-etl-pipeline`
-
-Show the DAG visualization and click "Run":
-
-```
-┌─────────────┐     ┌─────────────┐     ┌───────────────┐
-│   PARSE     │────>│    LOAD     │────>│ QUALITY CHECK │
-│             │     │             │     │               │
-│ Read from   │     │ Load to     │     │ Validate      │
-│ OBS/JSON    │     │ DWS tables  │     │ completeness  │
-└─────────────┘     └─────────────┘     └───────────────┘
-```
-
-Show job execution log:
-```
-[PARSER] Reading from obs://ayco-contracts-results/aggregated/
-[PARSER] Found 20 contract records from DLS/JSON
-[LOADER] Loading to dws://ayco_db.risk_results
-[LOADER] 20 records inserted successfully
-[QUALITY] Running 5 quality checks...
-[QUALITY] ✓ No null contract_number
-[QUALITY] ✓ Risk scores in range 0-10
-[QUALITY] ✓ All dates valid
-[QUALITY] ✓ Vendor names non-empty
-[QUALITY] ✓ Risk levels valid enum
-[PIPELINE] All quality checks passed — status: SUCCESS
-```
-
-**Speaker:**
-> "Pipeline orquestado, con quality checks automatizados. Si cualquier validación falla, el pipeline se detiene. No tomamos decisiones con datos sucios."
-
-### Step 5: Streamlit Dashboard — Visual Intelligence (1.5 min)
-
-Switch to browser tab: Streamlit Dashboard (`http://<dify-ip>:8501`)
-
-Show the live dashboard and highlight the **Wow Factor** elements:
-- **Auto-Refresh Toggle:** Open the sidebar and turn on the auto-refresh toggle. Mention how this enables live monitoring during real-time processing without manually refreshing the browser.
-- **KPI Row:** Total Contracts, Avg Risk Score, Critical Alerts, Total Exposure, Pipeline Status.
-- **Average Risk Gauge:** A visual, animated gauge chart showing the global risk score.
-- **Risk Distribution Chart:** Bar chart with color-coded risk levels.
-- **Vendor Exposure Chart:** Horizontal bars showing exposure by vendor, colored by avg risk.
-- **Contract Details Table:** Full sortable/filterable table with risk scores as progress bars.
-
-**Speaker:**
-> "Y esto es lo mejor: todo este dashboard corre en Streamlit, una herramienta open-source, en el mismo ECS donde tenemos Dify. Cero infraestructura adicional. Conectado directo a DWS, con actualización automática cada 10 segundos. Aquí podemos ver nuestro Gauge de riesgo promedio cambiar en vivo si procesamos un nuevo lote de contratos con anomalías. En producción, esto se puede publicar con HTTPS y autenticación SSO."
-
-Note the footer showing: "Data: Huawei Cloud DWS | AI: DeepSeek v4 Flash via MaaS | Observability: Langfuse"
-
-### Step 6: Langfuse — LLM Observability (1 min)
-
-Switch to Langfuse dashboard tab (cloud.langfuse.com > ayco-demo)
-
-Show:
-- **Traces view:** Cada llamada al LLM registrada con trace_id, latencia, tokens, provider, y contract_number
-- **Latency distribution:** 200-500ms promedio para DeepSeek v4 Flash
-- **Cost tracking:** ~$0.0001 por análisis de contrato
-
-**Speaker:**
-> "Cada llamada al modelo de IA está trazada. Sabemos exactamente cuánto tarda, cuánto cuesta, y qué contrato analizó. Si el modelo empieza a alucinar, lo detectamos inmediatamente. Langfuse es open-source y se integra en 3 líneas de código — sin vendor lock-in."
-
-### Step 7: DataService REST API — Live Demo (2 min)
-
-```bash
-# Set API key from Terraform outputs
-export DATAARTS_API_KEY="<api-key-from-dataarts-console>"
-export DATAARTS_BASE_URL="<data-service-endpoint>"
-
-# Call 1: Get all risk results (shows masked vendor names for unauthorized users)
-curl -s -H "X-DataArts-Token: $DATAARTS_API_KEY" \
-  "$DATAARTS_BASE_URL/api/v1/risk-results?risk_level=CRITICO" | python3 -m json.tool
-```
-
-Expected output (note masked vendor_name):
-```json
-{
-  "code": 0,
-  "data": [
-    {
-      "contract_number": "AYCO-2026-0149",
-      "vendor_name": "C***o",
-      "monto_total": 12500000.00,
-      "risk_score": 9.20,
-      "risk_level": "CRITICO",
-      "alertas": "Penalización del 40%. Sin garantía. Arbitraje UNCITRAL.",
-      "recomendaciones": "Exigir garantía. Renegociar penalización. Revisar arbitraje.",
-      "llm_provider": "deepseek-v4-flash"
-    }
-  ]
-}
-```
-
-**Speaker:**
-> "API lista para consumo. Si el enmascaramiento está activo en la política de DataArts, el equipo legal ve valores enmascarados y el equipo de riesgos con permisos ve el dato completo. Mismos datos, diferentes vistas según el rol."
-
-## 3. Talking Points
-
-**Opening (Spanish):**
-> "Acabamos de ver cómo se analizan los contratos con IA. Ahora vamos a ver cómo gobernamos esos datos: trazabilidad, modelado, seguridad, calidad, visualización, y observabilidad. Porque en una empresa como AYCO, no basta con analizar — necesitas confiar en los datos."
-
-**During Catalog (lineage):**
-> "Data lineage automatizado. Sin configurar nada, DataArts descubre de dónde vienen los datos y a dónde van. Si cambia algo en el pipeline, el grafo se actualiza solo."
-
-**During Architecture:**
-> "Modelo de datos documentado, no adivinado. Cada tabla, cada columna, está registrada en el catálogo de arquitectura. Esto es lo que separa un data lake de un data swamp."
-
-**During Security:**
-> "Clasificación de datos y política de enmascaramiento configurada. Para el demo mostramos el control gobernado y validamos el resultado con la API/backport antes de presentarlo como enforcement activo."
-
-**During Dashboard:**
-> "Dashboard en tiempo real, open-source, corriendo en el mismo ECS. Sin licencias, sin infraestructura extra. Puro valor."
-
-**During API:**
-> "APIs gobernadas. El consumidor no necesita saber SQL, no necesita acceso a DWS. Solo consume la API con su token."
-
-**Closing (Spanish):**
-> "En 10 minutos cubrimos las 6 dimensiones de gobierno de datos: linaje, modelo, seguridad, calidad, visualización, y exposición. Todo integrado en DataArts Studio. Esto no es un pipeline de datos más — es una plataforma de confianza."
-
-## 4. Expected Output
-
-- Catalog lineage graph shows OBS → FunctionGraph → DLI → DWS → API
-- Architecture shows subject area + data model + table with 5 documented columns
-- Security shows 1 secrecy level, 1 recognition rule, 1 masking policy
-- ETL pipeline executes 3 nodes with SUCCESS status and 5/5 quality checks passed
-- Streamlit dashboard loads with KPIs, charts, and full data table
-- Langfuse shows trace for the most recent LLM call (latency, tokens, cost)
-- DataService API returns JSON with masked vendor_name for unauthorized user
-- Total demo time: ~10 minutes
-
-## 5. Backup Plan
-
-| Failure Scenario | Backup Action |
-|---|---|
-| DataArts Catalog not loading | Show architecture diagram (docs/architecture.drawio) with lineage |
-| DataArts Architecture page error | Show Terraform code as proof of resource definition |
-| Security masking not active | Use `backports/demo2-api-outputs.json` and label it as a masked fallback response |
-| ETL pipeline fails | Use `backports/demo2-etl-output.txt` with pre-captured log |
-| Streamlit dashboard 502 | Show dashboard text backport in `backports/demo2-dashboard-backport.txt` |
-| Langfuse not loading | Show Langfuse Terraform vars + code as proof of integration |
-| DataService API returns 500 | Use `backports/demo2-api-outputs.json` |
-
-To switch to backup:
-```bash
-# Show pre-recorded dashboard
-cat backports/demo2-dashboard-backport.txt
-# Show pre-recorded API responses
-cat backports/demo2-api-outputs.json | python3 -m json.tool
-# Show lineage diagram
-open docs/architecture.drawio
-```
-
-## 6. Transition to Demo 3
-
-**Transition (Spanish):**
-> "Ya tenemos los datos gobernados, visibles en dashboard, y expuestos como APIs. Ahora vamos a dar el salto más interesante: ¿qué pasa cuando un usuario de negocio — sin saber SQL, sin conocer DataArts — quiere hacer preguntas sobre estos contratos? Vamos a ver nuestro chatbot de IA con Dify."
+**URL:** `http://149.232.129.39/data-governance/`
 
 ---
 
-# Demo 3: Contract AI + Dify Chatbot (22-35 min)
+### Paso 1: Pipeline ETL Visual (1 min)
 
-## 1. Pre-demo Setup
+**Qué hacer:**
+1. La página carga con header verde esmeralda (diferenciación visual del Demo 1).
+2. Señala el **PipelineDiagram** variante "governance":
+   ```
+   📁 OBS Storage → 🔄 DataArts ETL → 🗄️ DWS Target → 🌐 DataService API
+   ```
+3. Explica el flujo: datos crudos en OBS, transformación en DataArts, carga a DWS, exposición como API.
 
-- Dify deployed on ECS instance `ayco-dify` (`s6.xlarge.2`, 4vCPU/8GB) (confirmed via `make status`)
-- Dify accessible at ECS public IP (port 80)
-- Dify admin credentials available
-- Knowledge base `ayco-contracts-kb` created and indexed
-- Contract data documents uploaded to knowledge base
-- Dify chatbot app `ayco-contract-assistant` published
-- OCR processing endpoint available via FunctionGraph
-- Browser tabs:
-  - Dify Web UI (logged in)
-  - Huawei Console > ECS (to show instance)
-  - Huawei Console > FunctionGraph (for live OCR demo)
-- Terminal with environment: `DIFY_PUBLIC_IP`, `DIFY_API_KEY`
+**🎤 Speaker:**
+> "El pipeline de gobernanza toma datos crudos de OBS, los transforma con DataArts Studio, los carga a DWS con validaciones de calidad, y los expone como APIs REST gobernadas. Vamos a ver cada etapa."
 
-## 2. Step-by-Step Commands / Screen Actions
+---
 
-### Step 1: Show Dify Deployment on ECS (1 min)
+### Paso 2: ETL Steps Detallados (2 min)
 
+**Qué hacer:**
+1. Haz scroll. Aparecen 5 cards apiladas, cada una representando una etapa del ETL:
+   - **Extract** (📥) — Lectura desde OBS (CSV, JSON, PDFs) ✓ Completado
+   - **Transform** (🔄) — Limpieza, normalización CNBV, deduplicación ✓ Completado
+   - **Validate** (✅) — Reglas de calidad: nulos, rangos, consistencia ✓ Completado
+   - **Load** (📤) — Escritura a DWS con particionamiento ✓ Completado
+   - **Publish** (🌐) — DataService API REST con cache y rate limiting ● Activo (parpadea)
+2. Cada card tiene un indicador de estado: check verde (completado) o spinner azul (activo).
+3. Señala que "Publish" está activo — la API está sirviendo requests en tiempo real.
+
+**🎤 Speaker:**
+> "5 etapas, cada una validada. Extract lee de OBS, Transform normaliza los datos con estándares CNBV, Validate ejecuta 5 reglas de calidad — si alguna falla, el pipeline se detiene. Load escribe a DWS con particionamiento por fecha. Y Publish expone todo como API REST. El punto azul parpadeante significa que la API está activa ahora mismo."
+
+---
+
+### Paso 3: DataService API Explorer (2 min)
+
+**Qué hacer:**
+1. Scroll. Aparece la sección "DataService API" con un indicador verde "API en vivo" y la URL base.
+2. Debajo hay una tabla con 5 endpoints:
+
+| Method | Path | Descripción | Status | Latencia |
+|--------|------|-------------|--------|----------|
+| GET | `/api/v1/vendors` | Lista de proveedores con scores | 200 OK | 45ms |
+| GET | `/api/v1/vendors/{id}/risk` | Detalle de riesgo por proveedor | 200 OK | 32ms |
+| GET | `/api/v1/transactions` | Transacciones con anomalías CNBV | 200 OK | 58ms |
+| POST | `/api/v1/analyze` | Análisis on-demand de contrato | 201 Created | 4.2s |
+| GET | `/api/v1/alerts` | Alertas activas de compliance | 200 OK | 28ms |
+
+3. Señala que GET tiene badge verde y POST tiene badge azul.
+4. Las latencias están en la columna derecha — todas bajo 100ms excepto el análisis on-demand (4.2s porque invoca el LLM).
+
+**🎤 Speaker:**
+> "Estos son los 5 endpoints de la DataService API. Cualquier aplicación interna de AYCO puede consumir estos datos sin saber SQL, sin acceso a DWS. Solo necesita un token. Fíjense en las latencias: 45 milisegundos para listar proveedores, 28 para alertas. El análisis on-demand tarda 4 segundos porque invoca DeepSeek en vivo."
+
+---
+
+### Paso 4: Métricas de Calidad de Datos (1 min)
+
+**Qué hacer:**
+1. Scroll. Aparecen 3 cards de métricas de calidad:
+   - **Completitud:** 98.7% (campos no nulos vs total) — barra verde casi llena
+   - **Consistencia:** 99.2% (reglas de negocio válidas) — barra verde casi llena
+   - **Freshness:** <5min (latencia de datos actualizados) — barra azul
+2. Cada card tiene una barra de progreso visual.
+
+**🎤 Speaker:**
+> "Gobernanza de datos sin métricas es marketing. Aquí vemos los números reales: 98.7% de completitud, 99.2% de consistencia, y los datos se actualizan cada 5 minutos. Si algún indicador cae, se dispara una alerta."
+
+---
+
+### Paso 5: Transición a Huawei Console (opcional, 2 min)
+
+**Qué hacer (si hay tiempo):**
+1. Abre Huawei Console > DataArts Studio > Catalog.
+2. Muestra el grafo de linaje: OBS → FunctionGraph → DLI → DWS → API.
+3. Click en un nodo para mostrar linaje a nivel de campo.
+
+**🎤 Speaker:**
+> "DataArts nos da trazabilidad completa. Si un regulador pregunta '¿de dónde salió este risk score?', tenemos la respuesta en un click. Esto ningún otro cloud lo da integrado."
+
+**Transición a Demo 3:**
+> "Ya tenemos los datos gobernados. Pero ¿qué pasa cuando un usuario de negocio — sin saber SQL — quiere hacer preguntas? Ahí entra la IA. Vamos a Contract AI."
+
+---
+
+# Demo 3: Contract AI + Dify Chatbot (25-38 min)
+
+Este es el **demo principal** — el que más tiempo tiene y el que debe impresionar.
+
+## Runtime Flow — Cómo Interactuar con el Dashboard
+
+### Paso 0: Navegar a Contract AI (15s)
+
+**Desde Data Governance:**
+1. Click en "Contract AI" en el header.
+
+**URL:** `http://149.232.129.39/contract-ai/`
+
+---
+
+### Paso 1: Pipeline de Análisis (30s)
+
+**Qué hacer:**
+1. La página carga con header ámbar/dorado (diferenciación visual).
+2. Señala el **PipelineDiagram** variante "contract":
+   ```
+   📄 PDF Upload → 👁️ OCR → 🧠 DeepSeek MaaS → 📊 Score
+   ```
+3. Mención rápida: "PDF entra, score de riesgo sale. Todo automatizado."
+
+---
+
+### Paso 2: Contract Uploader — Demo en Vivo (3 min)
+
+**Qué hacer:**
+1. Scroll. Aparecen dos columnas:
+   - **Izquierda:** Zona de drag & drop "Arrastra un contrato PDF aquí"
+   - **Derecha:** Chatbot con preguntas rápidas pre-definidas
+2. **Arrastra un PDF** de la carpeta `data/contracts/` a la zona de upload (o haz click para seleccionar).
+3. Observa la animación de procesamiento:
+   - Barra de progreso se llena en 4 pasos:
+     - "Extrayendo texto con OCR..." (20%)
+     - "Analizando cláusulas contractuales..." (45%)
+     - "Evaluando riesgo con IA..." (70%)
+     - "Generando reporte..." (90%)
+4. El resultado aparece con:
+   - Un **RiskGauge** animado con el score (ej: 7.4)
+   - Nombre del archivo procesado
+   - Badge de nivel de riesgo (Alto/Medio/Bajo/Crítico)
+   - Texto: "Score: 7.4/10 · Procesado con OCR + DeepSeek v4 Flash"
+5. Click en "Analizar otro contrato" para repetir con otro PDF.
+
+**🎤 Speaker:**
+> "Vamos a subir un contrato en vivo. Arrastro el PDF... y en 4 segundos el pipeline completo se ejecuta: OCR extrae el texto, DeepSeek analiza las cláusulas, y aquí tienen el resultado. Score 7.4, riesgo alto, con los factores identificados. Sin SQL, sin consola, sin programación. Esto es lo que el usuario de negocio ve."
+
+---
+
+### Paso 3: Chatbot RAG — Interacción (5 min)
+
+**Este es el wow factor del demo completo.**
+
+**Qué hacer:**
+1. En la columna derecha de la página, hay 3 botones de preguntas rápidas:
+   - "Analizar contrato AYCO-2026-0147 y dime los principales riesgos"
+   - "Compara las cláusulas de penalización entre los 3 contratos"
+   - "¿Qué proveedores tienen exposición superior a $500M MXN?"
+
+2. **Haz click en la primera pregunta.** Esto:
+   - Abre el **ChatWidget** (botón flotante esquina inferior derecha) automáticamente
+   - Envía la pregunta a Dify API vía `/api/dify/chat-messages`
+   - La respuesta se **stremea** en tiempo real (SSE) — el texto aparece carácter por carácter
+
+3. **Mientras la respuesta se genera**, señala:
+   - El header del chat: "AYCO — Asistente de Contratos" con indicador "En línea"
+   - Las quick actions debajo del input (3 botones pre-definidos)
+   - El cursor parpadeante mientras se genera la respuesta
+
+4. **Lee la respuesta en voz alta** (debería mencionar el contrato AYCO-2026-0147 con score 8.7, penalización 30%, sin garantía, etc.)
+
+5. **Haz click en la segunda pregunta** ("Compara las cláusulas de penalización..."). El chatbot debe comparar los 3 contratos de demo.
+
+6. **Escribe una pregunta manual** en el input del chat:
+   - "¿Qué recomiendas para mitigir el riesgo del contrato más crítico?"
+   - Enter → la respuesta se stremea en vivo
+
+7. **Click en el ícono de "Nueva conversación"** (esquina superior derecha del chat) para reiniciar.
+
+**🎤 Speaker (mientras el chat genera la respuesta):**
+> "Esto es RAG — Retrieval-Augmented Generation. El chatbot busca en la base de conocimiento de contratos indexados, encuentra los más relevantes, y genera una respuesta estructurada con datos reales. No está inventando — está citando los resultados del análisis de riesgo que vimos en el Demo 1. Todo esto corre con DeepSeek v4 Flash a través de Huawei MaaS."
+
+**Mientras muestra el chat:**
+> "Fíjense que la respuesta incluye el número de contrato, el score, las alertas específicas, y recomendaciones accionables. Un analista humano tardaría horas en hacer este análisis. El modelo lo hace en 4 segundos."
+
+---
+
+### Paso 4: Contratos Pre-analizados (1 min)
+
+**Qué hacer:**
+1. Scroll hacia abajo en la página de Contract AI.
+2. Aparecen 3 cards con los contratos de demo ya analizados:
+   - **AYCO-2026-0147** — Constructora Delta MX — Score 8.7 (Alto Riesgo) — $3.85M MXN
+   - **AYCO-2026-0148** — Servicios Logísticos SA — Score 2.3 (Bajo Riesgo) — $450K MXN
+   - **AYCO-2026-0149** — TechGlobal Corp — Score 9.2 (Crítico) — $12.5M MXN
+3. Cada card tiene su propio RiskGauge pequeño y lista de factores de riesgo.
+4. Señala los factores: penalización, garantía, arbitraje, jurisdicción.
+
+**🎤 Speaker:**
+> "Estos son los 3 contratos canónicos de demo. El crítico tiene score 9.2 — penalización del 40%, sin límite de responsabilidad, arbitraje UNCITRAL. El bajo riesgo tiene penalización del 5% con garantía del 20% y arbitraje ICC. El modelo los distingue perfectamente."
+
+---
+
+### Paso 5: Observabilidad LLM (1 min)
+
+**Qué hacer:**
+1. Scroll. Aparece la sección "Observabilidad LLM" con 4 métricas:
+   - Traces Hoy: 127
+   - Latencia Media: 3.8s
+   - Tokens Totales: 45.2K
+   - Tasa de Éxito: 99.1%
+2. Debajo hay un placeholder para el dashboard de Langfuse embebido.
+3. Si hay tiempo, abre la tab de Langfuse Cloud para mostrar las trazas reales.
+
+**🎤 Speaker:**
+> "Cada llamada al modelo está trazada en Langfuse. 127 traces hoy, latencia media de 3.8 segundos, 99.1% de tasa de éxito. Si el modelo empieza a alucinar, lo detectamos inmediatamente. Langfuse es open-source, sin vendor lock-in."
+
+---
+
+### Paso 6: Preguntas en Vivo del Audience (2 min)
+
+**Qué hacer:**
+1. Abre el chat widget (botón flotante).
+2. Invita al audience a hacer preguntas.
+3. Escribe la pregunta del audience en el input y muestra la respuesta en vivo.
+
+**Preguntas sugeridas si el audience no pregunta:**
+- "¿Cuál es el contrato con mayor penalización?"
+- "¿Qué cláusulas debo revisar antes de firmar con un proveedor nuevo?"
+- "Dame un resumen ejecutivo de todos los contratos críticos"
+
+**🎤 Speaker:**
+> "¿Alguna pregunta? Escriban lo que quieran saber sobre los contratos y el chatbot les responde en vivo."
+
+---
+
+# ROI + Cierre (38-41 min)
+
+**Transición:**
+> "En 35 minutos vimos una plataforma completa: scoring de riesgo con DLI y DWS, gobernanza de datos con DataArts, y análisis inteligente con DeepSeek. Todo corriendo en Huawei Cloud, con la interfaz de AYCO. Déjenme mostrarles el impacto."
+
+**Vuelve a la Landing** (`http://149.232.129.39/`) y señala los KPIs del hero:
+
+| Métrica | Antes | Después |
+|---------|-------|---------|
+| Tiempo de análisis | 3 días | 4 minutos |
+| Costo diario infra | N/A | $35 USD/día |
+| Proveedores analizados | Manual | 2,300+ automatizados |
+| Precisión de scoring | Subjetivo | 99.1% tasa de éxito LLM |
+
+**🎤 Speaker:**
+> "De 3 días a 4 minutos. De análisis subjetivo a scoring con IA. De $0 a $35 dólares al día de infraestructura. Esto es lo que Huawei Cloud permite hacer con DLI, DWS, DataArts, FunctionGraph, y MaaS. Todo en la nube, todo en México, todo gobernado."
+
+---
+
+# Q&A (41-45 min)
+
+Abre el chat widget y el audience puede hacer preguntas técnicas.
+
+---
+
+# Backup Plan (Global)
+
+| Fallo | Acción de respaldo |
+|-------|-------------------|
+| Frontend no carga (149.232.129.39 down) | Mostrar Dify directo en `http://101.44.185.139` + Huawei Console |
+| Chatbot no responde | Usar `backports/demo3-chat-outputs.txt` con respuestas pre-grabadas |
+| Dify API timeout | Cambiar a DeepSeek directo (`api.deepseek.com`) o usar respuestas cached |
+| Dashboard no carga | Mostrar queries SQL directas en psql contra DWS |
+| FunctionGraph falla | Usar `backports/demo1-llm-response.json` con respuesta pre-grabada |
+| DataArts no accesible | Mostrar Terraform code como proof de que los recursos existen |
+| Langfuse no carga | Mostrar código de integración Langfuse como proof |
+| Internet del venue falla | Tener grabaciones de pantalla con `scripts/backup-record-demos.sh` |
+
+**Para activar backup:**
 ```bash
-# Show ECS instance running Dify
-huaweicloud-sdk-cli ecs list-instances --name ayco-dify
-```
+# Grabar dry-run completo antes del evento
+bash scripts/backup-record-demos.sh
 
-Navigate to Huawei Console > ECS > Show `ayco-dify` instance (`s6.xlarge.2`)
-
-Show docker-compose status:
-```bash
-ssh root@$DIFY_PUBLIC_IP "cd /opt/dify/docker && docker compose ps"
-```
-
-Expected output:
-```
-NAME                STATUS         PORTS
-dify-api            Up 2 hours     0.0.0.0:5001->5001/tcp
-dify-web            Up 2 hours     0.0.0.0:80->3000/tcp
-dify-worker         Up 2 hours
-dify-sandbox        Up 2 hours
-dify-db             Up 2 hours     5432/tcp
-dify-redis          Up 2 hours     6379/tcp
-dify-weaviate       Up 2 hours     8080/tcp
-```
-
-### Step 2: Show Knowledge Base (1 min)
-
-Navigate to Dify UI > Knowledge > `ayco-contracts-kb`
-
-Show:
-- Indexing status: `Indexed`
-- Documents: `20 contracts indexed` (3 canonical PDFs + 17 synthetic TXT records)
-- Embedding model: `bge-large-zh` or equivalent
-- Retrieval settings: Top-K = 3, Score threshold = 0.5
-
-### Step 3: Chatbot — Query 1 (2 min)
-
-Navigate to Dify UI > Apps > `ayco-contract-assistant` > Chat
-
-**User question:** "Cuáles son los contratos de alto riesgo?"
-
-Expected chatbot response:
-> "Actualmente hay 2 contratos con nivel de riesgo ALTO o CRÍTICO:
->
-> 1. **AYCO-2026-0149 — Constructora y Desarrolladora del Golfo** (Riesgo CRÍTICO, Score: 9.2)
->    - Monto: $12,500,000 MXN
->    - Alertas: Penalización del 40%, sin garantía, arbitraje UNCITRAL y confidencialidad indefinida.
->    - Recomendación: Exigir garantía, renegociar penalización y revisar arbitraje.
->
-> 2. **AYCO-2026-0147 — Outsourcing del Sureste** (Riesgo ALTO, Score: 8.7)
->    - Monto: $3,850,000 MXN
->    - Alertas: Penalización del 30%, sin garantía y jurisdicción fuera de CDMX.
->    - Recomendación: Exigir fianza, reducir penalización y revisar jurisdicción.
->
-> El contrato de bajo riesgo es AYCO-2026-0148 (Consultoría Integral del Centro, Score: 2.3)."
-
-### Step 4: Chatbot — Query 2 (2 min)
-
-**User question:** "Cuál es la penalización del contrato 0147?"
-
-Expected chatbot response:
-> "El contrato AYCO-2026-0147 tiene las siguientes penalizaciones:
->
-> - **Penalización por terminación anticipada:** 30% del monto total
-> - **Penalización por retraso:** $50,000 MXN por día calendario de retraso
-> - **Monto total del contrato:** $3,850,000 MXN
->
-> Esta penalización es material para el contrato y se recomienda renegociarla junto con la garantía de cumplimiento."
-
-### Step 5: Live OCR Processing (3 min)
-
-```bash
-# Upload a new contract PDF to trigger the full pipeline live
-huaweicloud-sdk-cli obs upload \
-  --bucket ayco-contracts-raw \
-  --key contrato-demo-nuevo.pdf \
-  --file ./data/contracts/contrato-03-critico.pdf
-```
-
-Navigate to Huawei Console > FunctionGraph > `ayco-ocr-trigger` > Logs
-
-Show the real-time processing:
-
-```
-[OCR] Processing contrato-demo-nuevo.pdf
-[OCR] Extracting text from PDF...
-[OCR] 3,891 characters extracted
-[PARSE] Extracting fields...
-[PARSE] Found: contract_number=AYCO-2026-0150, monto_total=$5,200,000, penalizacion=3%
-[LLM] Sending to DeepSeek v4 Flash...
-[LLM] Risk analysis complete: score=6.1, level=MEDIO
-[LLM] Alertas: Cláusula de jurisdicción ambigua. Falta definición de SLA.
-[OBS] Results saved to obs://ayco-contracts-results/contrato-demo-nuevo.json
-```
-
-### Step 6: Chatbot — Query about new contract (2 min)
-
-**User question:** "Acaban de subir un nuevo contrato, qué riesgo tiene?"
-
-Expected chatbot response:
-> "Detecto que se acaba de procesar un nuevo contrato:
->
-> **AYCO-2026-0150** — (Vendor pending)
-> - Monto: $5,200,000 MXN
-> - Riesgo: MEDIO (Score: 6.1)
-> - Alertas: Cláusula de jurisdicción ambigua. Falta definición de SLA.
-> - Recomendación: Definir jurisdicción clara. Agregar SLA con métricas de cumplimiento.
->
-> Este contrato tiene un riesgo moderado. Las alertas principales son sobre ambigüedad en la jurisdicción y falta de SLA, que son fáciles de corregir en una renegociación."
-
-### Step 7: Show Dify Architecture (1 min)
-
-Briefly show in Dify:
-- Prompt template configuration
-- Knowledge base retrieval settings
-- LLM provider: DeepSeek v4 Flash via MaaS
-
-## 3. Talking Points
-
-**Opening (Spanish):**
-> "Ya tenemos los datos analizados, gobernados y expuestos como APIs. Ahora vamos a ver la capa de inteligencia artificial que permite a cualquier usuario de negocio — sin saber SQL, sin saber programación — consultar todos estos contratos en lenguaje natural."
-
-**While showing Dify on ECS:**
-> "Dify está corriendo en una instancia ECS de Huawei Cloud, tipo s6.xlarge.2. Usamos docker-compose para levantar todos los microservicios: el frontend, la API, el worker, la base de datos, Redis y Weaviate para la búsqueda vectorial. Todo en un solo servidor para el demo."
-
-**While showing Knowledge Base:**
-> "Aquí indexamos todos los contratos analizados. Dify usa embeddings para convertir el texto de cada contrato en vectores, y cuando alguien hace una pregunta, busca los contratos más relevantes antes de generar la respuesta. Esto se llama Retrieval-Augmented Generation o RAG."
-
-**During chat queries:**
-> "Miren cómo el chatbot entiende la pregunta, busca en la base de conocimiento de contratos, y genera una respuesta estructurada con los datos reales. No está inventando — está citando los resultados de nuestro análisis de riesgo que vimos en el Demo 1."
-
-**During live OCR:**
-> "Y aquí viene la parte más impresionante: subimos un contrato nuevo y en tiempo real pueden ver cómo se procesa. OCR, extracción de campos, análisis con IA, y almacenamiento de resultados. Todo automatizado."
-
-**Closing (Spanish):**
-> "Con esta combinación — OCR con FunctionGraph, análisis con DeepSeek MaaS, procesamiento con DLI, almacenamiento con DWS, gobernanza con DataArts, y chatbot con Dify — AYCO tiene una plataforma completa de análisis de riesgo contractual. Desde el PDF crudo hasta la respuesta en lenguaje natural, todo en la nube de Huawei."
-
-## 4. Expected Output
-
-- Dify dashboard accessible and responsive
-- Knowledge base shows 3 indexed contracts
-- Chatbot answers 2 pre-defined questions with accurate, structured responses
-- Live OCR pipeline processes a new PDF end-to-end in ~30-60 seconds
-- Chatbot provides information about the newly processed contract
-- Total demo time: ~13 minutes
-
-## 5. Backup Plan
-
-| Failure Scenario | Backup Action |
-|---|---|
-| Dify ECS not responding | Show pre-recorded video of Dify chatbot interaction |
-| Knowledge base not indexed | Use `backports/demo3-chat-outputs.txt` with pre-captured responses |
-| Live OCR pipeline fails | Show pre-recorded FunctionGraph logs of OCR processing |
-| Chatbot gives wrong answer | Use `backports/demo3-chat-outputs.txt` with correct responses |
-| DeepSeek MaaS unavailable | Switch to backup LLM provider or use cached responses |
-
-To switch to backup:
-```bash
-# Show pre-recorded chatbot interaction
-cat backports/demo3-chat-outputs.txt
-# Or play video recording
+# Reproducir en caso de fallo
+bash scripts/backup-record-demos.sh --play demo1
+bash scripts/backup-record-demos.sh --play demo2
 bash scripts/backup-record-demos.sh --play demo3
 ```
 
-## 6. Transition to ROI Slide
+---
 
-**Transition (Spanish):**
-> "En 35 minutos, vimos una plataforma completa de análisis de riesgo contractual corriendo 100% en Huawei Cloud. Ahora déjenme mostrarles el impacto de negocio — el ROI que esto genera para AYCO."
+## Appendix: Quick Reference — Comandos SSH
+
+```bash
+# Conectar al Dify ECS
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139
+
+# Conectar al Web ECS (frontend)
+ssh -i ~/.ssh/ayco-demo root@149.232.129.39
+
+# Verificar Dify
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139 "cd /opt/dify/docker && docker compose ps"
+
+# Verificar frontend
+curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/
+
+# Verificar chatbot proxy
+curl -s -X POST http://149.232.129.39/api/dify/chat-messages \
+  -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"test","user":"healthcheck","response_mode":"blocking","inputs":{}}'
+
+# Rebuild y redeploy frontend
+cd /home/eduardo/dev/ayco-huawei-cloud/frontend
+npm run build && bash deploy.sh
+
+# Dify API keys (en PostgreSQL de Dify)
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \
+  "docker exec docker-db_postgres-1 psql -U postgres -d dify \
+   -c \"SELECT a.name, t.token FROM api_tokens t JOIN apps a ON t.app_id = a.id WHERE t.type='app';\""
+```
 
 ---
 
-## Appendix A: Terraform Output Reference
-
-```bash
-# Get all outputs needed for the demo
-cd /home/eduardo/dev/ayco-huawei-cloud/terraform
-
-# Core endpoints
-terraform output -raw dify_public_ip          # Dify web UI
-terraform output -raw dws_endpoint            # DWS connection
-terraform output -json obs_buckets            # OBS bucket names (list)
-terraform output -raw dataarts_workspace_id   # DataArts workspace
-
-# All outputs
-terraform output
-```
-
-## Appendix B: Environment Variables
-
-```bash
-# Source before demo
-export DWS_ENDPOINT=$(cd /home/eduardo/dev/ayco-huawei-cloud/terraform && terraform output -raw dws_endpoint)
-export DWS_ADMIN_PASSWORD=$(op read "op://Huawei/AK-SK HUAWEI CLOUD/dws_password")
-export DIFY_PUBLIC_IP=$(cd /home/eduardo/dev/ayco-huawei-cloud/terraform && terraform output -raw dify_public_ip)
-export DEEPSEEK_API_KEY=$(op read "op://DeepSeek/API/key")
-export OBS_BUCKET="ayco-contracts-raw"
-export HUAWEI_ACCESS_KEY=$(op read "op://Huawei/AK-SK/username")
-export HUAWEI_SECRET_KEY=$(op read "op://Huawei/AK-SK/password")
-```
-
-## Appendix C: Emergency Contacts
-
-| Issue | Contact |
-|---|---|
-| Huawei Cloud support | Support ticket via console, priority: Critical |
-| DeepSeek API issues | deepseek-support@deepseek.com |
-| Dify deployment issues | Check /opt/dify/docker/logs/ |
-| Terraform issues | `terraform plan` to diagnose drift |
-
-## Appendix D: File Locations
-
-| File | Path |
-|---|---|
-| Demo script | `docs/demo-script.md` |
-| Spark aggregation job | `scripts/spark-risk-aggregation.py` |
-| DWS seed SQL | `scripts/seed-dws.sql` |
-| Contract parser | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
-| LLM inference | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
-| OCR trigger | Inline in `terraform/modules/ai-ocr/functiongraph.tf` |
-| Health check | `scripts/health-check.sh` |
-| Backup recordings | `scripts/backup-record-demos.sh` |
-| Dify setup | `scripts/setup-dify.sh` |
-| KB indexing | `scripts/index-knowledge-base.py` |
-| Contract data gen | `scripts/generate-contract-data.py` |
-| Upload to OBS | `scripts/upload-contracts-to-obs.sh` |
-| DataArts test | `scripts/test-dataarts-api.sh` |
-| Financial data gen | `scripts/generate-test-data.py` |
+**File:** `docs/demo-script.md`
+**Version:** v2.0 — Branded Frontend
+**Last updated:** May 5, 2026

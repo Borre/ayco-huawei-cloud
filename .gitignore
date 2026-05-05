@@ -39,3 +39,16 @@ backups/
 # SSH keys
 *.pem
 *.key
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.astro/
+
+# Logs
+*.log
+tea_debug.log
+
+# Backups
+*.bak
+terraform/terraform.tfstate.*.backup

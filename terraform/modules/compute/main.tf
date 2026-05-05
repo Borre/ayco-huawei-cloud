@@ -2,6 +2,7 @@
 resource "huaweicloud_compute_instance" "dify" {
   name               = "ayco-dify"
   flavor_id          = var.dify_flavor
+  image_id           = "67c29d17-33bd-43f0-a17b-ed2015798bb8" # Ubuntu 22.04 server 64bit
   security_group_ids = [var.security_group_id]
   key_pair           = var.keypair_name
 
@@ -31,6 +32,7 @@ resource "huaweicloud_compute_instance" "dify" {
 resource "huaweicloud_compute_instance" "web" {
   name               = "ayco-web"
   flavor_id          = var.web_flavor
+  image_id           = "67c29d17-33bd-43f0-a17b-ed2015798bb8" # Ubuntu 22.04 server 64bit
   security_group_ids = [var.security_group_id]
   key_pair           = var.keypair_name
 

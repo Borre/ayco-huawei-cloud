@@ -1,0 +1,151 @@
+---
+// ContractUploader: drag & drop PDF upload with OCR pipeline trigger
+---
+
+<div id="uploader-zone" class="card p-8 border-2 border-dashed border-gs-gray-300 hover:border-gs-blue transition-colors cursor-pointer text-center">
+  <div id="uploader-content">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gs-blue/10 flex items-center justify-center">
+      <svg class="w-8 h-8 text-gs-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+      </svg>
+    </div>
+    <p class="text-lg font-semibold text-gs-navy mb-1">Arrastra un contrato PDF aquí</p>
+    <p class="text-sm text-gs-gray-600">o haz clic para seleccionar archivo</p>
+    <p class="text-xs text-gs-gray-400 mt-2">PDF · Máx 10MB</p>
+  </div>
+
+  <!-- Processing state (hidden by default) -->
+  <div id="uploader-processing" class="hidden">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gs-blue/10 flex items-center justify-center animate-pulse-soft">
+      <svg class="w-8 h-8 text-gs-blue animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+      </svg>
+    </div>
+    <p class="text-lg font-semibold text-gs-navy mb-1" id="processing-text">Procesando contrato...</p>
+    <div class="w-48 h-2 bg-gs-gray-200 rounded-full mx-auto mt-3 overflow-hidden">
+      <div id="progress-bar" class="h-full bg-gs-blue rounded-full transition-all duration-500" style="width: 0%"/>
+    </div>
+    <p class="text-xs text-gs-gray-500 mt-2" id="processing-step">Extrayendo texto con OCR...</p>
+  </div>
+
+  <!-- Result state (hidden by default) -->
+  <div id="uploader-result" class="hidden">
+    <div class="flex items-center justify-center space-x-6">
+      <div id="result-gauge-container"></div>
+      <div class="text-left">
+        <p class="text-sm text-gs-gray-600">Contrato procesado</p>
+        <p class="text-2xl font-bold text-gs-navy" id="result-contract-id">—</p>
+        <div class="mt-2" id="result-badge"></div>
+        <p class="text-xs text-gs-gray-500 mt-2" id="result-summary"></p>
+      </div>
+    </div>
+    <button id="uploader-reset" class="mt-4 text-sm text-gs-blue hover:underline">Analizar otro contrato</button>
+  </div>
+
+  <input type="file" id="file-input" accept=".pdf" class="hidden" />
+</div>
+
+<script>
+  const zone = document.getElementById('uploader-zone');
+  const content = document.getElementById('uploader-content');
+  const processing = document.getElementById('uploader-processing');
+  const result = document.getElementById('uploader-result');
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const progressBar = document.getElementById('progress-bar');
+  const processingStep = document.getElementById('processing-step');
+  const resetBtn = document.getElementById('uploader-reset');
+
+  // Drag & drop
+  zone?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('border-gs-blue', 'bg-gs-blue/5');
+  });
+  zone?.addEventListener('dragleave', () => {
+    zone.classList.remove('border-gs-blue', 'bg-gs-blue/5');
+  });
+  zone?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('border-gs-blue', 'bg-gs-blue/5');
+    const file = e.dataTransfer?.files[0];
+    if (file?.type === 'application/pdf') handleFile(file);
+  });
+  zone?.addEventListener('click', () => fileInput?.click());
+  fileInput?.addEventListener('change', () => {
+    if (fileInput.files?.[0]) handleFile(fileInput.files[0]);
+  });
+  resetBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    showState('content');
+  });
+
+  function showState(state: string) {
+    content?.classList.toggle('hidden', state !== 'content');
+    processing?.classList.toggle('hidden', state !== 'processing');
+    result?.classList.toggle('hidden', state !== 'result');
+  }
+
+  async function handleFile(file: File) {
+    showState('processing');
+
+    const steps = [
+      { text: 'Extrayendo texto con OCR...', pct: 20 },
+      { text: 'Analizando cláusulas contractuales...', pct: 45 },
+      { text: 'Evaluando riesgo con IA...', pct: 70 },
+      { text: 'Generando reporte...', pct: 90 },
+    ];
+
+    // Animate progress steps
+    for (const step of steps) {
+      if (processingStep) processingStep.textContent = step.text;
+      if (progressBar) progressBar.style.width = `${step.pct}%`;
+      await new Promise(r => setTimeout(r, 800 + Math.random() * 400));
+    }
+
+    // Simulate result (in production, this would call the actual pipeline)
+    const mockScore = (Math.random() * 6 + 3).toFixed(1);
+    const score = parseFloat(mockScore);
+    showResult(score, file.name);
+  }
+
+  function showResult(score: number, filename: string) {
+    showState('result');
+
+    const container = document.getElementById('result-gauge-container');
+    if (container) {
+      const color = score <= 3 ? '#22C55E' : score <= 5 ? '#F59E0B' : score <= 7 ? '#EF4444' : '#7C2D12';
+      const label = score <= 3 ? 'Bajo' : score <= 5 ? 'Medio' : score <= 7 ? 'Alto' : 'Crítico';
+      const badgeClass = score <= 3 ? 'badge-risk-low' : score <= 5 ? 'badge-risk-medium' : score <= 7 ? 'badge-risk-high' : 'badge-risk-critical';
+
+      container.innerHTML = `
+        <div class="relative" style="width: 100px; height: 100px">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#E9ECEF" stroke-width="8"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="${color}" stroke-width="8"
+              stroke-dasharray="${2 * Math.PI * 40}"
+              stroke-dashoffset="${2 * Math.PI * 40 - (score / 10) * 2 * Math.PI * 40}"
+              stroke-linecap="round"
+              class="gauge-circle"
+              style="filter: drop-shadow(0 0 6px ${color}40)"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-2xl font-bold" style="color: ${color}">${score.toFixed(1)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    const contractId = document.getElementById('result-contract-id');
+    if (contractId) contractId.textContent = filename.replace('.pdf', '');
+
+    const badge = document.getElementById('result-badge');
+    if (badge) {
+      const badgeClass = score <= 3 ? 'badge-risk-low' : score <= 5 ? 'badge-risk-medium' : score <= 7 ? 'badge-risk-high' : 'badge-risk-critical';
+      const label = score <= 3 ? 'Riesgo Bajo' : score <= 5 ? 'Riesgo Medio' : score <= 7 ? 'Riesgo Alto' : 'Riesgo Crítico';
+      badge.innerHTML = `<span class="${badgeClass}">${label}</span>`;
+    }
+
+    const summary = document.getElementById('result-summary');
+    if (summary) summary.textContent = `Score: ${score.toFixed(1)}/10 · Procesado con OCR + DeepSeek v4 Flash`;
+  }
+</script>

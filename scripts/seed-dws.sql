@@ -1,12 +1,6 @@
 -- scripts/seed-dws.sql
 -- Seed DWS schema + sample queries para AYCO demo
--- Ejecutar: PGPASSWORD=$DWS_ADMIN_PASSWORD psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f seed-dws.sql
-
--- ─── Schema (si no existe) ──────────────────────────
-CREATE SCHEMA IF NOT EXISTS ods;
-CREATE SCHEMA IF NOT EXISTS dw;
-CREATE SCHEMA IF NOT EXISTS dm;
-CREATE SCHEMA IF NOT EXISTS rpt;
+-- Ejecutar: PGPASSWORD=*** psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f seed-dws.sql
 
 -- ─── ODS: Tablas raw ────────────────────────────────
 CREATE TABLE IF NOT EXISTS ods.vendors (
@@ -48,10 +42,10 @@ CREATE TABLE IF NOT EXISTS ods.transactions (
     ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ─── DW: Dimensiones ────────────────────────────────
+-- ─── DW: Dimensiones (sin SERIAL, sin FK — DWS no soporta) ────
 CREATE TABLE IF NOT EXISTS dw.dim_vendor (
-    vendor_key   SERIAL PRIMARY KEY,
-    vendor_id    VARCHAR(10) UNIQUE,
+    vendor_key   BIGINT PRIMARY KEY,
+    vendor_id    VARCHAR(10),
     name         VARCHAR(200),
     sector       VARCHAR(50),
     state        VARCHAR(10),
@@ -61,8 +55,8 @@ CREATE TABLE IF NOT EXISTS dw.dim_vendor (
 );
 
 CREATE TABLE IF NOT EXISTS dw.dim_customer (
-    customer_key SERIAL PRIMARY KEY,
-    customer_id  VARCHAR(10) UNIQUE,
+    customer_key BIGINT PRIMARY KEY,
+    customer_id  VARCHAR(10),
     name         VARCHAR(200),
     kyc_level    VARCHAR(10),
     monthly_limit_mxn INT,
@@ -70,17 +64,17 @@ CREATE TABLE IF NOT EXISTS dw.dim_customer (
 );
 
 CREATE TABLE IF NOT EXISTS dw.fact_transaction (
-    tx_key       SERIAL PRIMARY KEY,
+    tx_key       BIGINT PRIMARY KEY,
     tx_id        VARCHAR(12),
-    vendor_key   INT REFERENCES dw.dim_vendor(vendor_key),
-    customer_key INT REFERENCES dw.dim_customer(customer_key),
+    vendor_key   BIGINT,
+    customer_key BIGINT,
     amount_mxn   NUMERIC(15,2),
     anomaly_type VARCHAR(20),
     timestamp    TIMESTAMP
 );
 
--- ─── DM: Vistas materializadas para reportes ────────
-CREATE MATERIALIZED VIEW IF NOT EXISTS dm.vendor_risk_summary AS
+-- ─── DM: Vistas regulares (DWS no soporta materialized views) ──
+CREATE OR REPLACE VIEW dm.vendor_risk_summary AS
 SELECT
     risk_level,
     COUNT(*) AS vendor_count,
@@ -89,7 +83,7 @@ SELECT
 FROM ods.vendors
 GROUP BY risk_level;
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS dm.city_risk AS
+CREATE OR REPLACE VIEW dm.city_risk AS
 SELECT
     city,
     COUNT(*) AS vendor_count,
@@ -97,7 +91,7 @@ SELECT
 FROM ods.vendors
 GROUP BY city;
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS dm.anomaly_summary AS
+CREATE OR REPLACE VIEW dm.anomaly_summary AS
 SELECT
     anomaly_type,
     COUNT(*) AS count,
@@ -107,7 +101,7 @@ FROM ods.transactions
 WHERE anomaly_type != 'normal'
 GROUP BY anomaly_type;
 
--- ─── Contract Risk Results (used by DataArts + DataService) ─────
+-- ─── Contract Risk Results ─────
 CREATE TABLE IF NOT EXISTS risk_results (
     contract_number    VARCHAR(50) PRIMARY KEY,
     vendor_name        VARCHAR(200),
@@ -116,7 +110,7 @@ CREATE TABLE IF NOT EXISTS risk_results (
     penalizacion_pct   NUMERIC(5,2),
     garantia_pct       NUMERIC(5,2),
     risk_score         NUMERIC(5,2),
-    risk_level         VARCHAR(20) CHECK (risk_level IN ('BAJO','MEDIO','ALTO','CRITICO')),
+    risk_level         VARCHAR(20),
     alertas            TEXT,
     recomendaciones    TEXT,
     resumen            TEXT,
@@ -128,7 +122,7 @@ CREATE INDEX IF NOT EXISTS idx_risk_results_level ON risk_results(risk_level);
 CREATE INDEX IF NOT EXISTS idx_risk_results_score ON risk_results(risk_score DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_results_vendor ON risk_results(vendor_name);
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS dm.contract_vendor_risk_summary AS
+CREATE OR REPLACE VIEW dm.contract_vendor_risk_summary AS
 SELECT
     vendor_name,
     COUNT(*) AS contracts,
@@ -138,21 +132,9 @@ SELECT
 FROM risk_results
 GROUP BY vendor_name;
 
--- ─── RPT: Queries de reportes listas ─────────────────
--- (estas se corren en live durante el demo)
-
--- Reporte 1: Top vendors por riesgo
+-- ─── RPT: Queries de reportes ────────────────────────
 SELECT vendor_id, name, sector, risk_level, risk_score, annual_revenue_mxn
 FROM ods.vendors
 WHERE risk_level IN ('Alto', 'Crítico')
 ORDER BY risk_score DESC
 LIMIT 10;
-
--- Reporte 2: Exposición contractual por proveedor
-SELECT * FROM dm.contract_vendor_risk_summary;
-
--- Reporte 3: Anomalías CNBV detectadas
-SELECT * FROM dm.anomaly_summary;
-
--- Reporte 4: Ciudades con más vendors de alto riesgo
-SELECT * FROM dm.city_risk ORDER BY high_risk_count DESC;

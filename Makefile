@@ -8,6 +8,7 @@ SCRIPTS := scripts
 .PHONY: init plan apply destroy status demo help
 .PHONY: apply-foundation apply-compute apply-data-platform apply-ai-ocr
 .PHONY: fmt fmt-check validate lint
+.PHONY: frontend frontend-dev frontend-deploy
 
 # ─── Terraform ────────────────────────────────────────
 init:
@@ -131,6 +132,22 @@ validate:
 lint: fmt-check validate
 	@echo "=== All checks passed ==="
 
+# ─── Frontend ──────────────────────────────────────
+FRONTEND := frontend
+
+frontend:
+	@echo "=== Building AYCO frontend ==="
+	cd $(FRONTEND) && npm install --legacy-peer-deps && npm run build
+	@echo "✓ Frontend built → $(FRONTEND)/dist/"
+
+frontend-dev:
+	@echo "=== Starting frontend dev server ==="
+	cd $(FRONTEND) && npm run dev
+
+frontend-deploy: frontend
+	@echo "=== Deploying frontend to ECS ==="
+	bash $(FRONTEND)/deploy.sh
+
 # ─── Help ─────────────────────────────────────────────
 help:
 	@echo "AYCO Huawei Cloud — Terraform Automation"
@@ -157,3 +174,8 @@ help:
 	@echo "    make apply-compute"
 	@echo "    make apply-data-platform"
 	@echo "    make apply-ai-ocr"
+	@echo ""
+	@echo "  Frontend:"
+	@echo "    make frontend         Build frontend (Astro + Tailwind)"
+	@echo "    make frontend-dev     Dev server local (hot reload)"
+	@echo "    make frontend-deploy  Build + deploy to ECS"

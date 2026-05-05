@@ -72,7 +72,7 @@ resource "huaweicloud_dataarts_factory_script" "dli_parse_contracts" {
 
   content = <<-SQL
     -- Parse contract text files from OBS into structured records
-    INSERT OVERWRITE TABLE ${huaweicloud_dli_database.ayco.name}.${huaweicloud_dli_table.contracts.name}
+    INSERT OVERWRITE TABLE ${huaweicloud_dli_database.ayco.name}.contracts
     SELECT
       regexp_extract(content, 'CONTRATO[:\\s]+(\\S+)', 1)       AS contract_number,
       regexp_extract(content, 'PROVEEDOR[:\\s]+([^\\n]+)', 1)   AS vendor_name,

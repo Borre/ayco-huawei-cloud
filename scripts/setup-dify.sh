@@ -31,7 +31,7 @@ fi
 echo "=== Deploying Dify on $DIFY_IP ==="
 
 # Use unquoted heredoc so $MAAS_KEY expands from local env
-ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << DEPLOY
+ssh -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no root@"$DIFY_IP" << DEPLOY
 set -euo pipefail
 
 # ─── DNS fix ────────────────────────────────────────
@@ -75,8 +75,8 @@ echo "=== Dify running on http://\$(curl -s ifconfig.me) ==="
 DEPLOY
 
 echo "=== Deploying Streamlit dashboard ==="
-scp -o StrictHostKeyChecking=no "$(dirname "$0")/../dashboards/risk_dashboard.py" root@"$DIFY_IP":/tmp/risk_dashboard.py
-ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << 'DASHBOARD'
+scp -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no "$(dirname "$0")/../dashboards/risk_dashboard.py" root@"$DIFY_IP":/tmp/risk_dashboard.py
+ssh -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no root@"$DIFY_IP" << 'DASHBOARD'
 set -euo pipefail
 mkdir -p /opt/ayco/dashboards
 cp /tmp/risk_dashboard.py /opt/ayco/dashboards/risk_dashboard.py

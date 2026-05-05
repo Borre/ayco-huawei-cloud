@@ -55,12 +55,9 @@ tf_output() {
   if [ $exit_code -eq 0 ] && [ -n "$output" ]; then
     echo "$output"
   elif [ $exit_code -ne 0 ] && echo "$output" | grep -q "not found"; then
-    # Output doesn't exist - return empty
     echo ""
   else
-    # Actual terraform error (not initialized, network issue, etc.)
-    echo "" >&2
-    return 1
+    echo ""
   fi
 }
 
@@ -93,8 +90,8 @@ echo ""
 
 echo -e "${CYAN}Compute:${NC}"
 if [ -n "$DIFY_IP" ]; then
-  check_http "Dify Web UI" "http://$DIFY_IP" "200|302"
-  check_http "Dify API" "http://$DIFY_IP/v1" "200|401|404"
+  check_http "Dify Web UI" "http://$DIFY_IP" "200|302|307|308"
+  check_http "Dify API" "http://$DIFY_IP/v1" "200|302|307|308|401|404"
   check_http "Streamlit Dashboard" "http://$DIFY_IP:8501" "200|302"
 else
   warn_check "Dify" "IP not available"

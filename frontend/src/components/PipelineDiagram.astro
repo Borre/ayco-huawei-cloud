@@ -1,0 +1,52 @@
+---
+// PipelineDiagram: visual flow of the data pipeline
+export interface Props {
+  variant?: 'risk' | 'governance' | 'contract';
+}
+
+const { variant = 'risk' } = Astro.props;
+
+const pipelines = {
+  risk: [
+    { icon: '📊', label: 'Datos CNBV', sub: 'Transacciones, proveedores' },
+    { icon: '⚡', label: 'DLI Spark', sub: 'Agregación en tiempo real' },
+    { icon: '🗄️', label: 'DWS', sub: 'Data warehouse' },
+    { icon: '📈', label: 'Dashboard', sub: 'Visualización en vivo' },
+  ],
+  governance: [
+    { icon: '📁', label: 'OBS Storage', sub: 'Datos crudos' },
+    { icon: '🔄', label: 'DataArts ETL', sub: 'Limpieza y transformación' },
+    { icon: '🗄️', label: 'DWS Target', sub: 'Tablas curadas' },
+    { icon: '🌐', label: 'DataService API', sub: 'REST endpoints' },
+  ],
+  contract: [
+    { icon: '📄', label: 'PDF Upload', sub: 'Contrato original' },
+    { icon: '👁️', label: 'OCR', sub: 'Extracción de texto' },
+    { icon: '🧠', label: 'DeepSeek MaaS', sub: 'Análisis de riesgo' },
+    { icon: '📊', label: 'Score', sub: 'Evaluación final' },
+  ],
+};
+
+const steps = pipelines[variant];
+---
+
+<div class="flex items-center justify-between w-full overflow-x-auto py-4">
+  {steps.map((step, i) => (
+    <>
+      <div class="flex flex-col items-center text-center min-w-[120px] flex-shrink-0">
+        <div class="w-14 h-14 rounded-2xl bg-gs-navy/5 flex items-center justify-center text-2xl mb-2 hover:bg-gs-blue/10 hover:scale-110 transition-all duration-200">
+          {step.icon}
+        </div>
+        <p class="text-sm font-semibold text-gs-navy">{step.label}</p>
+        <p class="text-xs text-gs-gray-600">{step.sub}</p>
+      </div>
+      {i < steps.length - 1 && (
+        <div class="flex-1 flex items-center px-2 min-w-[40px]">
+          <div class="h-0.5 bg-gs-blue/30 flex-1 relative">
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-gs-blue/40"/>
+          </div>
+        </div>
+      )}
+    </>
+  ))}
+</div>

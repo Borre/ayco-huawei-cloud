@@ -82,3 +82,9 @@ variable "langfuse_host" {
   type        = string
   default     = "https://cloud.langfuse.com"
 }
+
+variable "dataarts_enabled" {
+  description = "Enable DataArts Studio resources"
+  type        = bool
+  default     = true
+}

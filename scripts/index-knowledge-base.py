@@ -45,7 +45,7 @@ if not DIFY_BASE or not DIFY_API_KEY:
 
 def dify_request(method, path, data=None):
     """Make authenticated request to Dify API."""
-    url = f"{DIFY_BASE}{path}"
+    url = f"{DIFY_BASE}/v1{path}"
     headers = {
         "Authorization": f"Bearer {DIFY_API_KEY}",
         "Content-Type": "application/json",
@@ -127,7 +127,7 @@ Recomendaciones:
 Resumen: {contract.get('resumen', 'N/A')}
 """
         try:
-            result = dify_request("POST", f"/datasets/{dataset_id}/documents", {
+            result = dify_request("POST", f"/datasets/{dataset_id}/document/create-by-text", {
                 "name": f"contract_{contract.get('contract_number', 'unknown')}",
                 "text": text,
                 "indexing_technique": "high_quality",
