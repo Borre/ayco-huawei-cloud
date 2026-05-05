@@ -15,7 +15,14 @@ import os
 import sys
 import urllib.request
 import csv
+import logging
 from pathlib import Path
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Load env
 env_file = Path(__file__).parent.parent / ".env"
@@ -31,8 +38,8 @@ DIFY_API_KEY = os.environ.get("DIFY_API_KEY", "")
 DATASET_NAME = "ayco-contracts-kb"
 
 if not DIFY_BASE or not DIFY_API_KEY:
-    print("ERROR: DIFY_BASE_URL and DIFY_API_KEY must be set")
-    print("  Set in .env or export as environment variables")
+    logger.error("DIFY_BASE_URL and DIFY_API_KEY must be set")
+    logger.error("  Set in .env or export as environment variables")
     sys.exit(1)
 
 
@@ -54,7 +61,7 @@ def get_or_create_dataset(name):
     datasets = dify_request("GET", "/datasets")
     for ds in datasets.get("data", []):
         if ds["name"] == name:
-            print(f"  Found existing dataset: {ds['id']}")
+            logger.info(f"Found existing dataset: {ds['id']}")
             return ds["id"]
 
     # Create new
@@ -63,12 +70,12 @@ def get_or_create_dataset(name):
         "permission": "all_team_members",
         "indexing_technique": "high_quality",
     })
-    print(f"  Created dataset: {result['id']}")
+    logger.info(f"Created dataset: {result['id']}")
     return result["id"]
 
 
 def main():
-    print("=== Indexing Knowledge Base in Dify ===")
+    logger.info("=== Indexing Knowledge Base in Dify ===")
 
     # 1. Get/create dataset
     dataset_id = get_or_create_dataset(DATASET_NAME)
@@ -97,11 +104,11 @@ def main():
         try:
             contracts.append(json.loads(f.read_text()))
         except Exception as e:
-            print(f"  Warning: Could not read {f}: {e}")
+            logger.warning(f"Could not read {f}: {e}")
 
     if not contracts:
-        print("ERROR: No canonical risk results found.")
-        print("  Run: python3 scripts/generate-contract-data.py")
+        logger.error("No canonical risk results found.")
+        logger.error("  Run: python3 scripts/generate-contract-data.py")
         sys.exit(1)
 
     # 3. Create documents in Dify
@@ -126,11 +133,11 @@ Resumen: {contract.get('resumen', 'N/A')}
                 "indexing_technique": "high_quality",
                 "process_rule": {"mode": "automatic"},
             })
-            print(f"  Indexed: {contract.get('contract_number')} -> {result.get('document', {}).get('id', 'ok')}")
+            logger.info(f"Indexed: {contract.get('contract_number')} -> {result.get('document', {}).get('id', 'ok')}")
         except Exception as e:
-            print(f"  Error indexing {contract.get('contract_number')}: {e}")
+            logger.error(f"Error indexing {contract.get('contract_number')}: {e}")
 
-    print(f"\n=== Done: {len(contracts)} contracts indexed in dataset {dataset_id} ===")
+    logger.info(f"=== Done: {len(contracts)} contracts indexed in dataset {dataset_id} ===")
 
 
 def split_list(value):

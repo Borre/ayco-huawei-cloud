@@ -52,6 +52,7 @@ make status
 **Full demo script:** [`docs/demo-script.md`](docs/demo-script.md)
 **Architecture diagrams:** [`docs/architecture.md`](docs/architecture.md)
 **Prep checklist:** [`docs/prep-checklist.md`](docs/prep-checklist.md)
+**Network security:** [`docs/network-security.md`](docs/network-security.md) | [`docs/network-security-mermaid.md`](docs/network-security-mermaid.md)
 
 ## What `make demo` does
 
@@ -67,6 +68,7 @@ make status
 
 | Target | Description |
 |--------|-------------|
+| **Infrastructure** | |
 | `make init` | Initialize Terraform |
 | `make plan` | Preview changes |
 | `make apply` | Apply all modules |
@@ -74,13 +76,20 @@ make status
 | `make demo` | Deploy + test data + health check |
 | `make destroy` | Destroy everything |
 | `make status` | Health check |
+| **Phased Deployment** | |
 | `make apply-foundation` | Apply foundation only |
 | `make apply-compute` | Apply compute only |
 | `make apply-data-platform` | Apply data platform only |
 | `make apply-ai-ocr` | Apply AI/OCR only |
+| **Data & Testing** | |
 | `make upload-contracts` | Upload PDFs to OBS (triggers OCR pipeline) |
 | `make test-dataarts` | Test DataArts DataService REST APIs |
 | `make generate-data` | Generate all synthetic demo data |
+| **Code Quality** | |
+| `make fmt` | Format Terraform files |
+| `make fmt-check` | Check formatting (for CI/CD) |
+| `make validate` | Validate Terraform syntax |
+| `make lint` | Run all checks (fmt + validate) |
 
 ## Demo Data
 

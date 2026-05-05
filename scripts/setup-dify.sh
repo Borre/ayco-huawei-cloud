@@ -79,12 +79,22 @@ ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << 'DASHBOARD'
 set -euo pipefail
 mkdir -p /opt/ayco/dashboards
 cp /tmp/risk_dashboard.py /opt/ayco/dashboards/risk_dashboard.py
-chown -R ayco:ayco /opt/ayco/dashboards || true
+
+# Try to set ownership, but continue if user doesn't exist yet
+if id ayco &>/dev/null; then
+  chown -R ayco:ayco /opt/ayco/dashboards
+else
+  echo "WARN: User 'ayco' not found. Skipping ownership change."
+fi
 
 if [ -f /etc/systemd/system/ayco-dashboard.service ]; then
   systemctl daemon-reload
   systemctl enable ayco-dashboard
-  systemctl restart ayco-dashboard || true
+  if ! systemctl restart ayco-dashboard; then
+    echo "ERROR: Failed to restart ayco-dashboard service"
+    systemctl status ayco-dashboard || echo "Service not running"
+    exit 1
+  fi
 else
   echo "WARN: ayco-dashboard.service not found. The ECS user_data may not have completed."
 fi

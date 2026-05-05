@@ -46,7 +46,22 @@ warn_check() {
 }
 
 tf_output() {
-  terraform -chdir="$TF_DIR" output -raw "$1" 2>/dev/null || true
+  local output
+  local exit_code
+
+  output=$(terraform -chdir="$TF_DIR" output -raw "$1" 2>&1)
+  exit_code=$?
+
+  if [ $exit_code -eq 0 ] && [ -n "$output" ]; then
+    echo "$output"
+  elif [ $exit_code -ne 0 ] && echo "$output" | grep -q "not found"; then
+    # Output doesn't exist - return empty
+    echo ""
+  else
+    # Actual terraform error (not initialized, network issue, etc.)
+    echo "" >&2
+    return 1
+  fi
 }
 
 load_env() {

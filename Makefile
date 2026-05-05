@@ -7,6 +7,7 @@ SCRIPTS := scripts
 
 .PHONY: init plan apply destroy status demo help
 .PHONY: apply-foundation apply-compute apply-data-platform apply-ai-ocr
+.PHONY: fmt fmt-check validate lint
 
 # ─── Terraform ────────────────────────────────────────
 init:
@@ -96,6 +97,22 @@ generate-data:
 	python3 $(SCRIPTS)/generate-test-data.py
 	python3 $(SCRIPTS)/generate-contract-data.py
 
+# ─── Code Quality ────────────────────────────────────────
+fmt:
+	@echo "=== Formatting Terraform files ==="
+	cd $(TF_DIR) && terraform fmt -recursive
+
+fmt-check:
+	@echo "=== Checking Terraform formatting ==="
+	cd $(TF_DIR) && terraform fmt -check -recursive
+
+validate:
+	@echo "=== Validating Terraform configuration ==="
+	cd $(TF_DIR) && terraform validate
+
+lint: fmt-check validate
+	@echo "=== All checks passed ==="
+
 # ─── Help ─────────────────────────────────────────────
 help:
 	@echo "AYCO Huawei Cloud — Terraform Automation"
@@ -110,6 +127,12 @@ help:
 	@echo "  make upload-contracts  Subir PDFs a OBS (dispara OCR)"
 	@echo "  make test-dataarts     Probar APIs DataArts DataService"
 	@echo "  make generate-data     Generar datos sintéticos"
+	@echo ""
+	@echo "  Code Quality:"
+	@echo "    make fmt              Format Terraform files"
+	@echo "    make fmt-check        Check formatting (CI/CD)"
+	@echo "    make validate         Validate Terraform syntax"
+	@echo "    make lint             Run all checks (fmt + validate)"
 	@echo ""
 	@echo "  Fases individuales:"
 	@echo "    make apply-foundation"

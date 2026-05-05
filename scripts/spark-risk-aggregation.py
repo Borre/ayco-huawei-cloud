@@ -10,12 +10,19 @@ aggregated risk metrics stored back to OBS.
 import sys
 import json
 import argparse
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # When running on DLI, pyspark is available
 try:
     from pyspark.sql import SparkSession
 except ImportError:
-    print("[ERROR] pyspark not available — run on DLI Spark cluster")
+    logger.error("pyspark not available — run on DLI Spark cluster")
     sys.exit(1)
 
 
@@ -80,9 +87,9 @@ def main():
     high_risk.coalesce(1).write.mode("overwrite").json(f"{args.output}/high_risk/")
     vendor_exposure.coalesce(1).write.mode("overwrite").json(f"{args.output}/vendor_exposure/")
 
-    print(f"[DLI] Aggregation complete. Results written to {args.output}")
+    logger.info(f"Aggregation complete. Results written to {args.output}")
 
-    # Print summary for demo
+    # Print summary for demo (keep print for Spark UI visibility)
     print("\n=== RISK SUMMARY ===")
     risk_summary.show(truncate=False)
     print("\n=== HIGH RISK CONTRACTS ===")
