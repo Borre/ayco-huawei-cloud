@@ -4,260 +4,179 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R] /Count 5 >>
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R] /Count 5 >>
 endobj
 3 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
 endobj
 4 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
 endobj
 5 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+<< /Length 1192 >>
+stream
+0.969 0.980 0.988 rg 0 0 960 540 re f
+0.122 0.714 0.788 rg 0 0 16 540 re f
+BT /F2 14 Tf 0.122 0.714 0.788 rg 54 493 Td (AYCO CONTRACT RISK INTELLIGENCE PLATFORM) Tj ET
+BT /F2 30 Tf 0.043 0.090 0.157 rg 54 456 Td (De PDFs a inteligencia de riesgo gobernada) Tj ET
+0.031 0.137 0.247 rg 54 312 720 64 re f
+BT /F2 24 Tf 1 1 1 rg 76 348 Td (20 contratos procesados) Tj ET
+1 1 1 rg 54 278 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 278 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 291 Td ($133M MXN expuestos) Tj ET
+1 1 1 rg 54 230 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 230 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 243 Td (2,300 vendors escalables) Tj ET
+1 1 1 rg 54 182 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 182 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 195 Td (4 niveles de riesgo) Tj ET
+1 1 1 rg 54 134 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 134 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 147 Td (Contrato -> OBS -> FunctionGraph -> DeepSeek -> DWS/DLI -> DataArts -> Dify/Web) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 54 24 Td (Workshop Huawei Cloud x Salinas | Mayo 8, 2026 | México Century Plaza) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 890 24 Td (1 / 5) Tj ET
+endstream
 endobj
 6 0 obj
-<< /Length 1938 >>
-stream
-q
-1 1 1 rg 0 0 960 540 re f
-0.04 0.13 0.24 rg 0 482 960 58 re f
-BT /F2 23 Tf 36 508 Td 1 1 1 rg (AYCO - Contract Risk Intelligence Platform) Tj ET
-BT /F1 11 Tf 38 488 Td 0.82 0.90 1 rg (3 casos de uso sobre infraestructura unificada | la-north-2 Mexico) Tj ET
-0.93 0.96 0.98 rg 36 82 190 360 re f
-0.18 0.42 0.58 rg 36 418 190 24 re f
-BT /F2 10 Tf 46 425 Td 1 1 1 rg (Arquitectura) Tj ET
-BT /F1 9 Tf 46 392 Td 0.08 0.12 0.16 rg (Huawei Cloud la-north-2) Tj ET
-BT /F1 9 Tf 46 368 Td 0.08 0.12 0.16 rg (VPC 172.16.0.0/16) Tj ET
-BT /F1 9 Tf 46 344 Td 0.08 0.12 0.16 rg (OBS x3, FunctionGraph x3) Tj ET
-BT /F1 9 Tf 46 320 Td 0.08 0.12 0.16 rg (DLI, DWS, DataArts, Dify) Tj ET
-0.93 0.96 0.98 rg 270 82 190 360 re f
-0.18 0.42 0.58 rg 270 418 190 24 re f
-BT /F2 10 Tf 280 425 Td 1 1 1 rg (Casos) Tj ET
-BT /F1 9 Tf 280 392 Td 0.08 0.12 0.16 rg (Risk scoring financiero) Tj ET
-BT /F1 9 Tf 280 368 Td 0.08 0.12 0.16 rg (Plataforma de datos) Tj ET
-BT /F1 9 Tf 280 344 Td 0.08 0.12 0.16 rg (Contract AI + Dify chatbot) Tj ET
-0.93 0.96 0.98 rg 504 82 190 360 re f
-0.18 0.42 0.58 rg 504 418 190 24 re f
-BT /F2 10 Tf 514 425 Td 1 1 1 rg (Controles) Tj ET
-BT /F1 9 Tf 514 392 Td 0.08 0.12 0.16 rg (Security Groups) Tj ET
-BT /F1 9 Tf 514 368 Td 0.08 0.12 0.16 rg (IAM RBAC) Tj ET
-BT /F1 9 Tf 514 344 Td 0.08 0.12 0.16 rg (KMS encryption) Tj ET
-BT /F1 9 Tf 514 320 Td 0.08 0.12 0.16 rg (OBS + DWS encrypted at rest) Tj ET
-0.93 0.96 0.98 rg 738 82 190 360 re f
-0.18 0.42 0.58 rg 738 418 190 24 re f
-BT /F2 10 Tf 748 425 Td 1 1 1 rg (Demo) Tj ET
-BT /F1 9 Tf 748 392 Td 0.08 0.12 0.16 rg (20 contratos semilla) Tj ET
-BT /F1 9 Tf 748 368 Td 0.08 0.12 0.16 rg (3 canonicos + 17 sinteticos) Tj ET
-BT /F1 9 Tf 748 344 Td 0.08 0.12 0.16 rg ($133M MXN exposure) Tj ET
-BT /F1 9 Tf 748 320 Td 0.08 0.12 0.16 rg (Mayo 8, 2026) Tj ET
-0.04 0.13 0.24 rg 0 0 960 36 re f
-BT /F1 9 Tf 36 14 Td 1 1 1 rg (Workshop Huawei Cloud x Salinas | Mexico Century Plaza | 1 / 5) Tj ET
-Q
-endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
 endobj
 7 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+<< /Length 1459 >>
+stream
+0.969 0.980 0.988 rg 0 0 960 540 re f
+0.122 0.714 0.788 rg 0 0 16 540 re f
+BT /F2 14 Tf 0.122 0.714 0.788 rg 54 493 Td (ARQUITECTURA EJECUTABLE EN LA-NORTH-2) Tj ET
+BT /F2 30 Tf 0.043 0.090 0.157 rg 54 456 Td (Ruta del demo en vivo) Tj ET
+0.031 0.137 0.247 rg 54 312 720 64 re f
+BT /F2 24 Tf 1 1 1 rg 76 348 Td (Contratos PDF + metadata) Tj ET
+1 1 1 rg 54 278 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 278 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 291 Td (OBS raw / processed / results) Tj ET
+1 1 1 rg 54 230 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 230 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 243 Td (FunctionGraph OCR, parse, LLM inference) Tj ET
+1 1 1 rg 54 182 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 182 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 195 Td (DeepSeek risk scoring 0-10) Tj ET
+1 1 1 rg 54 134 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 134 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 147 Td (DWS + DLI analytics) Tj ET
+1 1 1 rg 54 86 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 86 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 99 Td (DataArts catálogo, linaje, políticas) Tj ET
+1 1 1 rg 54 38 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 38 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 51 Td (Dify chatbot + Streamlit dashboard) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 54 24 Td (Workshop Huawei Cloud x Salinas | Mayo 8, 2026 | México Century Plaza) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 890 24 Td (2 / 5) Tj ET
+endstream
 endobj
 8 0 obj
-<< /Length 2084 >>
-stream
-q
-1 1 1 rg 0 0 960 540 re f
-0.04 0.13 0.24 rg 0 482 960 58 re f
-BT /F2 23 Tf 36 508 Td 1 1 1 rg (Pipeline: Contract -> Risk -> Dashboard) Tj ET
-BT /F1 11 Tf 38 488 Td 0.82 0.90 1 rg (De 2 semanas de analisis manual a 8 minutos automaticos con alertas CNBV) Tj ET
-0.93 0.96 0.98 rg 36 82 190 360 re f
-0.18 0.42 0.58 rg 36 418 190 24 re f
-BT /F2 10 Tf 46 425 Td 1 1 1 rg (Ingesta) Tj ET
-BT /F1 9 Tf 46 392 Td 0.08 0.12 0.16 rg (ERP / buro / SFTP / APIs) Tj ET
-BT /F1 9 Tf 46 368 Td 0.08 0.12 0.16 rg (20 contratos a OBS raw) Tj ET
-BT /F1 9 Tf 46 344 Td 0.08 0.12 0.16 rg (OCR + parse serverless) Tj ET
-BT /F1 9 Tf 46 320 Td 0.08 0.12 0.16 rg (Payload explicito entre) Tj ET
-BT /F1 9 Tf 46 304 Td 0.08 0.12 0.16 rg (funciones) Tj ET
-0.93 0.96 0.98 rg 270 82 190 360 re f
-0.18 0.42 0.58 rg 270 418 190 24 re f
-BT /F2 10 Tf 280 425 Td 1 1 1 rg (Procesa) Tj ET
-BT /F1 9 Tf 280 392 Td 0.08 0.12 0.16 rg (MaaS DeepSeek risk scoring) Tj ET
-BT /F1 9 Tf 280 368 Td 0.08 0.12 0.16 rg (DLI Spark aggregation) Tj ET
-BT /F1 9 Tf 280 344 Td 0.08 0.12 0.16 rg (DWS ODS -> DW -> DM) Tj ET
-BT /F1 9 Tf 280 320 Td 0.08 0.12 0.16 rg (DataArts governance) Tj ET
-0.93 0.96 0.98 rg 504 82 190 360 re f
-0.18 0.42 0.58 rg 504 418 190 24 re f
-BT /F2 10 Tf 514 425 Td 1 1 1 rg (Salidas) Tj ET
-BT /F1 9 Tf 514 392 Td 0.08 0.12 0.16 rg (Risk dashboard) Tj ET
-BT /F1 9 Tf 514 368 Td 0.08 0.12 0.16 rg (Exposure report) Tj ET
-BT /F1 9 Tf 514 344 Td 0.08 0.12 0.16 rg (Alertas SAR/CNBV) Tj ET
-BT /F1 9 Tf 514 320 Td 0.08 0.12 0.16 rg (API gobernada) Tj ET
-0.93 0.96 0.98 rg 738 82 190 360 re f
-0.18 0.42 0.58 rg 738 418 190 24 re f
-BT /F2 10 Tf 748 425 Td 1 1 1 rg (Metricas) Tj ET
-BT /F1 9 Tf 748 392 Td 0.08 0.12 0.16 rg (2,300 vendors scored) Tj ET
-BT /F1 9 Tf 748 368 Td 0.08 0.12 0.16 rg (8 min vs 2 semanas) Tj ET
-BT /F1 9 Tf 748 344 Td 0.08 0.12 0.16 rg (4 niveles de riesgo) Tj ET
-BT /F1 9 Tf 748 320 Td 0.08 0.12 0.16 rg (20 alertas / registros demo) Tj ET
-0.04 0.13 0.24 rg 0 0 960 36 re f
-BT /F1 9 Tf 36 14 Td 1 1 1 rg (Security Groups | IAM | KMS | OBS encryption | CNBV/Banxico alignment | 2 / 5) Tj ET
-Q
-endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
 endobj
 9 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+<< /Length 1166 >>
+stream
+0.969 0.980 0.988 rg 0 0 960 540 re f
+0.122 0.714 0.788 rg 0 0 16 540 re f
+BT /F2 14 Tf 0.122 0.714 0.788 rg 54 493 Td (RESULTADO QUE DEBE VERSE DURANTE LA DEMO) Tj ET
+BT /F2 30 Tf 0.043 0.090 0.157 rg 54 456 Td (Prueba con 20 contratos) Tj ET
+0.031 0.137 0.247 rg 54 312 720 64 re f
+BT /F2 24 Tf 1 1 1 rg 76 348 Td ($133.1M MXN detectados) Tj ET
+1 1 1 rg 54 278 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 278 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 291 Td (1 crítico: $12.5M MXN) Tj ET
+1 1 1 rg 54 230 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 230 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 243 Td (10 altos: $96.0M MXN) Tj ET
+1 1 1 rg 54 182 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 182 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 195 Td (Bajo 6 | Medio 3 | Alto 10 | Crítico 1) Tj ET
+1 1 1 rg 54 134 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 134 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 147 Td (Abrir conversación sobre cartera, proveedor y obligación) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 54 24 Td (Workshop Huawei Cloud x Salinas | Mayo 8, 2026 | México Century Plaza) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 890 24 Td (3 / 5) Tj ET
+endstream
 endobj
 10 0 obj
-<< /Length 2032 >>
-stream
-q
-1 1 1 rg 0 0 960 540 re f
-0.04 0.13 0.24 rg 0 482 960 58 re f
-BT /F2 23 Tf 36 508 Td 1 1 1 rg (Contract AI + Dify Chatbot) Tj ET
-BT /F1 11 Tf 38 488 Td 0.82 0.90 1 rg (De revision manual de contratos a chatbot AI que responde en segundos) Tj ET
-0.93 0.96 0.98 rg 36 82 190 360 re f
-0.18 0.42 0.58 rg 36 418 190 24 re f
-BT /F2 10 Tf 46 425 Td 1 1 1 rg (1. Upload) Tj ET
-BT /F1 9 Tf 46 392 Td 0.08 0.12 0.16 rg (20 contracts) Tj ET
-BT /F1 9 Tf 46 368 Td 0.08 0.12 0.16 rg (Raw storage) Tj ET
-BT /F1 9 Tf 46 344 Td 0.08 0.12 0.16 rg (3 PDFs canonicos) Tj ET
-BT /F1 9 Tf 46 320 Td 0.08 0.12 0.16 rg (17 TXT sinteticos) Tj ET
-0.93 0.96 0.98 rg 270 82 190 360 re f
-0.18 0.42 0.58 rg 270 418 190 24 re f
-BT /F2 10 Tf 280 425 Td 1 1 1 rg (2-4. AI) Tj ET
-BT /F1 9 Tf 280 392 Td 0.08 0.12 0.16 rg (OCR extracts text) Tj ET
-BT /F1 9 Tf 280 368 Td 0.08 0.12 0.16 rg (Regex parser structures) Tj ET
-BT /F1 9 Tf 280 352 Td 0.08 0.12 0.16 rg (fields) Tj ET
-BT /F1 9 Tf 280 328 Td 0.08 0.12 0.16 rg (DeepSeek scores risk 0-10) Tj ET
-BT /F1 9 Tf 280 304 Td 0.08 0.12 0.16 rg (JSON response to results) Tj ET
-0.93 0.96 0.98 rg 504 82 190 360 re f
-0.18 0.42 0.58 rg 504 418 190 24 re f
-BT /F2 10 Tf 514 425 Td 1 1 1 rg (5. Chatbot) Tj ET
-BT /F1 9 Tf 514 392 Td 0.08 0.12 0.16 rg (Semantic search) Tj ET
-BT /F1 9 Tf 514 368 Td 0.08 0.12 0.16 rg (Natural language Q&A) Tj ET
-BT /F1 9 Tf 514 344 Td 0.08 0.12 0.16 rg (Dify KB indexing) Tj ET
-BT /F1 9 Tf 514 320 Td 0.08 0.12 0.16 rg (Cross-contract questions) Tj ET
-0.93 0.96 0.98 rg 738 82 190 360 re f
-0.18 0.42 0.58 rg 738 418 190 24 re f
-BT /F2 10 Tf 748 425 Td 1 1 1 rg (6. Dashboard) Tj ET
-BT /F1 9 Tf 748 392 Td 0.08 0.12 0.16 rg (Risk KPIs + charts) Tj ET
-BT /F1 9 Tf 748 368 Td 0.08 0.12 0.16 rg (Top-risk contracts) Tj ET
-BT /F1 9 Tf 748 344 Td 0.08 0.12 0.16 rg (Exposure by vendor) Tj ET
-BT /F1 9 Tf 748 320 Td 0.08 0.12 0.16 rg (DWS-backed reporting) Tj ET
-0.04 0.13 0.24 rg 0 0 960 36 re f
-BT /F1 9 Tf 36 14 Td 1 1 1 rg (OBS -> OCR -> Parse -> DeepSeek -> DWS/OBS -> Dify | 3 / 5) Tj ET
-Q
-endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
 endobj
 11 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 12 0 R >>
+<< /Length 1202 >>
+stream
+0.969 0.980 0.988 rg 0 0 960 540 re f
+0.122 0.714 0.788 rg 0 0 16 540 re f
+BT /F2 14 Tf 0.122 0.714 0.788 rg 54 493 Td (DATAARTS STUDIO + DWS + DLI) Tj ET
+BT /F2 30 Tf 0.043 0.090 0.157 rg 54 456 Td (Gobierno de datos como plano de control) Tj ET
+0.031 0.137 0.247 rg 54 312 720 64 re f
+BT /F2 24 Tf 1 1 1 rg 76 348 Td (Catálogo: metadata collection) Tj ET
+1 1 1 rg 54 278 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 278 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 291 Td (Linaje: OBS -> FG -> DLI -> DWS -> API) Tj ET
+1 1 1 rg 54 230 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 230 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 243 Td (Seguridad: clasificación, masking, acceso por rol) Tj ET
+1 1 1 rg 54 182 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 182 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 195 Td (Factory: ETL orchestration) Tj ET
+1 1 1 rg 54 134 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 134 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 147 Td (DataService: endpoints para dashboards y chatbot) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 54 24 Td (Workshop Huawei Cloud x Salinas | Mayo 8, 2026 | México Century Plaza) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 890 24 Td (4 / 5) Tj ET
+endstream
 endobj
 12 0 obj
-<< /Length 2117 >>
-stream
-q
-1 1 1 rg 0 0 960 540 re f
-0.04 0.13 0.24 rg 0 482 960 58 re f
-BT /F2 23 Tf 36 508 Td 1 1 1 rg (Data Governance & CNBV Alignment) Tj ET
-BT /F1 11 Tf 38 488 Td 0.82 0.90 1 rg (DataArts Studio: Catalog, Lineage, Security, ETL, DataService) Tj ET
-0.93 0.96 0.98 rg 36 82 190 360 re f
-0.18 0.42 0.58 rg 36 418 190 24 re f
-BT /F2 10 Tf 46 425 Td 1 1 1 rg (Catalog) Tj ET
-BT /F1 9 Tf 46 392 Td 0.08 0.12 0.16 rg (Metadata collection) Tj ET
-BT /F1 9 Tf 46 368 Td 0.08 0.12 0.16 rg (DWS to Catalog) Tj ET
-BT /F1 9 Tf 46 344 Td 0.08 0.12 0.16 rg (Lineage: OBS-FG-DLI-DWS) Tj ET
-BT /F1 9 Tf 46 320 Td 0.08 0.12 0.16 rg (Audit traceability) Tj ET
-0.93 0.96 0.98 rg 270 82 190 360 re f
-0.18 0.42 0.58 rg 270 418 190 24 re f
-BT /F2 10 Tf 280 425 Td 1 1 1 rg (Architecture) Tj ET
-BT /F1 9 Tf 280 392 Td 0.08 0.12 0.16 rg (Subject areas) Tj ET
-BT /F1 9 Tf 280 368 Td 0.08 0.12 0.16 rg (Data model design) Tj ET
-BT /F1 9 Tf 280 344 Td 0.08 0.12 0.16 rg (Table definitions) Tj ET
-BT /F1 9 Tf 280 320 Td 0.08 0.12 0.16 rg (Contract risk 3NF) Tj ET
-0.93 0.96 0.98 rg 504 82 190 360 re f
-0.18 0.42 0.58 rg 504 418 190 24 re f
-BT /F2 10 Tf 514 425 Td 1 1 1 rg (Security) Tj ET
-BT /F1 9 Tf 514 392 Td 0.08 0.12 0.16 rg (Sensitive field) Tj ET
-BT /F1 9 Tf 514 376 Td 0.08 0.12 0.16 rg (classification) Tj ET
-BT /F1 9 Tf 514 352 Td 0.08 0.12 0.16 rg (Dynamic masking policy) Tj ET
-BT /F1 9 Tf 514 328 Td 0.08 0.12 0.16 rg (Data classification) Tj ET
-BT /F1 9 Tf 514 304 Td 0.08 0.12 0.16 rg (Validate before claiming) Tj ET
-BT /F1 9 Tf 514 288 Td 0.08 0.12 0.16 rg (live enforcement) Tj ET
-0.93 0.96 0.98 rg 738 82 190 360 re f
-0.18 0.42 0.58 rg 738 418 190 24 re f
-BT /F2 10 Tf 748 425 Td 1 1 1 rg (Factory/API) Tj ET
-BT /F1 9 Tf 748 392 Td 0.08 0.12 0.16 rg (ETL orchestration) Tj ET
-BT /F1 9 Tf 748 368 Td 0.08 0.12 0.16 rg (Scheduling + monitoring) Tj ET
-BT /F1 9 Tf 748 344 Td 0.08 0.12 0.16 rg (REST endpoints) Tj ET
-BT /F1 9 Tf 748 320 Td 0.08 0.12 0.16 rg (GET /risk-results) Tj ET
-0.04 0.13 0.24 rg 0 0 960 36 re f
-BT /F1 9 Tf 36 14 Td 1 1 1 rg (AML controls | KYC vendor checks | SAR flags | Full lineage tracking | 4 / 5) Tj ET
-Q
-endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
 endobj
 13 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 14 0 R >>
+<< /Length 1138 >>
+stream
+0.969 0.980 0.988 rg 0 0 960 540 re f
+0.122 0.714 0.788 rg 0 0 16 540 re f
+BT /F2 14 Tf 0.122 0.714 0.788 rg 54 493 Td (CIERRE EJECUTIVO) Tj ET
+BT /F2 30 Tf 0.043 0.090 0.157 rg 54 456 Td (Impacto para AYCO) Tj ET
+0.031 0.137 0.247 rg 54 312 720 64 re f
+BT /F2 24 Tf 1 1 1 rg 76 348 Td (2 semanas -> 8 minutos) Tj ET
+1 1 1 rg 54 278 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 278 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 291 Td ($133M exposición identificada) Tj ET
+1 1 1 rg 54 230 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 230 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 243 Td (4 niveles de riesgo) Tj ET
+1 1 1 rg 54 182 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 182 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 195 Td (2,300 vendors escalables) Tj ET
+1 1 1 rg 54 134 760 34 re f
+0.843 0.890 0.941 RG 0.8 w 54 134 760 34 re S
+BT /F1 15 Tf 0.043 0.090 0.157 rg 74 147 Td (Controles: VPC, IAM, KMS, secretos fuera de git, trazabilidad LLM) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 54 24 Td (Workshop Huawei Cloud x Salinas | Mayo 8, 2026 | México Century Plaza) Tj ET
+BT /F1 9 Tf 0.392 0.455 0.545 rg 890 24 Td (5 / 5) Tj ET
+endstream
 endobj
 14 0 obj
-<< /Length 2167 >>
-stream
-q
-1 1 1 rg 0 0 960 540 re f
-0.04 0.13 0.24 rg 0 482 960 58 re f
-BT /F2 23 Tf 36 508 Td 1 1 1 rg (Impact & Security Architecture) Tj ET
-BT /F1 11 Tf 38 488 Td 0.82 0.90 1 rg (Key metrics and controls for the AYCO demo) Tj ET
-0.93 0.96 0.98 rg 36 82 190 360 re f
-0.18 0.42 0.58 rg 36 418 190 24 re f
-BT /F2 10 Tf 46 425 Td 1 1 1 rg (Impact) Tj ET
-BT /F1 9 Tf 46 392 Td 0.08 0.12 0.16 rg (2,300 vendors scored) Tj ET
-BT /F1 9 Tf 46 368 Td 0.08 0.12 0.16 rg (8 min vs 2 semanas) Tj ET
-BT /F1 9 Tf 46 344 Td 0.08 0.12 0.16 rg (4 niveles: bajo a critico) Tj ET
-BT /F1 9 Tf 46 320 Td 0.08 0.12 0.16 rg ($133M MXN exposure) Tj ET
-0.93 0.96 0.98 rg 270 82 190 360 re f
-0.18 0.42 0.58 rg 270 418 190 24 re f
-BT /F2 10 Tf 280 425 Td 1 1 1 rg (Latency) Tj ET
-BT /F1 9 Tf 280 392 Td 0.08 0.12 0.16 rg (Measure in dry run) Tj ET
-BT /F1 9 Tf 280 368 Td 0.08 0.12 0.16 rg (Do not quote fixed number) Tj ET
-BT /F1 9 Tf 280 352 Td 0.08 0.12 0.16 rg (until tested) Tj ET
-BT /F1 9 Tf 280 328 Td 0.08 0.12 0.16 rg ($0.0001 per contract) Tj ET
-BT /F1 9 Tf 280 312 Td 0.08 0.12 0.16 rg (estimate) Tj ET
-BT /F1 9 Tf 280 288 Td 0.08 0.12 0.16 rg (Langfuse captures traces) Tj ET
-0.93 0.96 0.98 rg 504 82 190 360 re f
-0.18 0.42 0.58 rg 504 418 190 24 re f
-BT /F2 10 Tf 514 425 Td 1 1 1 rg (Controls) Tj ET
-BT /F1 9 Tf 514 392 Td 0.08 0.12 0.16 rg (VPC 172.16.0.0/16) Tj ET
-BT /F1 9 Tf 514 368 Td 0.08 0.12 0.16 rg (Security Groups) Tj ET
-BT /F1 9 Tf 514 344 Td 0.08 0.12 0.16 rg (IAM RBAC) Tj ET
-BT /F1 9 Tf 514 320 Td 0.08 0.12 0.16 rg (KMS AES-256) Tj ET
-0.93 0.96 0.98 rg 738 82 190 360 re f
-0.18 0.42 0.58 rg 738 418 190 24 re f
-BT /F2 10 Tf 748 425 Td 1 1 1 rg (Resources) Tj ET
-BT /F1 9 Tf 748 392 Td 0.08 0.12 0.16 rg (ECS x2) Tj ET
-BT /F1 9 Tf 748 368 Td 0.08 0.12 0.16 rg (DWS x3 nodes) Tj ET
-BT /F1 9 Tf 748 344 Td 0.08 0.12 0.16 rg (DLI serverless) Tj ET
-BT /F1 9 Tf 748 320 Td 0.08 0.12 0.16 rg (FunctionGraph x3) Tj ET
-BT /F1 9 Tf 748 296 Td 0.08 0.12 0.16 rg (OBS x3 + DataArts +) Tj ET
-BT /F1 9 Tf 748 280 Td 0.08 0.12 0.16 rg (Langfuse) Tj ET
-0.04 0.13 0.24 rg 0 0 960 36 re f
-BT /F1 9 Tf 36 14 Td 1 1 1 rg (Use docs/slides-arquitectura.pptx as the source deck | 5 / 5) Tj ET
-Q
-endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 13 0 R >>
 endobj
 xref
 0 15
 0000000000 65535 f
 0000000015 00000 n
 0000000064 00000 n
-0000000147 00000 n
-0000000217 00000 n
-0000000292 00000 n
-0000000428 00000 n
-0000002418 00000 n
-0000002554 00000 n
-0000004690 00000 n
-0000004827 00000 n
-0000006912 00000 n
-0000007050 00000 n
-0000009220 00000 n
-0000009358 00000 n
+0000000148 00000 n
+0000000245 00000 n
+0000000347 00000 n
+0000001591 00000 n
+0000001727 00000 n
+0000003238 00000 n
+0000003374 00000 n
+0000004592 00000 n
+0000004729 00000 n
+0000005984 00000 n
+0000006122 00000 n
+0000007313 00000 n
 trailer
 << /Size 15 /Root 1 0 R >>
 startxref
-11578
+7451
 %%EOF
