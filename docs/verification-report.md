@@ -22,9 +22,12 @@ Project: `/Users/eduardo/dev/ayco-huawei-cloud`
 - Missing screenshot fallbacks were removed from the script; backports now use committed text/JSON artifacts.
 - Dify knowledge-base indexing now reads `data/risk_results/risk_results.csv`; it no longer generates unrelated fallback contracts.
 - DWS contract governance output now uses `dm.contract_vendor_risk_summary`, a materialized view based on `risk_results`.
+- `docs/slides-arquitectura.pptx` and `docs/slides-arquitectura.pdf` were checked against the current implementation: legacy MRS/DMS/Kafka claims are absent, Cloud Firewall/WAF are not listed as active controls, and the unsupported `99.98%` availability claim was removed.
+- The resource map no longer contains a blank event-streaming row or an unverified CDM vCPU/memory claim.
 
 ## Remaining Operator Checks
 
 - Confirm `presenter_ip` is set to the presenter public IP before deployment.
 - Confirm DataArts masking behavior in the console/debugger before claiming active role-based masking live.
 - Confirm FunctionGraph-to-FunctionGraph orchestration if the demo should show a fully automatic chain instead of explicit invocations.
+- If the PDF needs to preserve the original PowerPoint styling exactly, regenerate it from PowerPoint/LibreOffice after opening the corrected PPTX. The tracked PDF content is accurate but intentionally simplified because no Office/Pandoc renderer is installed in this workspace.

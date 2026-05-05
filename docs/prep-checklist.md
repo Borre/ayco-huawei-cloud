@@ -260,8 +260,9 @@ ls /home/eduardo/dev/ayco-huawei-cloud/backups/
 # Option 2: Quick re-deploy (if cloud issue)
 make demo   # Full redeploy takes ~20-30 min
 
-# Option 3: Static screenshots
-# Have screenshots of each demo step ready in presentations/
+# Option 3: Checked-in fallback artifacts
+ls backports/
+# Use the matching .txt/.json file and clearly label it as a backup artifact.
 ```
 
 ### Emergency contacts

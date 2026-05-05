@@ -252,7 +252,7 @@ Exit psql with `\q`
 |---|---|
 | FunctionGraph invocation fails | Pre-recorded video of FunctionGraph execution logs |
 | DLI Spark job stuck | Use pre-generated Spark output files in `backports/demo1-spark-output.txt` |
-| DWS connection refused | Use recorded screenshots of query results |
+| DWS connection refused | Use checked-in SQL output/backport files and state they are fallback artifacts |
 | DeepSeek API timeout | Use pre-cached LLM response in `backports/demo1-llm-response.json` |
 | PDFs not in OBS | Use `make demo` seed data that pre-loads contracts into DWS |
 
@@ -456,7 +456,7 @@ Expected output (note masked vendor_name):
 > "Modelo de datos documentado, no adivinado. Cada tabla, cada columna, está registrada en el catálogo de arquitectura. Esto es lo que separa un data lake de un data swamp."
 
 **During Security:**
-> "Clasificación automática y enmascaramiento dinámico. Cumplimos con regulación financiera sin escribir una sola regla manual."
+> "Clasificación de datos y política de enmascaramiento configurada. Para el demo mostramos el control gobernado y validamos el resultado con la API/backport antes de presentarlo como enforcement activo."
 
 **During Dashboard:**
 > "Dashboard en tiempo real, open-source, corriendo en el mismo ECS. Sin licencias, sin infraestructura extra. Puro valor."
@@ -484,7 +484,7 @@ Expected output (note masked vendor_name):
 |---|---|
 | DataArts Catalog not loading | Show architecture diagram (docs/architecture.drawio) with lineage |
 | DataArts Architecture page error | Show Terraform code as proof of resource definition |
-| Security masking not active | Show API response manually with `sed 's/vendor_name.*/vendor_name": "C***Z"/'` |
+| Security masking not active | Use `backports/demo2-api-outputs.json` and label it as a masked fallback response |
 | ETL pipeline fails | Use `backports/demo2-etl-output.txt` with pre-captured log |
 | Streamlit dashboard 502 | Show dashboard text backport in `backports/demo2-dashboard-backport.txt` |
 | Langfuse not loading | Show Langfuse Terraform vars + code as proof of integration |
