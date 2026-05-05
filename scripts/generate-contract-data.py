@@ -2,7 +2,7 @@
 """scripts/generate-contract-data.py — Datos sintéticos de contratos para AYCO demo.
 
 Genera:
-1. risk_results.csv — 3 resultados canónicos de análisis de riesgo alineados a los PDFs del demo
+1. risk_results.csv — 20 resultados de riesgo: 3 canónicos alineados a los PDFs + 17 sintéticos
 2. contract_texts/ — 20 archivos .txt de contratos sintéticos (para OBS + Dify KB)
 3. risk_summary.json — Resumen agregado (para dashboards)
 """

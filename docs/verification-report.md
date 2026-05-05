@@ -12,6 +12,7 @@ Project: `/Users/eduardo/dev/ayco-huawei-cloud`
   - `AYCO-2026-0147` — high risk — $3.85M MXN — score 8.7/10
   - `AYCO-2026-0148` — low risk — $450K MXN — score 2.3/10
   - `AYCO-2026-0149` — critical — $12.5M MXN — score 9.2/10
+- Generated demo artifacts now include 20 risk records: 3 canonical contracts plus 17 synthetic contracts. `data/risk_results/risk_results.csv`, `data/risk_results/risk_summary.json`, and `data/seed_risk_results.sql` all report 20 records.
 
 ## Reality Checks Applied
 
@@ -22,8 +23,9 @@ Project: `/Users/eduardo/dev/ayco-huawei-cloud`
 - Missing screenshot fallbacks were removed from the script; backports now use committed text/JSON artifacts.
 - Dify knowledge-base indexing now reads `data/risk_results/risk_results.csv`; it no longer generates unrelated fallback contracts.
 - DWS contract governance output now uses `dm.contract_vendor_risk_summary`, a materialized view based on `risk_results`.
-- `docs/slides-arquitectura.pptx`, `docs/slides-arquitectura.pdf`, and `docs/architecture-diagram.html` were checked against the current implementation: legacy MRS/DMS/Kafka claims are absent, Cloud Firewall/WAF are not listed as active controls, and unsupported latency/availability claims were removed.
+- `docs/slides-arquitectura.pptx`, `docs/slides-arquitectura.pdf`, and `docs/architecture-diagram.html` were checked against the current implementation: legacy MRS/DMS/Kafka claims are absent, Cloud Firewall/WAF are not listed as active controls, unsupported latency/availability claims were removed, OBS is consistently represented as 3 buckets, and the deck/PDF reflect the 20-contract demo.
 - The resource map no longer contains a blank event-streaming row or an unverified CDM vCPU/memory claim.
+- The older deck has been moved to `docs/archive/` so presenters have a single active deck path.
 
 ## Remaining Operator Checks
 

@@ -560,7 +560,7 @@ Navigate to Dify UI > Knowledge > `ayco-contracts-kb`
 
 Show:
 - Indexing status: `Indexed`
-- Documents: `3 contracts indexed`
+- Documents: `20 contracts indexed` (3 canonical PDFs + 17 synthetic TXT records)
 - Embedding model: `bge-large-zh` or equivalent
 - Retrieval settings: Top-K = 3, Score threshold = 0.5
 

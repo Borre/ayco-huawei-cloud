@@ -8,7 +8,7 @@
         <mxCell id="vpc" value="Huawei Cloud la-north-2 (Mexico City 2) VPC 10.0.0.0/16" style="dashed=1;dashPattern=8 4;fillColor=none;strokeColor=#1476FF;strokeWidth=3;rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;" vertex="1" parent="1">
           <mxGeometry x="120" y="30" width="930" height="810" as="geometry" />
         </mxCell>
-        <mxCell id="obs-zone" value="Storage (OBS ×5)" style="dashed=1;dashPattern=4 4;fillColor=#E8EAF6;strokeColor=#5C6BC0;strokeWidth=2;rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;" vertex="1" parent="1">
+        <mxCell id="obs-zone" value="Storage (OBS ×3)" style="dashed=1;dashPattern=4 4;fillColor=#E8EAF6;strokeColor=#5C6BC0;strokeWidth=2;rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;" vertex="1" parent="1">
           <mxGeometry x="140" y="90" width="890" height="105" as="geometry" />
         </mxCell>
         <mxCell id="fg-zone" value="AI Pipeline — FunctionGraph (Serverless)" style="dashed=1;dashPattern=4 4;fillColor=#E3F2FD;strokeColor=#1E88E5;strokeWidth=2;rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;" vertex="1" parent="1">

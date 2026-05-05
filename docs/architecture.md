@@ -64,7 +64,7 @@
 
 | Layer | Control | Detail |
 |-------|---------|--------|
-| Network | VPC Isolation | 10.1.0.0/16, private subnets |
+| Network | VPC Isolation | 172.16.0.0/16, private subnets |
 | Access | Security Groups | Admin (SSH), HTTP (80/443), DWS (8000) |
 | Identity | IAM RBAC | Group + Role with least privilege |
 | Encryption | KMS AES-256 | OBS server-side, DWS at rest |
