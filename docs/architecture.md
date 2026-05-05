@@ -9,21 +9,15 @@
                            │              Huawei Cloud la-north-2 (Mexico City 2)  │
                            │                                                      │
   ┌──────────┐             │  ┌──────────────────────────────────────────────┐    │
-  │ Contract │  Upload     │  │  OBS Buckets (×5)                            │    │
-  │ PDFs     │────────────►│  │  ┌────────────┐  ┌───────────────┐           │    │
-  │ (3 demo) │  to OBS     │  │  │contracts-  │  │ contracts-    │           │    │
-  └──────────┘             │  │  │raw (raw)   │  │ text (parsed) │           │    │
-                           │  │  └─────┬──────┘  └───────▲───────┘           │    │
+  │ Contract │  Upload     │  ┌────────────┐  ┌───────────────┐           │    │
+  │ PDFs     │────────────►│  │  │contracts-  │  │ contracts-    │           │    │
+  │ (20 seed)│  to OBS     │  │  │raw (raw)   │  │ text (parsed) │           │    │
+  └──────────┘             │  └────────────┘  └───────▲───────┘           │    │
                            │  │        │                  │                   │    │
-                           │  │  ┌─────┴──────┐  ┌───────┴───────┐           │    │
-                           │  │  │ contracts- │  │ ayco-raw      │           │    │
-                           │  │  │ results    │  │ (DLI source)  │           │    │
-                           │  │  └─────▲──────┘  └───────▲───────┘           │    │
-                           │  │        │                  │                   │    │
-                           │  │  ┌─────┴──────┐                           │    │
-                           │  │  │ ayco-      │                           │    │
-                           │  │  │ results    │                           │    │
-                           │  │  └────────────┘                           │    │
+                           │  │  ┌─────┴─────────────────┴───────┐           │    │
+                           │  │  │ contracts-                     │           │    │
+                           │  │  │ results                        │           │    │
+                           │  │  └────────────────────────────────┘           │    │
                            │  └────────┼─────────────────┼─────────────────┘    │
                            │           │                 │                      │
                            │           ▼                 │                      │
@@ -120,10 +114,11 @@
 ```
 
 **Key metrics shown in Demo 1:**
-- Risk score per contract (0-100)
+- Risk score per contract (0-100) — 20 seed contracts (3 canonical + 17 synthetic)
 - Risk level classification (BAJO/MEDIO/ALTO/CRITICO)
 - Alerts and recommendations from LLM
 - Aggregated risk by vendor, by level
+- Total exposure: ~$133M MXN across 20 contracts
 
 ## Demo 2: Data Governance Flow (DataArts)
 
@@ -234,7 +229,7 @@
 | DataArts Studio | professional | ETL + Catalog + Architecture + Security + Data API | Yes (monthly) |
 | CDM Cluster | cdm.large | DataArts Agent for batch movement | Yes (demo) |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
-| OBS ×5 | standard | Storage | Pay-per-GB |
+| OBS ×3 | standard | Storage (contracts-raw, contracts-text, contracts-results) | Pay-per-GB |
 | KMS | standard | Encryption | Pay-per-key |
 | Streamlit Dashboard | on ECS Dify (port 8501) | Risk visualization (Plotly) | Yes (demo) |
 | Langfuse Cloud | free tier | LLM observability (traces, latency, tokens, errors) | Free |
