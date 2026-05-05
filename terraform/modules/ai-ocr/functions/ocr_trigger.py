@@ -184,7 +184,15 @@ def _sign_request(method, url, headers, body, ak, sk, datestamp):
     )
 
     algorithm = "SDK-HMAC-SHA256"
-    region = OCR_ENDPOINT.split(".")[1] if OCR_ENDPOINT.startswith("ocr.") else "ap-southeast-1"
+    # Derive region from endpoint (e.g., ocr.la-north-2.myhuaweicloud.com -> la-north-2)
+    region = os.environ.get("HUAWEI_REGION")
+    if not region:
+        endpoint_parts = OCR_ENDPOINT.split(".")
+        if len(endpoint_parts) > 1:
+            region = endpoint_parts[1]
+        else:
+            region = "la-north-2" # Default to project region
+    
     credential_scope = f"{datestamp}/{region}/ocr/sdk_request"
     string_to_sign = "\n".join(
         [

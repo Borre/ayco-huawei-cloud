@@ -68,10 +68,10 @@
 <text x="285" y="75" fill="#22d3ee" font-size="7" text-anchor="middle">Flash</text>
 <line x1="282" y1="83" x2="282" y2="90" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#cl)"/>
 <line x1="370" y1="125" x2="398" y2="125" stroke="#34d399" stroke-width="1.5" marker-end="url(#em)"/>
-<rect x="400" y="90" width="90" height="70" rx="6" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.5"/>
-<text x="445" y="112" fill="white" font-size="10" font-weight="600" text-anchor="middle">DMS Kafka</text>
-<text x="445" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">kafka.2u4g</text>
-<text x="445" y="146" fill="#fb923c" font-size="7" text-anchor="middle">streaming</text>
+<rect x="400" y="90" width="90" height="70" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+<text x="445" y="112" fill="white" font-size="10" font-weight="600" text-anchor="middle">OBS Event</text>
+<text x="445" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">payload handoff</text>
+<text x="445" y="146" fill="#22d3ee" font-size="7" text-anchor="middle">explicit invoke</text>
 <line x1="490" y1="125" x2="518" y2="125" stroke="#fb923c" stroke-width="1.5" marker-end="url(#ah)"/>
 <!-- Row2: Processing -->
 <text x="30" y="198" fill="#fbbf24" font-size="9" font-weight="600">PROCESSING &amp; STORAGE</text>
@@ -161,7 +161,7 @@
 <text x="200" y="460" fill="#22d3ee" font-size="6">Knowledge Base query</text>
 <!-- Foundation bar -->
 <rect x="30" y="745" width="1140" height="30" rx="5" fill="rgba(30,41,59,0.6)" stroke="#475569" stroke-width="1"/>
-<text x="50" y="764" fill="#94a3b8" font-size="9">FOUNDATION: VPC | Security Groups | KMS | IAM (conditional) | CFW | EIP | DNS | OBS x5 | DMS Kafka</text>
+<text x="50" y="764" fill="#94a3b8" font-size="9">FOUNDATION: VPC | Security Groups | KMS | IAM | EIP | DNS | OBS x5 | DLI | DWS</text>
 <!-- Legend -->
 <text x="920" y="78" fill="white" font-size="10" font-weight="600">Legend</text>
 <rect x="920" y="88" width="14" height="9" rx="2" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1"/>
@@ -182,12 +182,12 @@
 <text x="940" y="196" fill="#94a3b8" font-size="8">Region Boundary</text>
 <!-- Data flow ribbon -->
 <path d="M 30 775 L 30 810 Q 30 825 50 825 L 1150 825 Q 1170 825 1170 810 L 1170 775" fill="none" stroke="#475569" stroke-width="0.8"/>
-<text x="600" y="810" fill="#475569" font-size="7" text-anchor="middle">OBS > FunctionGraph > MaaS(DeepSeek) > Kafka > DLI > DWS > DataArts(Catalog+Architecture+Security+Factory+DataService) > Dify/Streamlit > Langfuse</text>
+<text x="600" y="810" fill="#475569" font-size="7" text-anchor="middle">OBS > FunctionGraph > MaaS(DeepSeek) > DLI > DWS > DataArts(Catalog+Architecture+Security+Factory+DataService) > Dify/Streamlit > Langfuse</text>
 </svg>
 </div>
 <div class="cards">
 <div class="card"><div class="card-header"><div class="card-dot cyan"></div><h3>AI Pipeline</h3></div>
-<ul><li>. OCR via FunctionGraph + Huawei OCR service</li><li>. LLM inference: DeepSeek v4 Flash via MaaS</li><li>. OBS trigger / Kafka streaming / DLI aggregation</li><li>. ~200ms end-to-end latency per contract</li></ul></div>
+<ul><li>. OCR via FunctionGraph + Huawei OCR service</li><li>. LLM inference: DeepSeek v4 Flash via MaaS</li><li>. OBS trigger / explicit FunctionGraph payload handoff / DLI aggregation</li><li>. Latency must be measured during the dry run before quoting live</li></ul></div>
 <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Data Governance (New!)</h3></div>
 <ul><li>. Catalog: automated lineage (OBS-DWS-API)</li><li>. Architecture: 3NF model + subject area</li><li>. Security: classification rules + dynamic masking</li><li>. Factory: 3-node ETL with quality checks</li></ul></div>
 <div class="card"><div class="card-header"><div class="card-dot violet"></div><h3>Stack &amp; Performance</h3></div>

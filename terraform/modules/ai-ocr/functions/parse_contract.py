@@ -55,7 +55,7 @@ def _get_messages(event):
 
 
 def parse_contract_text(text, source_key):
-    return {
+    data = {
         "source_key": source_key,
         "contract_number": extract_field(
             r"(?:CONTRATO\s+N[UÚ]MERO|N[uú]mero\s+de\s+Contrato)[:\s]+([A-Z0-9\-]+)",
@@ -76,6 +76,14 @@ def parse_contract_text(text, source_key):
         "confidencialidad": extract_field(r"[Cc]onfidencialidad[:\s]+([^\n]+)", text),
         "text_length": len(text),
     }
+
+    # Validation and Logging for critical fields
+    critical_fields = ["contract_number", "monto_total"]
+    for field in critical_fields:
+        if not data.get(field):
+            print(f"[WARNING] Critical field '{field}' missing in contract: {source_key}")
+    
+    return data
 
 
 def extract_party(label, text):

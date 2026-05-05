@@ -1,6 +1,6 @@
-# Demo 2 Dashboard Backport — Screenshot placeholder
+# Demo 2 Dashboard Backport — Text fallback
 # Used if Streamlit is unavailable during live demo.
-# Replace with actual screenshot captured during dry run.
+# This is a checked-in fallback artifact; label it as backup output when presenting.
 
 AYCO Contract Risk Dashboard
 ===...[truncated]

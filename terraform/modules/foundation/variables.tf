@@ -10,19 +10,19 @@ terraform {
 variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
-  default     = "10.1.0.0/16"
+  default     = "172.16.0.0/16"
 }
 
 variable "subnet_cidr" {
   description = "Subnet CIDR block"
   type        = string
-  default     = "10.1.1.0/24"
+  default     = "172.16.1.0/24"
 }
 
 variable "subnet_gateway" {
   description = "Subnet gateway IP"
   type        = string
-  default     = "10.1.1.1"
+  default     = "172.16.1.1"
 }
 
 variable "presenter_ip" {

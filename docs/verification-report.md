@@ -22,7 +22,7 @@ Project: `/Users/eduardo/dev/ayco-huawei-cloud`
 - Missing screenshot fallbacks were removed from the script; backports now use committed text/JSON artifacts.
 - Dify knowledge-base indexing now reads `data/risk_results/risk_results.csv`; it no longer generates unrelated fallback contracts.
 - DWS contract governance output now uses `dm.contract_vendor_risk_summary`, a materialized view based on `risk_results`.
-- `docs/slides-arquitectura.pptx` and `docs/slides-arquitectura.pdf` were checked against the current implementation: legacy MRS/DMS/Kafka claims are absent, Cloud Firewall/WAF are not listed as active controls, and the unsupported `99.98%` availability claim was removed.
+- `docs/slides-arquitectura.pptx`, `docs/slides-arquitectura.pdf`, and `docs/architecture-diagram.html` were checked against the current implementation: legacy MRS/DMS/Kafka claims are absent, Cloud Firewall/WAF are not listed as active controls, and unsupported latency/availability claims were removed.
 - The resource map no longer contains a blank event-streaming row or an unverified CDM vCPU/memory claim.
 
 ## Remaining Operator Checks
