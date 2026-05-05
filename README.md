@@ -49,6 +49,11 @@ make status
 | 38-41 min | ROI + Success Case | Business impact |
 | 41-45 min | Q&A | — |
 
+**✨ Wow Factor Highlights:**
+- **Live Streamlit Dashboard:** Features a dynamic animated gauge for Average Risk, an interactive vendor exposure chart, and an auto-refresh toggle for real-time monitoring of the DWS data warehouse.
+- **Real-time LLM Observability:** Instant traces in Langfuse without blocking the main workflow.
+- **RAG Chatbot:** Conversational query interface via Dify querying knowledge extracted entirely by the automated OCR+MaaS pipeline.
+
 **Full demo script:** [`docs/demo-script.md`](docs/demo-script.md)
 **Architecture diagrams:** [`docs/architecture.md`](docs/architecture.md)
 **Prep checklist:** [`docs/prep-checklist.md`](docs/prep-checklist.md)

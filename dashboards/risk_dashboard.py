@@ -73,6 +73,16 @@ with col3:
     )
     st.caption("Huawei Cloud")
 
+# ─── Sidebar / Auto-Refresh ──────────────────────────────────
+with st.sidebar:
+    st.header("⚙️ Settings")
+    auto_refresh = st.checkbox("Auto-refresh data (10s)", value=False)
+    if auto_refresh:
+        st.write("Live monitoring enabled.")
+        import time
+        time.sleep(10)
+        st.rerun()
+
 # ─── KPI Row ──────────────────────────────────────────────
 kpi_query = """
     SELECT
@@ -97,10 +107,36 @@ else:
     st.warning("⚠️ No data in DWS yet. Run the ETL pipeline first.")
 
 # ─── Charts Row ────────────────────────────────────────────
-col_left, col_right = st.columns(2)
+col_left, col_mid, col_right = st.columns([1, 1.2, 1.2])
 
 with col_left:
-    st.subheader("📊 Risk Distribution by Level")
+    st.subheader("🎯 Average Risk")
+    if not kpi_df.empty:
+        avg_risk = float(row["avg_risk"])
+        color = "#00d4aa" if avg_risk < 4 else "#ffd700" if avg_risk < 7 else "#ff4444"
+        fig_gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=avg_risk,
+            domain={'x': [0, 1], 'y': [0, 1]},
+            gauge={
+                'axis': {'range': [None, 10], 'tickwidth': 1, 'tickcolor': "#475569"},
+                'bar': {'color': color},
+                'bgcolor': "rgba(0,0,0,0)",
+                'borderwidth': 0,
+                'steps': [
+                    {'range': [0, 4], 'color': 'rgba(0, 212, 170, 0.15)'},
+                    {'range': [4, 7], 'color': 'rgba(255, 215, 0, 0.15)'},
+                    {'range': [7, 10], 'color': 'rgba(255, 68, 68, 0.15)'}],
+            }
+        ))
+        fig_gauge.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            font_color="#e8eaed", height=280, margin=dict(t=30, b=10, l=10, r=10)
+        )
+        st.plotly_chart(fig_gauge, use_container_width=True)
+
+with col_mid:
+    st.subheader("📊 Risk Distribution")
     risk_dist_query = """
         SELECT risk_level, COUNT(*) AS count, ROUND(AVG(risk_score), 1) AS avg_score
         FROM risk_results GROUP BY risk_level ORDER BY avg_score DESC
@@ -111,13 +147,13 @@ with col_left:
         fig = px.bar(
             risk_df, x="risk_level", y="count", color="risk_level",
             color_discrete_map=color_map, text="avg_score",
-            labels={"count": "Contracts", "risk_level": "Risk Level"},
+            labels={"count": "Contracts", "risk_level": ""},
         )
         fig.update_traces(texttemplate="Avg: %{text}", textposition="outside")
         fig.update_layout(
             showlegend=False, plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)", font_color="#e8eaed",
-            margin=dict(t=10, b=10),
+            margin=dict(t=10, b=10), height=280
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -133,14 +169,14 @@ with col_right:
     vendor_df = run_query(vendor_query)
     if not vendor_df.empty:
         fig = px.bar(
-            vendor_df, x="vendor_name", y="exposure_m", color="avg_risk",
+            vendor_df, x="exposure_m", y="vendor_name", color="avg_risk", orientation='h',
             color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
             labels={"exposure_m": "Exposure (M MXN)", "vendor_name": ""},
         )
         fig.update_layout(
             plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
             font_color="#e8eaed", coloraxis_showscale=False,
-            margin=dict(t=10, b=10),
+            margin=dict(t=10, b=10, l=10, r=10), height=280
         )
         st.plotly_chart(fig, use_container_width=True)
 

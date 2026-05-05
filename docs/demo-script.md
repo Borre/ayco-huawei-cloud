@@ -387,14 +387,16 @@ Show job execution log:
 
 Switch to browser tab: Streamlit Dashboard (`http://<dify-ip>:8501`)
 
-Show the live dashboard:
-- **KPI Row:** Total Contracts, Avg Risk Score, Critical Alerts, Total Exposure, Pipeline Status
-- **Risk Distribution Chart:** Bar chart with color-coded risk levels (verde=bajo, amarillo=medio, naranja=alto, rojo=crítico)
-- **Vendor Exposure Chart:** Horizontal bars showing exposure by vendor, colored by avg risk
-- **Contract Details Table:** Full sortable/filterable table with risk scores as progress bars
+Show the live dashboard and highlight the **Wow Factor** elements:
+- **Auto-Refresh Toggle:** Open the sidebar and turn on the auto-refresh toggle. Mention how this enables live monitoring during real-time processing without manually refreshing the browser.
+- **KPI Row:** Total Contracts, Avg Risk Score, Critical Alerts, Total Exposure, Pipeline Status.
+- **Average Risk Gauge:** A visual, animated gauge chart showing the global risk score.
+- **Risk Distribution Chart:** Bar chart with color-coded risk levels.
+- **Vendor Exposure Chart:** Horizontal bars showing exposure by vendor, colored by avg risk.
+- **Contract Details Table:** Full sortable/filterable table with risk scores as progress bars.
 
 **Speaker:**
-> "Y esto es lo mejor: todo este dashboard corre en Streamlit, una herramienta open-source, en el mismo ECS donde tenemos Dify. Cero infraestructura adicional. Conectado directo a DWS, datos en tiempo real. En producción, esto se puede publicar con HTTPS y autenticación SSO."
+> "Y esto es lo mejor: todo este dashboard corre en Streamlit, una herramienta open-source, en el mismo ECS donde tenemos Dify. Cero infraestructura adicional. Conectado directo a DWS, con actualización automática cada 10 segundos. Aquí podemos ver nuestro Gauge de riesgo promedio cambiar en vivo si procesamos un nuevo lote de contratos con anomalías. En producción, esto se puede publicar con HTTPS y autenticación SSO."
 
 Note the footer showing: "Data: Huawei Cloud DWS | AI: DeepSeek v4 Flash via MaaS | Observability: Langfuse"
 
