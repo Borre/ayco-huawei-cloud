@@ -5,9 +5,11 @@ resource "huaweicloud_identity_group" "ayco_team" {
 
 resource "huaweicloud_identity_role" "ayco_policy" {
   name        = "ayco-demo-policy"
-  description = "Minimal access for AYCO demo: OBS, DWS, DLI, DataArts, FunctionGraph"
+  description = "Minimal access for AYCO demo: OBS, DWS, DLI, DataArts, FunctionGraph, OCR, MaaS"
   type        = "AX"
 
+  # NOTE: Resource = "*" is scoped to var.project_id via the group role assignment below.
+  # For production: split into per-service policies with explicit resource ARNs.
   policy = jsonencode({
     Version = "1.1"
     Statement = [

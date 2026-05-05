@@ -185,7 +185,7 @@ RISK_PROFILES = {
 # ─── Generar risk_results canónicos alineados a data/contracts/*.pdf ─────
 print("Generando 3 resultados canónicos de análisis de riesgo...")
 
-risk_results = [
+risk_canonical = [
     {
         "contract_number": "AYCO-2026-0147",
         "vendor_name": "Outsourcing del Sureste S. de R.L. de C.V.",
@@ -232,6 +232,43 @@ risk_results = [
         "analyzed_at": "2026-05-08T10:17:00",
     },
 ]
+
+# Add 17 synthetic contracts to reach 20 total (better demo visual)
+print("Generando 17 contratos sintéticos adicionales (total 20)...")
+risk_synthetic = []
+for i in range(1, 18):
+    profile_name = random.choices(
+        ["BAJO", "MEDIO", "ALTO", "CRITICO"],
+        weights=[30, 30, 25, 15]
+    )[0]
+    profile = RISK_PROFILES[profile_name]
+    proveedor = random.choice(PROVEEDORES)
+    contratante = random.choice(CONTRATANTES)
+    monto = round(random.uniform(*profile["monto"]), 2)
+    penalizacion = round(random.uniform(*profile["penalizacion"]), 1)
+    garantia = round(random.uniform(*profile["garantia"]), 1)
+    plazo = random.randint(*profile["plazo"])
+    score = round(random.uniform(*profile["score_range"]) / 10, 1)
+    alertas = random.sample(profile["alertas_posibles"], min(2, len(profile["alertas_posibles"])))
+    recs = random.sample(profile["recomendaciones"], min(2, len(profile["recomendaciones"])))
+
+    risk_synthetic.append({
+        "contract_number": f"AYCO-2026-{150 + i:04d}",
+        "vendor_name": proveedor[0],
+        "monto_total": monto,
+        "plazo_dias": plazo,
+        "penalizacion_pct": penalizacion,
+        "garantia_pct": garantia,
+        "risk_score": score,
+        "risk_level": profile_name,
+        "alertas": " | ".join(alertas),
+        "recomendaciones": " | ".join(recs),
+        "resumen": f"Contrato {profile_name.lower()} — ${monto:,.0f} MXN, {plazo} días, penalización {penalizacion}%, garantía {garantia}%",
+        "llm_provider": "maas-deepseek-v4-flash",
+        "analyzed_at": f"2026-05-08T10:{18 + i:02d}:00",
+    })
+
+risk_results = risk_canonical + risk_synthetic
 
 # Write CSV
 fieldnames = list(risk_results[0].keys())

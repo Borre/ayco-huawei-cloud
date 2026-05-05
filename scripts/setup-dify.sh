@@ -23,9 +23,15 @@ if [[ "$MAAS_KEY" == op://* ]]; then
   MAAS_KEY=$(op read "$MAAS_KEY" 2>/dev/null || echo "")
 fi
 
+if [ -z "$MAAS_KEY" ]; then
+  echo "ERROR: MAAS_API_KEY not found in .env or 1Password."
+  exit 1
+fi
+
 echo "=== Deploying Dify on $DIFY_IP ==="
 
-ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << 'DEPLOY'
+# Use unquoted heredoc so $MAAS_KEY expands from local env
+ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" << DEPLOY
 set -euo pipefail
 
 # ─── DNS fix ────────────────────────────────────────
@@ -48,30 +54,25 @@ fi
 cd dify/docker
 cp -n .env.example .env || true
 
-# ─── Configure LLM provider ─────────────────────────
+# ─── Configure LLM provider (key injected from local env) ──
 cat >> .env << 'ENVVARS'
 
 # === AYCO Demo — LLM Configuration ===
 # Primary: Huawei Cloud MaaS (DeepSeek v4 Flash)
-DEEPSEEK_API_KEY=__MAAS_API_KEY_PLACEHOLDER__
+DEEPSEEK_API_KEY=PLACEHOLDER_FOR_EXPANSION
 DEEPSEEK_API_BASE=https://api-ap-southeast-1.modelarts-maas.com/openai/v1
 
 # Note: Using OpenAI-compatible endpoint for Dify
 # Model: deepseek-v4-flash
 ENVVARS
 
+# Replace placeholder with real key (single-pass, no second SSH needed)
+sed -i "s|PLACEHOLDER_FOR_EXPANSION|${MAAS_KEY}|" .env
+
 docker compose up -d
 
-echo "=== Dify running on http://$(curl -s ifconfig.me) ==="
+echo "=== Dify running on http://\$(curl -s ifconfig.me) ==="
 DEPLOY
-
-# Inject real MaaS API key
-ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
-  "python3 -c 'import sys; f=sys.argv[1]; t=open(f).read().replace(\"__MAAS_API_KEY_PLACEHOLDER__\", sys.argv[2]); open(f, \"w\").write(t)' /opt/dify/docker/.env '${MAAS_KEY:-placeholder}'"
-
-# Restart to pick up new env
-ssh -o StrictHostKeyChecking=no root@"$DIFY_IP" \
-  "cd /opt/dify/docker && docker compose restart api worker"
 
 echo "=== Deploying Streamlit dashboard ==="
 scp -o StrictHostKeyChecking=no "$(dirname "$0")/../dashboards/risk_dashboard.py" root@"$DIFY_IP":/tmp/risk_dashboard.py

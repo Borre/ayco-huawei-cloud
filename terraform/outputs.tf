@@ -39,6 +39,11 @@ output "dashboard_url" {
   value       = "http://${module.compute.dify_public_ip}:8501"
 }
 
+output "langfuse_dashboard_url" {
+  description = "Langfuse LLM observability dashboard"
+  value       = "https://cloud.langfuse.com"
+}
+
 output "vpc_id" {
   description = "VPC ID"
   value       = module.foundation.vpc_id

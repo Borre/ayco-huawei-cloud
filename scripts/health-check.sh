@@ -131,10 +131,23 @@ echo ""
 
 echo -e "${CYAN}LLM APIs:${NC}"
 if [ -n "${MAAS_API_KEY:-}" ]; then
-  if curl -sf -H "Authorization: Bearer ${MAAS_API_KEY}" \
+  # Measure MaaS endpoint latency (cross-region: la-north-2 → ap-southeast-1)
+  t0=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))" 2>/dev/null || echo "0")
+  if curl -sf -H "Authorization: Bearer *** " \
     "https://api-ap-southeast-1.modelarts-maas.com/v2/models" 2>/dev/null | grep -qi "model"; then
-    echo -e "  ${GREEN}✓${NC} MaaS API"
-    PASS=$((PASS + 1))
+    t1=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))" 2>/dev/null || echo "0")
+    if [ "$t0" != "0" ] && [ "$t1" != "0" ]; then
+      latency_ms=$(( (t1 - t0) / 1000000 ))
+      if [ "$latency_ms" -gt 500 ]; then
+        warn_check "MaaS API" "cross-region latency ${latency_ms}ms (ap-southeast-1)"
+      else
+        echo -e "  ${GREEN}✓${NC} MaaS API (${latency_ms}ms)"
+        PASS=$((PASS + 1))
+      fi
+    else
+      echo -e "  ${GREEN}✓${NC} MaaS API"
+      PASS=$((PASS + 1))
+    fi
   else
     warn_check "MaaS API" "key set but endpoint did not confirm models"
   fi
@@ -166,10 +179,41 @@ fi
 
 if [ -f "$PROJECT_DIR/data/risk_results/risk_results.csv" ]; then
   row_count=$(tail -n +2 "$PROJECT_DIR/data/risk_results/risk_results.csv" | wc -l | tr -d ' ')
-  echo -e "  ${GREEN}✓${NC} Risk results: $row_count rows"
+  if [ "$row_count" -ge 20 ]; then
+    echo -e "  ${GREEN}✓${NC} Risk results: $row_count rows (full demo set)"
+  else
+    warn_check "Risk results" "$row_count rows — run 'make generate-data' for full 20-contract set"
+  fi
   PASS=$((PASS + 1))
 else
   warn_check "Risk results" "run: python3 scripts/generate-contract-data.py"
+fi
+
+# ─── DWS Schema Validation (pre-demo) ───────────────────────────
+echo ""
+echo -e "${CYAN}DWS Schema:${NC}"
+if [ -n "$DWS_ENDPOINT" ] && [ -n "${DWS_ADMIN_PASSWORD:-}" ]; then
+  dws_host="${DWS_ENDPOINT%%:*}"
+  dws_port="${DWS_ENDPOINT##*:}"
+  [ "$dws_port" = "$DWS_ENDPOINT" ] && dws_port="8000"
+  # Check if risk_results table exists and has data
+  tbl_check=$(PGPASSWORD="$DWS_ADMIN_PASSWORD" psql -h "$dws_host" -p "$dws_port" -U ayco_admin -d ayco_db -t -c \
+    "SELECT count(*) FROM risk_results LIMIT 1;" 2>/dev/null || echo "FAIL")
+  if [ "$tbl_check" != "FAIL" ] && [ -n "$(echo "$tbl_check" | tr -d ' ')" ]; then
+    echo -e "  ${GREEN}✓${NC} DWS risk_results table: $tbl_check rows"
+    PASS=$((PASS + 1))
+  else
+    warn_check "DWS Schema" "risk_results table missing or empty — seed data not loaded"
+  fi
+  # Validate terraform config
+  if cd "$TF_DIR" && terraform validate -no-color >/dev/null 2>&1; then
+    echo -e "  ${GREEN}✓${NC} Terraform config valid"
+    PASS=$((PASS + 1))
+  else
+    warn_check "Terraform" "validate failed — run 'make validate'"
+  fi
+else
+  warn_check "DWS Schema" "DWS_ENDPOINT or DWS_ADMIN_PASSWORD not set (pre-deploy)"
 fi
 echo ""
 

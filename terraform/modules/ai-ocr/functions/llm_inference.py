@@ -63,7 +63,16 @@ def handler(event, context):
         try:
             risk_report = json.loads(analysis)
         except json.JSONDecodeError:
-            risk_report = {"raw_analysis": analysis, "risk_level": "Indeterminado"}
+            # Try to repair truncated/malformed JSON from LLM
+            risk_report = _repair_json(analysis)
+            if risk_report is None:
+                risk_report = {
+                    "raw_analysis": analysis[:200],
+                    "risk_level": "Indeterminado",
+                    "risk_score": 0,
+                    "alertas": ["LLM response truncated or invalid"],
+                    "parse_error": True,
+                }
 
         risk_report["source_contract"] = contract_data.get("source_key", "unknown")
         risk_report["contract_number"] = contract_data.get("contract_number")
@@ -300,3 +309,93 @@ def _context_get(context, key, default=""):
     if isinstance(context, dict):
         return context.get(key, default)
     return getattr(context, key, default)
+
+
+def _repair_json(text: str) -> dict | None:
+    """Attempt to extract valid JSON from truncated or malformed LLM output.
+
+    Strategies (cheap, no dependencies):
+    1. Find first '{' and last '}', try parsing the slice
+    2. Close unclosed braces/brackets/quotes
+    3. Strip trailing commas before '}' or ']'
+    4. Wrap bare values in a minimal dict
+    """
+    # Strategy 1: extract the outermost JSON blob
+    first = text.find("{")
+    last = text.rfind("}")
+    if first == -1 or last <= first:
+        return None
+    candidate = text[first : last + 1]
+
+    # Strategy 3: remove trailing commas (common LLM truncation issue)
+    candidate = _remove_trailing_commas(candidate)
+
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2: close unclosed structures
+    repaired = _close_unclosed(candidate)
+    try:
+        return json.loads(repaired)
+    except json.JSONDecodeError:
+        pass
+
+    # Last resort: try each nested block individually
+    try:
+        # Maybe the LLM returned markdown-wrapped JSON
+        import re
+        code_blocks = re.findall(r"```(?:json)?\s*\n(.*?)\n\s*```", text, re.DOTALL)
+        for block in code_blocks:
+            block = _remove_trailing_commas(block.strip())
+            try:
+                return json.loads(block)
+            except json.JSONDecodeError:
+                continue
+    except Exception:
+        pass
+
+    return None
+
+
+def _remove_trailing_commas(s: str) -> str:
+    """Remove trailing commas before } or ] in a JSON string."""
+    import re
+    s = re.sub(r",\s*([}\]])", r"\1", s)
+    return s
+
+
+def _close_unclosed(s: str) -> str:
+    """Close any unclosed braces, brackets, or quotes."""
+    in_string = False
+    escape_next = False
+    brace_count = 0
+    bracket_count = 0
+    for ch in s:
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\":
+            escape_next = True
+            continue
+        if ch == '"' and not escape_next:
+            in_string = not in_string
+        if not in_string:
+            if ch == "{":
+                brace_count += 1
+            elif ch == "}":
+                brace_count -= 1
+            elif ch == "[":
+                bracket_count += 1
+            elif ch == "]":
+                bracket_count -= 1
+
+    result = s
+    # Close unclosed strings
+    if in_string:
+        result += '"'
+    # Close unclosed brackets then braces
+    result += "]" * max(0, bracket_count)
+    result += "}" * max(0, brace_count)
+    return result

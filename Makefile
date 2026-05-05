@@ -49,15 +49,29 @@ post-provision:
 	bash $(SCRIPTS)/setup-dify.sh
 
 # ─── Deploy completo ─────────────────────────────────
-deploy: init apply-foundation apply-compute apply-data-platform apply-ai-ocr post-provision
+# Order: foundation → data-platform → compute → ai-ocr
+# (compute depends on DWS endpoint from data-platform)
+deploy: init apply-foundation apply-data-platform apply-compute apply-ai-ocr post-provision
 	@echo "=== AYCO Infraestructura desplegada ==="
 
 # ─── Demo-ready (one command) ────────────────────────
-demo: deploy
-	@echo "=== Generando datos sintéticos México ==="
+demo:
+	@echo "=== Prereq Check ==="
+	@command -v terraform >/dev/null 2>&1 || { echo "FAIL: terraform not found"; exit 1; }
+	@command -v python3 >/dev/null 2>&1 || { echo "FAIL: python3 not found"; exit 1; }
+	@test -f $(TF_DIR)/terraform.tfvars || { echo "FAIL: $(TF_DIR)/terraform.tfvars missing"; exit 1; }
+	@test -f $(SCRIPTS)/generate-contract-data.py || { echo "FAIL: contract data script missing"; exit 1; }
+	@echo "  ✓ All prerequisites met"
+	@echo ""
+	@echo "=== Deploying infrastructure ==="
+	$(MAKE) deploy
+	@echo ""
+	@echo "=== Generating datos sintéticos México ==="
 	python3 $(SCRIPTS)/generate-test-data.py
+	@echo ""
 	@echo "=== Generando datos de contratos ==="
 	python3 $(SCRIPTS)/generate-contract-data.py
+	@echo ""
 	@echo "=== Seed DWS schema ==="
 	@if command -v psql &>/dev/null && [ -n "$${DWS_ENDPOINT:-}" ]; then \
 	  PGPASSWORD="$${DWS_ADMIN_PASSWORD}" psql -h "$${DWS_ENDPOINT}" -U ayco_admin -d ayco_db -f $(SCRIPTS)/seed-dws.sql; \
@@ -65,13 +79,17 @@ demo: deploy
 	else \
 	  echo "  (DWS seed — set DWS_ENDPOINT + DWS_ADMIN_PASSWORD to run manually)"; \
 	fi
+	@echo ""
 	@echo "=== Indexando Knowledge Base en Dify ==="
 	python3 $(SCRIPTS)/index-knowledge-base.py 2>/dev/null || echo "  (KB index — ejecutar manualmente si falla)"
+	@echo ""
 	@echo "=== Health check ==="
 	bash $(SCRIPTS)/health-check.sh
 	@echo ""
 	@echo "=== AYCO DEMO READY ==="
 	@echo "    Dify: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip)"
+	@echo "    Dashboard: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip):8501"
+	@echo "    Langfuse: $$(cd $(TF_DIR) && terraform output -raw langfuse_dashboard_url)"
 
 # ─── Status ───────────────────────────────────────────
 status:

@@ -53,6 +53,9 @@ Environment="DWS_ENDPOINT=${dws_endpoint}"
 Environment="DWS_PORT=${dws_port}"
 Environment="DWS_DATABASE=${dws_database}"
 Environment="DWS_USER=ayco_admin"
+# WARNING: DWS password baked into userdata for demo only.
+# Production: use Huawei Cloud KMS or ECS parameter store.
+# Current demo password: ${dws_password} — rotate before handoff.
 Environment="DWS_PASSWORD=${dws_password}"
 Environment="STREAMLIT_SERVER_PORT=8501"
 Environment="STREAMLIT_SERVER_HEADLESS=true"

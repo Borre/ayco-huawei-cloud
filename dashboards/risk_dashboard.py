@@ -79,9 +79,6 @@ with st.sidebar:
     auto_refresh = st.checkbox("Auto-refresh data (10s)", value=False)
     if auto_refresh:
         st.write("Live monitoring enabled.")
-        import time
-        time.sleep(10)
-        st.rerun()
 
 # ─── KPI Row ──────────────────────────────────────────────
 kpi_query = """
@@ -213,6 +210,12 @@ st.caption(
     "Observability: Langfuse | "
     f"© {datetime.now().year} Grupo Salinas — AYCO"
 )
+
+# ─── Auto-refresh (non-blocking — runs after full render) ──
+if "auto_refresh" in locals() and auto_refresh:
+    import time
+    time.sleep(10)
+    st.rerun()
 
 # ─── Run instructions:
 #   pip install streamlit psycopg2-binary pandas plotly

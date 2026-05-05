@@ -1,10 +1,8 @@
 locals {
   buckets = [
-    { name = "ayco-raw", acl = "private", versioning = true },
-    { name = "ayco-results", acl = "private", versioning = true },
-    { name = "ayco-contracts-raw", acl = "private", versioning = false },
-    { name = "ayco-contracts-text", acl = "private", versioning = false },
-    { name = "ayco-contracts-results", acl = "private", versioning = false },
+    { name = "ayco-contracts-raw", acl = "private", versioning = true },
+    { name = "ayco-contracts-text", acl = "private", versioning = true },
+    { name = "ayco-contracts-results", acl = "private", versioning = true },
   ]
 }
 
