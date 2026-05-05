@@ -1,117 +1,19 @@
 # AYCO — Architecture & Data Flows
 
-> **Diagrama interactivo:** [`docs/architecture.drawio`](architecture.drawio) — abrir en [app.diagrams.net](https://app.diagrams.net)
+> **Interactive Diagram:** [Main Architecture](ayco-main-architecture.html) · [Pipeline Detail](ayco-pipeline-detail.html)
+> Open in browser: `xdg-open diagrams/ayco-main-architecture.html`
 
 ## System Architecture
 
-```
-                           ┌──────────────────────────────────────────────────────┐
-                           │              Huawei Cloud la-north-2 (Mexico City 2)  │
-                           │                                                      │
-  ┌──────────┐             │  ┌──────────────────────────────────────────────┐    │
-  │ Contract │  Upload     │  ┌────────────┐  ┌───────────────┐           │    │
-  │ PDFs     │────────────►│  │  │contracts-  │  │ contracts-    │           │    │
-  │ (20 seed)│  to OBS     │  │  │raw (raw)   │  │ text (parsed) │           │    │
-  └──────────┘             │  └────────────┘  └───────▲───────┘           │    │
-                           │  │        │                  │                   │    │
-                           │  │  ┌─────┴─────────────────┴───────┐           │    │
-                           │  │  │ contracts-                     │           │    │
-                           │  │  │ results                        │           │    │
-                           │  │  └────────────────────────────────┘           │    │
-                           │  └────────┼─────────────────┼─────────────────┘    │
-                           │           │                 │                      │
-                           │           ▼                 │                      │
-                           │  ┌──────────────────────────┴──────────────────┐   │
-                           │  │       FunctionGraph (Serverless)             │   │
-                           │  │  ┌─────────────┐ ┌────────────┐ ┌──────────┐│   │
-                           │  │  │ocr_trigger  │→│parse_cont  │→│llm_infer ││   │
-                           │  │  │(OCR API)    │ │ract(regex) │ │ence(MaaS)││   │
-                           │  │  └─────────────┘ └────────────┘ └────┬─────┘│   │
-                           │  │        │               │              │      │   │
-                           │  │        ▼               ▼              │      │   │
-                           │  │    Huawei OCR    Regex Parse          │      │   │
-                           │  │    la-north-2    Structured Data      │      │   │
-                           │  │                                       │      │   │
-                           │  │                          LLM Trace ───┤      │   │
-                           │  │                          (REST API)   │      │   │
-                           │  └──────────────────────────────┼────────┘──────┘   │
-                           │                                 │                  │
-                           │                          ┌──────▼──────────┐       │
-                           │                          │ Langfuse Cloud   │       │
-                           │                          │ (Observability)  │       │
-                           │                          │ traces·latency·  │       │
-                           │                          │ tokens·cost·errs │       │
-                           │                          └──────────────────┘       │
-                           │           ▼               ▼              ▼         │
-                           │  ┌──────────────────────────────────────────────┐   │
-                           │  │              Data Platform                    │   │
-                           │  │  ┌─────┐ ┌──────┐ ┌─────────┐ ┌──────┐      │   │
-                           │  │  │ DLI │ │ DWS  │ │DataArts │ │ CDM  │      │   │
-                           │  │  │Spark│ │(DW)  │ │(ETL+API)│ │Agent │      │   │
-                           │  │  └──┬──┘ └──▲───┘ └────┬────┘ └──▲───┘      │   │
-                           │  │     │       │          │         │          │   │
-                           │  │     └───────┼──────────┘    ┌────┘          │   │
-                           │  │             │               │               │   │
-                           │  │             │  ┌────────────┘               │   │
-                           │  │             │  │ DWS ← CDM Agent → DataArts │   │
-                           │  └─────────────┼──┼────────────────────────────┘   │
-                           │                 │  │                                │
-                           │  ┌──────────────▼──┼────────────────────────────┐   │
-                           │  │         Compute (ECS)                        │   │
-                           │  │  ┌──────────────┐  ┌──────────────────────┐ │   │
-                           │  │  │ Dify (AI)    │  │ Web Server           │ │   │
-                           │  │  │ s6.xlarge.2  │  │ s6.large.2           │ │   │
-                           │  │  │ Chatbot + KB │  │ Landing / Reports    │ │   │
-                           │  │  └──────────────┘  └──────────────────────┘ │   │
-                           │  └──────────────────────────────────────────────┘   │
-                           │                                                      │
-                           │  ┌──────────────────────────────────────────────┐   │
-                           │  │  Foundation: VPC, SG, KMS, IAM, OBS               │   │
-                           │  └──────────────────────────────────────────────┘   │
-                           └──────────────────────────────────────────────────────┘
-```
+![Main Architecture](../diagrams/ayco-main-architecture.png)
+
+*Full interactive version: `xdg-open diagrams/ayco-main-architecture.html`*
 
 ## Demo 1: Risk Scoring Flow
 
-```
-  Contract PDFs          FunctionGraph              MaaS DeepSeek         DLI Spark          DWS
-  (OBS raw)              (Serverless)               v4 Flash              (Serverless)       (Analytics)
-      │                       │                          │                     │                │
-      │  1. OBS Event         │                          │                     │                │
-      │  (new file)           │                          │                     │                │
-      ├──────────────────────►│                          │                     │                │
-      │                       │                          │                     │                │
-      │                       │  2. OCR API call         │                     │                │
-      │                       │  (per page)              │                     │                │
-      │                       ├──────────────────────────►│                     │                │
-      │                       │  3. Extracted text       │                     │                │
-      │                       │◄──────────────────────────┤                     │                │
-      │                       │                          │                     │                │
-      │                       │  4. Regex parse          │                     │                │
-      │                       │  (structured data)       │                     │                │
-      │                       │──────┐                   │                     │                │
-      │                       │      │                   │                     │                │
-      │                       │◄─────┘                   │                     │                │
-      │                       │                          │                     │                │
-      │                       │  5. Risk analysis prompt │                     │                │
-      │                       ├──────────────────────────►│                     │                │
-      │                       │  6. Risk JSON response   │                     │                │
-      │                       │◄──────────────────────────┤                     │                │
-      │                       │                          │                     │                │
-      │  7. Save results      │                          │                     │                │
-      │◄──────────────────────┤                          │                     │                │
-      │                       │                          │                     │                │
-      │                       │                          │  8. Spark SQL       │                │
-      │                       │                          │  (aggregate)        │                │
-      │                       │                          │────────────────────►│                │
-      │                       │                          │                     │                │
-      │                       │                          │  9. Load results    │                │
-      │                       │                          │                     ├───────────────►│
-      │                       │                          │                     │                │
-      │                       │                          │                     │  10. Dashboard │
-      │                       │                          │                     │    queries     │
-      │                       │                          │                     │◄───────────────┤
-```
+![Pipeline Detail](../diagrams/ayco-pipeline-detail.png)
+
+*Full interactive version: `xdg-open diagrams/ayco-pipeline-detail.html`*
 
 **Key metrics shown in Demo 1:**
 - Risk score per contract (0-100) — 20 seed contracts (3 canonical + 17 synthetic)
@@ -122,101 +24,25 @@
 
 ## Demo 2: Data Governance Flow (DataArts)
 
-```
-  DataArts Catalog    Architecture     Security        Factory           DataService     Dashboard
-  (Lineage)           (Model)          (Masking)       (ETL Pipeline)   (REST API)      (Streamlit)
-      │                   │                │                │                 │                │
-      │  1. Metadata      │                │                │                 │                │
-      │  collection       │                │                │                 │                │
-      │  DWS→Catalog      │                │                │                 │                │
-      │──────┐            │                │                │                 │                │
-      │      │            │                │                │                 │                │
-      │◄─────┘            │                │                │                 │                │
-      │                   │                │                │                 │                │
-      │  2. Lineage graph │                │                │                 │                │
-      │  OBS→FG→DLI→      │                │                │                 │                │
-      │     DWS→API       │                │                │                 │                │
-      │──────┐            │                │                │                 │                │
-      │      │            │                │                │                 │                │
-      │◄─────┘            │                │                │                 │                │
-      │                   │                │                │                 │                │
-      │                   │  3. Subject    │                │                 │                │
-      │                   │  area + Model  │                │                 │                │
-      │                   │  + Table def   │                │                 │                │
-      │                   │──────┐         │                │                 │                │
-      │                   │      │         │                │                 │                │
-      │                   │◄─────┘         │                │                 │                │
-      │                   │                │                │                 │                │
-      │                   │                │  4. Classify   │                 │                │
-      │                   │                │  sensitive     │                 │                │
-      │                   │                │  fields +      │                 │                │
-      │                   │                │  masking       │                 │                │
-      │                   │                │──────┐         │                 │                │
-      │                   │                │      │         │                 │                │
-      │                   │                │◄─────┘         │                 │                │
-      │                   │                │                │                 │                │
-      │                   │                │                │  5. Run ETL     │                │
-      │                   │                │                │  pipeline       │                │
-      │                   │                │                │──────┐          │                │
-      │                   │                │                │      │          │                │
-      │                   │                │                │◄─────┘          │                │
-      │                   │                │                │                 │                │
-      │                   │                │                │  6. Publish API │                │
-      │                   │                │                ├────────────────►│                │
-      │                   │                │                │                 │                │
-      │                   │                │                │                 │  7. Dashboard  │
-      │                   │                │                │                 │  DWS→Plotly    │
-      │                   │                │                │                 │◄───────────────┤
-      │                   │                │                │                 │                │
-      │                   │                │                │  8. LLM Trace   │                │
-      │                   │                │                │  → Langfuse     │                │
-      │                   │                │                │─────────────────┤                │
-```
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| **DataArts Catalog** | Lineage tracking (OBS→FG→DLI→DWS→API) | Demo |
+| **Architecture** | Subject areas + Data model + Table definitions | Demo |
+| **Security** | Field classification + dynamic masking | Demo |
+| **Factory** | ETL pipeline scheduling | Demo |
+| **DataService** | REST API: `GET /risk-results`, `GET /contracts/{id}` | Demo |
 
-**DataService API endpoints:**
-- `GET /api/v1/risk-results?risk_level=ALTO&limit=50`
-- `GET /api/v1/contracts/{contract_number}`
+## Demo 3: Contract AI + Dify Chatbot
 
-## Demo 3: Contract AI + Dify Chatbot Flow
-
-```
-  User                   Dify (ECS)               FunctionGraph           MaaS DeepSeek
-  (Browser)              (Chatbot)                (OCR + Parse + LLM)     v4 Flash
-      │                       │                          │                     │
-      │  1. Open Dify UI      │                          │                     │
-      ├──────────────────────►│                          │                     │
-      │                       │                          │                     │
-      │  2. Ask question      │                          │                     │
-      │  "Contratos alto      │                          │                     │
-      │   riesgo?"            │                          │                     │
-      ├──────────────────────►│                          │                     │
-      │                       │                          │                     │
-      │                       │  3. Search KB            │                     │
-      │                       │──────┐                   │                     │
-      │                       │      │                   │                     │
-      │                       │◄─────┘                   │                     │
-      │                       │                          │                     │
-      │                       │  4. Context + prompt     │                     │
-      │                       ├──────────────────────────►│                     │
-      │                       │                          │  5. LLM call        │
-      │                       │                          ├────────────────────►│
-      │                       │                          │  6. Response        │
-      │                       │                          │◄────────────────────┤
-      │  7. Answer            │                          │                     │
-      │◄──────────────────────┤                          │                     │
-      │                       │                          │                     │
-      │  8. Upload new        │                          │                     │
-      │  contract PDF         │                          │                     │
-      ├──────────────────────►│                          │                     │
-      │                       │  9. OCR + parse          │                     │
-      │                       ├──────────────────────────►│                     │
-      │                       │                          │  10. Risk analysis  │
-      │                       │                          ├────────────────────►│
-      │                       │                          │  11. Result         │
-      │                       │                          │◄────────────────────┤
-      │  12. Risk report      │                          │                     │
-      │◄──────────────────────┤                          │                     │
-```
+| Step | Flow | Service |
+|------|------|---------|
+| 1 | User opens Dify UI | Browser → ECS |
+| 2 | Ask: "¿Contratos alto riesgo?" | Dify Chatbot |
+| 3 | Search knowledge base | Dify KB + Vector |
+| 4 | Context + prompt | Dify → FunctionGraph |
+| 5 | LLM call | MaaS DeepSeek v4 Flash |
+| 6 | Response + risk report | Dify → User |
+| 7 | Upload new PDF | OBS → FunctionGraph → OCR → MaaS |
 
 ## Resource Map
 
@@ -226,38 +52,23 @@
 | ECS Web | s6.large.2 (2vCPU/4GB) | Landing page | Yes (demo) |
 | DWS Cluster | dwsx3.4U16G.4DPU ×3 | Data warehouse | Yes |
 | DLI Queue | default (serverless) | Spark SQL | Pay-per-query |
-| DataArts Studio | professional | ETL + Catalog + Architecture + Security + Data API | Yes (monthly) |
+| DataArts Studio | professional | ETL + Catalog + Architecture + Security + API | Yes (monthly) |
 | CDM Cluster | cdm.large | DataArts Agent for batch movement | Yes (demo) |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
-| OBS ×3 | standard | Storage (contracts-raw, contracts-text, contracts-results) | Pay-per-GB |
-| KMS | standard | Encryption | Pay-per-key |
+| OBS ×3 | standard | contracts-raw, contracts-text, contracts-results | Pay-per-GB |
+| KMS | standard | Encryption AES-256 | Pay-per-key |
 | Streamlit Dashboard | on ECS Dify (port 8501) | Risk visualization (Plotly) | Yes (demo) |
-| Langfuse Cloud | free tier | LLM observability (traces, latency, tokens, errors) | Free |
+| Langfuse Cloud | free tier | LLM observability | Free |
 
 ## Security Architecture
 
-```
-  Internet ──► VPC (10.1.0.0/16)
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    │                 │                 │
-              Subnet (10.1.1.0/24)    │                 │
-                    │                 │                 │
-              ┌─────┴─────┐    ┌─────┴─────┐    ┌─────┴─────┐
-              │ SG: Admin │    │ SG: HTTP  │    │ SG: DWS   │
-              │ 22 (CIDR) │    │ 80,443    │    │ 8000      │
-              │ 8000-8501 │    │ public    │    │ admin+VPC │
-              └───────────┘    └──────────┘    └───────────┘
-                    │                 │                 │
-              ┌─────┴─────┐    ┌─────┴─────┐    ┌─────┴─────┐
-              │ ECS Dify  │    │ ECS Web   │    │ DWS       │
-              │ + EIP     │    │ + EIP     │    │ + EIP     │
-              │ :80 Dify  │    │            │    │            │
-              │ :8501 Str │    │            │    │            │
-              └───────────┘    └───────────┘    └───────────┘
+| Layer | Control | Detail |
+|-------|---------|--------|
+| Network | VPC Isolation | 10.1.0.0/16, private subnets |
+| Access | Security Groups | Admin (SSH), HTTP (80/443), DWS (8000) |
+| Identity | IAM RBAC | Group + Role with least privilege |
+| Encryption | KMS AES-256 | OBS server-side, DWS at rest |
+| Secrets | 1Password → .env | Never committed to git |
+| Compliance | CNBV controls | AML, KYC, audit trail |
 
-  Secrets: 1Password vault "Huawei" ──► setup-secrets.sh ──► terraform.tfvars
-  API keys: MaaS + DeepSeek injected via FunctionGraph env vars (user_data)
-  Langfuse: Public/Secret keys → FunctionGraph user_data → Langfuse Cloud (traces)
-  Security: Langfuse keys are project-scoped ingestion-only; provider keys never leave FunctionGraph
-```
+*Full architecture details: [`docs/network-security.md`](network-security.md)*

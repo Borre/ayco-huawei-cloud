@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AYCO × Huawei Cloud — Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a0a; padding: 1.5rem; color: white; }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .header { margin-bottom: 1.5rem; }
+    .header-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; }
+    .pulse-dot { width: 10px; height: 10px; background: #E4002B; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+    h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { color: #888; font-size: 0.8rem; margin-left: 1.5rem; }
+    .diagram-container { background: #111; border-radius: 0.75rem; border: 1px solid #222; padding: 1.25rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .footer { text-align: center; margin-top: 1rem; color: #555; font-size: 0.7rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>AYCO — Contract Risk Intelligence Platform</h1>
+      </div>
+      <p class="subtitle">Huawei Cloud la-north-2 · 20 seed contracts · 3 integrated demos</p>
+    </div>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0,10 3.5,0 7" fill="#666"/>
+          </marker>
+          <marker id="arr-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0,10 3.5,0 7" fill="#E4002B"/>
+          </marker>
+          <marker id="arr-gold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0,10 3.5,0 7" fill="#FF9800"/>
+          </marker>
+          <linearGradient id="hw-red" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#E4002B" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#E4002B" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="obs-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a3a2a"/>
+            <stop offset="100%" stop-color="#0d1f17"/>
+          </linearGradient>
+          <linearGradient id="compute-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a2a3a"/>
+            <stop offset="100%" stop-color="#0d1520"/>
+          </linearGradient>
+          <linearGradient id="data-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a1a3a"/>
+            <stop offset="100%" stop-color="#150d20"/>
+          </linearGradient>
+          <linearGradient id="ai-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a2a1a"/>
+            <stop offset="100%" stop-color="#1f150d"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="1280" height="720" fill="#0a0a0a"/>
+
+        <!-- Huawei Cloud Boundary -->
+        <rect x="20" y="30" width="1240" height="670" rx="12" fill="rgba(228,0,43,0.03)" stroke="#E4002B" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="36" y="50" fill="#E4002B" font-size="11" font-weight="600">Huawei Cloud · la-north-2 (Mexico City 2)</text>
+
+        <!-- ============================================ -->
+        <!-- LAYER 1: INGEST (Left) -->
+        <!-- ============================================ -->
+        <rect x="50" y="80" width="180" height="520" rx="8" fill="rgba(228,0,43,0.06)" stroke="#E4002B" stroke-width="0.75"/>
+        <text x="62" y="98" fill="#E4002B" font-size="10" font-weight="600">INGESTA</text>
+
+        <!-- PDF Upload -->
+        <rect x="65" y="115" width="150" height="70" rx="6" fill="#111" stroke="#E4002B" stroke-width="1.5"/>
+        <text x="140" y="140" fill="white" font-size="11" font-weight="600" text-anchor="middle">Contract PDFs</text>
+        <text x="140" y="158" fill="#999" font-size="9" text-anchor="middle">20 seed contracts</text>
+        <text x="140" y="173" fill="#E4002B" font-size="8" text-anchor="middle">PDF + TXT</text>
+
+        <!-- ERP / External Sources -->
+        <rect x="65" y="215" width="150" height="60" rx="6" fill="#111" stroke="#555" stroke-width="1"/>
+        <text x="140" y="238" fill="white" font-size="11" font-weight="600" text-anchor="middle">External Sources</text>
+        <text x="140" y="255" fill="#999" font-size="9" text-anchor="middle">ERP · Buró · SFTP</text>
+
+        <!-- OBS Buckets -->
+        <rect x="65" y="305" width="150" height="130" rx="6" fill="url(#obs-grad)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="140" y="330" fill="white" font-size="11" font-weight="600" text-anchor="middle">OBS Buckets ×3</text>
+        <text x="140" y="350" fill="#34d399" font-size="8" text-anchor="middle">▸ contracts-raw</text>
+        <text x="140" y="364" fill="#34d399" font-size="8" text-anchor="middle">▸ contracts-text</text>
+        <text x="140" y="378" fill="#34d399" font-size="8" text-anchor="middle">▸ contracts-results</text>
+        <text x="140" y="398" fill="#999" font-size="8" text-anchor="middle">AES-256 + KMS</text>
+        <text x="140" y="412" fill="#999" font-size="8" text-anchor="middle">Versioning enabled</text>
+
+        <!-- ============================================ -->
+        <!-- LAYER 2: PROCESS (Center-left) -->
+        <!-- ============================================ -->
+        <rect x="270" y="80" width="260" height="520" rx="8" fill="rgba(52,211,153,0.04)" stroke="#34d399" stroke-width="0.75"/>
+        <text x="282" y="98" fill="#34d399" font-size="10" font-weight="600">PROCESO SERVERLESS</text>
+
+        <!-- FunctionGraph -->
+        <rect x="290" y="115" width="220" height="150" rx="6" fill="url(#compute-grad)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="400" y="140" fill="white" font-size="11" font-weight="600" text-anchor="middle">FunctionGraph ×3</text>
+
+        <!-- Function 1 -->
+        <rect x="305" y="155" width="190" height="32" rx="4" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="400" y="174" fill="white" font-size="9" text-anchor="middle">ayco-ocr-trigger → Huawei OCR API</text>
+
+        <!-- Function 2 -->
+        <rect x="305" y="193" width="190" height="32" rx="4" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="400" y="212" fill="white" font-size="9" text-anchor="middle">ayco-parse-contract → Regex extraction</text>
+
+        <!-- Function 3 -->
+        <rect x="305" y="231" width="190" height="32" rx="4" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="400" y="250" fill="white" font-size="9" text-anchor="middle">ayco-llm-inference → DeepSeek MaaS</text>
+
+        <!-- Langfuse -->
+        <rect x="290" y="290" width="220" height="70" rx="6" fill="#111" stroke="#a78bfa" stroke-width="1"/>
+        <text x="400" y="315" fill="white" font-size="11" font-weight="600" text-anchor="middle">Langfuse Observability</text>
+        <text x="400" y="333" fill="#999" font-size="9" text-anchor="middle">traces · latency · tokens · cost</text>
+        <text x="400" y="348" fill="#a78bfa" font-size="8" text-anchor="middle">Non-blocking sidecar</text>
+
+        <!-- DLI Spark -->
+        <rect x="290" y="385" width="220" height="70" rx="6" fill="#111" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="400" y="410" fill="white" font-size="11" font-weight="600" text-anchor="middle">DLI Spark Aggregation</text>
+        <text x="400" y="428" fill="#999" font-size="9" text-anchor="middle">Risk correlation · Vendor exposure</text>
+        <text x="400" y="443" fill="#fb923c" font-size="8" text-anchor="middle">20 contracts → summary metrics</text>
+
+        <!-- ============================================ -->
+        <!-- LAYER 3: STORE (Center-right) -->
+        <!-- ============================================ -->
+        <rect x="570" y="80" width="240" height="520" rx="8" fill="rgba(167,139,250,0.04)" stroke="#a78bfa" stroke-width="0.75"/>
+        <text x="582" y="98" fill="#a78bfa" font-size="10" font-weight="600">ALMACENAMIENTO</text>
+
+        <!-- DWS -->
+        <rect x="590" y="115" width="200" height="100" rx="6" fill="url(#data-grad)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="690" y="145" fill="white" font-size="11" font-weight="600" text-anchor="middle">DWS (GaussDB)</text>
+        <text x="690" y="163" fill="#999" font-size="9" text-anchor="middle">risk_results · contracts</text>
+        <text x="690" y="178" fill="#999" font-size="9" text-anchor="middle">materialized views</text>
+        <text x="690" y="196" fill="#a78bfa" font-size="8" text-anchor="middle">20 contracts · 4 risk levels</text>
+        <text x="690" y="210" fill="#a78bfa" font-size="8" text-anchor="middle">~$133M MXN exposure</text>
+
+        <!-- DataArts Studio -->
+        <rect x="590" y="245" width="200" height="150" rx="6" fill="url(#data-grad)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="690" y="270" fill="white" font-size="11" font-weight="600" text-anchor="middle">DataArts Studio</text>
+
+        <rect x="605" y="285" width="170" height="28" rx="3" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="690" y="303" fill="#999" font-size="9" text-anchor="middle">▸ Catalog — Data Lineage</text>
+
+        <rect x="605" y="319" width="170" height="28" rx="3" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="690" y="337" fill="#999" font-size="9" text-anchor="middle">▸ Architecture — Data Model</text>
+
+        <rect x="605" y="353" width="170" height="28" rx="3" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="690" y="371" fill="#999" font-size="9" text-anchor="middle">▸ Security — Masking + Classification</text>
+
+        <rect x="605" y="387" width="170" height="28" rx="3" fill="#111" stroke="#555" stroke-width="0.75"/>
+        <text x="690" y="405" fill="#999" font-size="9" text-anchor="middle">▸ Factory — ETL Pipeline</text>
+
+        <!-- KMS -->
+        <rect x="590" y="425" width="200" height="55" rx="6" fill="#111" stroke="#fb7185" stroke-width="1"/>
+        <text x="690" y="448" fill="white" font-size="11" font-weight="600" text-anchor="middle">KMS · IAM · Security Groups</text>
+        <text x="690" y="465" fill="#999" font-size="9" text-anchor="middle">Encryption at rest · RBAC</text>
+
+        <!-- ============================================ -->
+        <!-- LAYER 4: AI / SERVE (Right) -->
+        <!-- ============================================ -->
+        <rect x="850" y="80" width="400" height="520" rx="8" fill="rgba(251,146,60,0.04)" stroke="#fb923c" stroke-width="0.75"/>
+        <text x="862" y="98" fill="#fb923c" font-size="10" font-weight="600">IA · VISUALIZACIÓN · GOBERNANZA</text>
+
+        <!-- DeepSeek MaaS -->
+        <rect x="870" y="115" width="170" height="80" rx="6" fill="url(#ai-grad)" stroke="#FF9800" stroke-width="1.5"/>
+        <text x="955" y="142" fill="white" font-size="11" font-weight="600" text-anchor="middle">DeepSeek v4 Flash</text>
+        <text x="955" y="158" fill="#999" font-size="9" text-anchor="middle">MaaS API · la-north-2</text>
+        <text x="955" y="176" fill="#FF9800" font-size="8" text-anchor="middle">Risk analysis + summaries</text>
+        <text x="955" y="188" fill="#FF9800" font-size="8" text-anchor="middle">~$0.0001 / contract</text>
+
+        <!-- Dify Platform -->
+        <rect x="1065" y="115" width="160" height="80" rx="6" fill="url(#ai-grad)" stroke="#FF9800" stroke-width="1.5"/>
+        <text x="1145" y="142" fill="white" font-size="11" font-weight="600" text-anchor="middle">Dify Platform</text>
+        <text x="1145" y="158" fill="#999" font-size="9" text-anchor="middle">RAG + Chatbot</text>
+        <text x="1145" y="176" fill="#FF9800" font-size="8" text-anchor="middle">Contract Q&A</text>
+        <text x="1145" y="188" fill="#FF9800" font-size="8" text-anchor="middle">ECS s6.xlarge.2</text>
+
+        <!-- Streamlit Dashboard -->
+        <rect x="870" y="220" width="355" height="100" rx="6" fill="#111" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1047" y="248" fill="white" font-size="12" font-weight="600" text-anchor="middle">Streamlit Risk Dashboard</text>
+        <text x="1047" y="266" fill="#999" font-size="9" text-anchor="middle">KPI row · Risk gauge · Distribution · Vendor exposure · Contract table</text>
+        <text x="1047" y="283" fill="#22d3ee" font-size="8" text-anchor="middle">Auto-refresh · Port 8501 · Same ECS as Dify</text>
+        <text x="1047" y="298" fill="#22d3ee" font-size="8" text-anchor="middle">20 contracts · 4 risk levels · ~$133M MXN</text>
+
+        <!-- DataService API -->
+        <rect x="870" y="345" width="355" height="70" rx="6" fill="#111" stroke="#34d399" stroke-width="1"/>
+        <text x="1047" y="372" fill="white" font-size="11" font-weight="600" text-anchor="middle">DataService API (DataArts)</text>
+        <text x="1047" y="390" fill="#999" font-size="9" text-anchor="middle">GET /risk-results · GET /contracts/{id} · Dynamic masking by role</text>
+        <text x="1047" y="405" fill="#34d399" font-size="8" text-anchor="middle">Token-based auth · JSON responses</text>
+
+        <!-- External APIs -->
+        <rect x="870" y="440" width="355" height="55" rx="6" fill="#111" stroke="#555" stroke-width="1"/>
+        <text x="1047" y="464" fill="white" font-size="11" font-weight="600" text-anchor="middle">Langfuse Cloud (free tier) · Huawei Console</text>
+        <text x="1047" y="480" fill="#999" font-size="9" text-anchor="middle">LLM observability · Infrastructure monitoring</text>
+
+        <!-- ============================================ -->
+        <!-- ARROWS / FLOWS -->
+        <!-- ============================================ -->
+
+        <!-- Ingest → OBS -->
+        <line x1="215" y1="150" x2="262" y2="150" stroke="#E4002B" stroke-width="1.5" marker-end="url(#arr-red)"/>
+        <line x1="215" y1="245" x2="262" y2="340" stroke="#555" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+        <!-- OBS → FunctionGraph -->
+        <line x1="262" y1="340" x2="288" y2="190" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="240" y="250" fill="#34d399" font-size="8" transform="rotate(-30, 240, 250)">OBS events</text>
+
+        <!-- FunctionGraph → Langfuse -->
+        <line x1="400" y1="265" x2="400" y2="288" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- FunctionGraph → DLI -->
+        <line x1="400" y1="362" x2="400" y2="383" stroke="#fb923c" stroke-width="1.5"/>
+
+        <!-- FunctionGraph → DWS -->
+        <line x1="510" y1="200" x2="588" y2="165" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="520" y="180" fill="#a78bfa" font-size="8">results</text>
+
+        <!-- DLI → DWS -->
+        <line x1="510" y1="420" x2="588" y2="250" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- DWS → Dashboard -->
+        <line x1="790" y1="200" x2="868" y2="270" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="810" y="225" fill="#22d3ee" font-size="8">SQL queries</text>
+
+        <!-- DWS → API -->
+        <line x1="790" y1="260" x2="868" y2="380" stroke="#34d399" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- MaaS → FunctionGraph (bidirectional) -->
+        <line x1="868" y1="155" x2="510" y2="220" stroke="#FF9800" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="680" y="185" fill="#FF9800" font-size="8">REST API call</text>
+
+        <!-- Dify → MaaS -->
+        <line x1="1065" y1="155" x2="1042" y2="155" stroke="#FF9800" stroke-width="1"/>
+
+        <!-- Security boundary annotation -->
+        <text x="36" y="690" fill="#555" font-size="8">Security: VPC isolation · Security groups · IAM RBAC · KMS AES-256 · CNBV compliance</text>
+
+        <!-- Legend -->
+        <rect x="1020" y="515" width="230" height="170" rx="6" fill="#0f0f0f" stroke="#333" stroke-width="0.75"/>
+        <text x="1032" y="535" fill="white" font-size="9" font-weight="600">Legend</text>
+        <rect x="1032" y="545" width="14" height="8" rx="2" fill="#111" stroke="#E4002B" stroke-width="1"/>
+        <text x="1052" y="552" fill="#999" font-size="8">Ingest Layer</text>
+        <rect x="1032" y="561" width="14" height="8" rx="2" fill="#111" stroke="#34d399" stroke-width="1"/>
+        <text x="1052" y="568" fill="#999" font-size="8">Serverless Processing</text>
+        <rect x="1032" y="577" width="14" height="8" rx="2" fill="#111" stroke="#a78bfa" stroke-width="1"/>
+        <text x="1052" y="584" fill="#999" font-size="8">Storage + Governance</text>
+        <rect x="1032" y="593" width="14" height="8" rx="2" fill="#111" stroke="#FF9800" stroke-width="1"/>
+        <text x="1052" y="600" fill="#999" font-size="8">AI + Visualization</text>
+        <line x1="1032" y1="613" x2="1046" y2="613" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="1052" y="616" fill="#999" font-size="8">Async / Non-blocking</text>
+        <text x="1032" y="638" fill="#666" font-size="7">OBS = Object Storage Service</text>
+        <text x="1032" y="650" fill="#666" font-size="7">DWS = Data Warehouse Service</text>
+        <text x="1032" y="662" fill="#666" font-size="7">DLI = Data Lake Insight</text>
+        <text x="1032" y="674" fill="#666" font-size="7">MaaS = Model as a Service</text>
+      </svg>
+    </div>
+    <p class="footer">AYCO × Huawei Cloud · Workshop May 8, 2026 · la-north-2</p>
+  </div>
+</body>
+</html>
