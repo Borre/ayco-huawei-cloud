@@ -84,9 +84,9 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 | Recurso | URL / Comando | Credenciales |
 |---------|--------------|-------------|
 | Frontend (Demo 1, 2) | http://149.232.129.39 | Público |
-| Dify (Demo 3) | http://101.44.185.139 | eduardo@ayco-demo.com / Ayco2024! |
+| Dify (Demo 3) | http://101.44.185.139 | eduardo@ayco-demo.com / ver 1Password |
 | Dashboard Streamlit | http://101.44.185.139:8501 | Público (desde IP del presentador) |
-| DWS (psql) | 46.250.161.25:8000 | ayco_admin / AycoD3mo2026! |
+| DWS (psql) | 46.250.161.25:8000 | ayco_admin / ver 1Password |
 | SSH Dify | ssh -i ~/.ssh/ayco-demo root@101.44.185.139 | Key SSH en repo |
 | SSH Web | ssh -i ~/.ssh/ayco-demo root@149.232.129.39 | Key SSH en repo |
 
@@ -193,7 +193,7 @@ Mostrar screenshots de `docs/screenshots/dataarts/`:
 # Demo 3 — Contract AI (10 minutos)
 
 **URL:** http://101.44.185.139
-**Login:** eduardo@ayco-demo.com / Ayco2024!
+**Login:** eduardo@ayco-demo.com / ver 1Password
 
 ## 3a. AYCO Chat — FAQ (3 min)
 

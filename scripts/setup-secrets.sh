@@ -33,7 +33,7 @@ AK=$(resolve_op "${HUAWEI_ACCESS_KEY}")
 SK=$(resolve_op "${HUAWEI_SECRET_KEY}")
 MAAS=$(resolve_op "${MAAS_API_KEY:-}")
 DEEPSEEK=$(resolve_op "${DEEPSEEK_API_KEY:-sk-placeholder}")
-DWS_PASS=$(resolve_op "${DWS_ADMIN_PASSWORD:-AycoD3mo2026!}")
+DWS_PASS=$(resolve_op "${DWS_ADMIN_PASSWORD:?DWS_ADMIN_PASSWORD not set}")
 LANGFUSE_PUBLIC=$(resolve_op "${LANGFUSE_PUBLIC_KEY:-}")
 LANGFUSE_SECRET=$(resolve_op "${LANGFUSE_SECRET_KEY:-}")
 

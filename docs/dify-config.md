@@ -5,7 +5,7 @@
 - **Dify UI:** http://101.44.185.139
 - **Console API:** http://101.44.185.139/console/api
 - **Service API:** http://101.44.185.139/v1
-- **Login:** eduardo@ayco-demo.com / Ayco2024!
+- **Login:** eduardo@ayco-demo.com / ver 1Password
 - **SSH:** ssh -i ~/.ssh/ayco-demo root@101.44.185.139
 - **Docker:** cd /opt/ayco/dify/docker && docker compose ps
 

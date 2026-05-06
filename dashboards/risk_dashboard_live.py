@@ -16,7 +16,7 @@ DWS_HOST = os.getenv("DWS_HOST", "46.250.161.25")
 DWS_PORT = os.getenv("DWS_PORT", "8000")
 DWS_DB = os.getenv("DWS_DB", "ayco_db")
 DWS_USER = os.getenv("DWS_USER", "ayco_admin")
-DWS_PASS = os.getenv("DWS_PASS", "AycoD3mo2026!")
+DWS_PASS = os.getenv("DWS_PASS", "")
 
 
 @st.cache_data(ttl=60)

@@ -147,10 +147,10 @@ bash scripts/upload-contracts-to-obs.sh
 | Resource | URL/Command |
 |---|---|
 | Dify UI | http://101.44.185.139 |
-| Dify Login | eduardo@ayco-demo.com / Ayco2024! |
+| Dify Login | eduardo@ayco-demo.com / ver 1Password |
 | Frontend | http://149.232.129.39 |
 | Dashboard | http://101.44.185.139:8501 |
-| DWS | 46.250.161.25:8000 (ayco_admin / AycoD3mo2026!) |
+| DWS | 46.250.161.25:8000 (ayco_admin / ver 1Password) |
 | Dify API Chat | Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx |
 | Dify API Agent | Bearer app-ZrM7Pal6G2b89drd1zLVssvM |
 | Dify API Workflow | Bearer app-mGyFcdX7vT3CZDDsvttCX6iF |

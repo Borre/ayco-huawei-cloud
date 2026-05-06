@@ -126,7 +126,7 @@ Todo corriendo sobre Huawei Cloud México — sin depender de OpenAI, Google o A
 |---------|---------|
 | **URL Dify** | http://101.44.185.139 |
 | **Dashboard** | http://101.44.185.139:8501 |
-| **Login admin** | eduardo@ayco-demo.com / Ayco2024! |
+| **Login admin** | eduardo@ayco-demo.com / ver 1Password |
 | **API Chat** | app-Y8MxfRygyUWOAfyTlo1MQSJx |
 | **API Agent** | app-ZrM7Pal6G2b89drd1zLVssvM |
 | **API Workflow** | app-mGyFcdX7vT3CZDDsvttCX6iF |
