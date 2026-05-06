@@ -81,4 +81,7 @@ module "ai_ocr" {
   langfuse_public_key = var.langfuse_public_key
   langfuse_secret_key = var.langfuse_secret_key
   langfuse_host       = var.langfuse_host
+
+  access_key = var.access_key
+  secret_key = var.secret_key
 }

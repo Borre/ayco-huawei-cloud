@@ -12,6 +12,11 @@
     <p class="text-lg font-semibold text-gs-navy mb-1">Arrastra un contrato PDF aquí</p>
     <p class="text-sm text-gs-gray-600">o haz clic para seleccionar archivo</p>
     <p class="text-xs text-gs-gray-400 mt-2">PDF · Máx 10MB</p>
+    <div class="mt-3">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+        ⚠️ Simulación visual — Pipeline real vía OBS + FunctionGraph
+      </span>
+    </div>
   </div>
 
   <!-- Processing state (hidden by default) -->
@@ -29,7 +34,7 @@
     <p class="text-xs text-gs-gray-500 mt-2" id="processing-step">Extrayendo texto con OCR...</p>
   </div>
 
-  <!-- Result state (hidden by default) -->
+    <!-- Result state (hidden by default) -->
   <div id="uploader-result" class="hidden">
     <div class="flex items-center justify-center space-x-6">
       <div id="result-gauge-container"></div>
@@ -38,9 +43,17 @@
         <p class="text-2xl font-bold text-gs-navy" id="result-contract-id">—</p>
         <div class="mt-2" id="result-badge"></div>
         <p class="text-xs text-gs-gray-500 mt-2" id="result-summary"></p>
+        <p class="text-xs text-green-600 mt-1" id="result-status"></p>
+        <ul id="result-alertas" class="hidden mt-2 space-y-1 list-disc list-inside"></ul>
       </div>
     </div>
-    <button id="uploader-reset" class="mt-4 text-sm text-gs-blue hover:underline">Analizar otro contrato</button>
+    <div class="mt-4 flex items-center justify-center space-x-3">
+      <button id="uploader-reset" class="text-sm text-gs-blue hover:underline">Analizar otro contrato</button>
+      <span class="text-gs-gray-300">|</span>
+      <button id="uploader-ask-dify" class="text-sm text-gs-navy hover:text-gs-blue font-semibold">
+        Consultar en Dify Chat →
+      </button>
+    </div>
   </div>
 
   <input type="file" id="file-input" accept=".pdf" class="hidden" />
@@ -55,6 +68,7 @@
   const progressBar = document.getElementById('progress-bar');
   const processingStep = document.getElementById('processing-step');
   const resetBtn = document.getElementById('uploader-reset');
+  const askDifyBtn = document.getElementById('uploader-ask-dify');
 
   // Drag & drop
   zone?.addEventListener('dragover', (e) => {
@@ -79,6 +93,22 @@
     showState('content');
   });
 
+  // Ask Dify button: open chat widget with pre-filled query
+  let lastFilename = '';
+  askDifyBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // Open chat widget if hidden
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+    if (chatWindow?.classList.contains('chat-window-closed')) {
+      document.getElementById('chat-toggle')?.click();
+    }
+    if (chatInput && lastFilename) {
+      chatInput.value = `Analiza el contrato ${lastFilename.replace('.pdf', '')}`;
+      chatInput.focus();
+    }
+  });
+
   function showState(state: string) {
     content?.classList.toggle('hidden', state !== 'content');
     processing?.classList.toggle('hidden', state !== 'processing');
@@ -88,34 +118,112 @@
   async function handleFile(file: File) {
     showState('processing');
 
-    const steps = [
-      { text: 'Extrayendo texto con OCR...', pct: 20 },
-      { text: 'Analizando cláusulas contractuales...', pct: 45 },
-      { text: 'Evaluando riesgo con IA...', pct: 70 },
-      { text: 'Generando reporte...', pct: 90 },
-    ];
-
-    // Animate progress steps
-    for (const step of steps) {
-      if (processingStep) processingStep.textContent = step.text;
-      if (progressBar) progressBar.style.width = `${step.pct}%`;
-      await new Promise(r => setTimeout(r, 800 + Math.random() * 400));
+    // Update badge to show real pipeline is running
+    const badge = document.querySelector('#uploader-zone .inline-flex.items-center.px-2') as HTMLElement;
+    if (badge) {
+      badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+      badge.textContent = '🔵 Pipeline real — Subiendo a OBS + FunctionGraph';
     }
 
-    // Simulate result (in production, this would call the actual pipeline)
-    const mockScore = (Math.random() * 6 + 3).toFixed(1);
-    const score = parseFloat(mockScore);
-    showResult(score, file.name);
+    const steps = [
+      { text: 'Subiendo PDF a OBS...', pct: 15 },
+      { text: 'Pipeline OCR disparado...', pct: 35 },
+      { text: 'Extrayendo texto con OCR...', pct: 55 },
+      { text: 'Analizando con DeepSeek v4 Flash...', pct: 75 },
+      { text: 'Recuperando resultado...', pct: 90 },
+    ];
+
+    // Step 1: Upload PDF via API
+    if (progressBar && processingStep) {
+      progressBar.style.width = '15%';
+      processingStep.textContent = 'Subiendo PDF a OBS...';
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadResp = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResp.ok) {
+        const err = await uploadResp.json();
+        throw new Error(err.detail || 'Error al subir el archivo');
+      }
+
+      const { job_id } = await uploadResp.json();
+      lastFilename = file.name;
+
+      // Step 2: Animate progress while polling
+      for (let i = 1; i < steps.length; i++) {
+        const step = steps[i];
+        if (processingStep) processingStep.textContent = step.text;
+        if (progressBar) progressBar.style.width = `${step.pct}%`;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
+      // Step 3: Poll for results (up to 30s)
+      if (processingStep) processingStep.textContent = 'Esperando resultado del análisis...';
+      if (progressBar) progressBar.style.width = '92%';
+
+      let resultData = null;
+      for (let attempt = 0; attempt < 15; attempt++) {
+        await new Promise(r => setTimeout(r, 2000));
+        const statusResp = await fetch(`/api/status/${job_id}`);
+        if (!statusResp.ok) continue;
+
+        const status = await statusResp.json();
+        if (status.status === 'completed') {
+          resultData = status.result;
+          break;
+        }
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+
+      if (resultData) {
+        showResult(resultData, file.name);
+      } else {
+        // Timeout — show partial result with job_id
+        showResult({
+          risk_score: null,
+          risk_level: 'PENDIENTE',
+          contract_number: job_id,
+          alertas: [],
+          recomendaciones: [],
+          resumen: 'El análisis está tomando más tiempo del esperado. Verifica el resultado en Dify Chat.',
+          llm_provider: 'timeout',
+        }, file.name);
+      }
+    } catch (err: any) {
+      if (progressBar) progressBar.style.width = '0%';
+      if (processingStep) processingStep.textContent = 'Error en el pipeline';
+      showResult({
+        risk_score: null,
+        risk_level: 'ERROR',
+        contract_number: file.name.replace('.pdf', ''),
+        alertas: [err.message || 'Error desconocido'],
+        recomendaciones: ['Verifica conectividad con OBS y FunctionGraph'],
+        resumen: 'Error al procesar el contrato',
+        llm_provider: 'error',
+      }, file.name);
+    }
   }
 
-  function showResult(score: number, filename: string) {
+  function showResult(data: any, filename: string) {
     showState('result');
+
+    const score = data.risk_score;
+    const level = data.risk_level || (score !== null && score <= 3 ? 'BAJO' : score <= 5 ? 'MEDIO' : score <= 7 ? 'ALTO' : 'CRITICO');
+    const isError = level === 'ERROR' || level === 'PENDIENTE';
 
     const container = document.getElementById('result-gauge-container');
     if (container) {
-      const color = score <= 3 ? '#22C55E' : score <= 5 ? '#F59E0B' : score <= 7 ? '#EF4444' : '#7C2D12';
-      const label = score <= 3 ? 'Bajo' : score <= 5 ? 'Medio' : score <= 7 ? 'Alto' : 'Crítico';
-      const badgeClass = score <= 3 ? 'badge-risk-low' : score <= 5 ? 'badge-risk-medium' : score <= 7 ? 'badge-risk-high' : 'badge-risk-critical';
+      const displayScore = score !== null ? score : 0;
+      const color = isError ? '#6B7280' : displayScore <= 3 ? '#22C55E' : displayScore <= 5 ? '#F59E0B' : displayScore <= 7 ? '#EF4444' : '#7C2D12';
+      const label = isError ? level : displayScore <= 3 ? 'Bajo' : displayScore <= 5 ? 'Medio' : displayScore <= 7 ? 'Alto' : 'Crítico';
 
       container.innerHTML = `
         <div class="relative" style="width: 100px; height: 100px">
@@ -123,29 +231,47 @@
             <circle cx="50" cy="50" r="40" fill="none" stroke="#E9ECEF" stroke-width="8"/>
             <circle cx="50" cy="50" r="40" fill="none" stroke="${color}" stroke-width="8"
               stroke-dasharray="${2 * Math.PI * 40}"
-              stroke-dashoffset="${2 * Math.PI * 40 - (score / 10) * 2 * Math.PI * 40}"
+              stroke-dashoffset="${isError ? 2 * Math.PI * 40 : 2 * Math.PI * 40 - (displayScore / 10) * 2 * Math.PI * 40}"
               stroke-linecap="round"
               class="gauge-circle"
               style="filter: drop-shadow(0 0 6px ${color}40)"/>
           </svg>
           <div class="absolute inset-0 flex items-center justify-center">
-            <span class="text-2xl font-bold" style="color: ${color}">${score.toFixed(1)}</span>
+            <span class="text-2xl font-bold" style="color: ${color}">${isError ? '?' : displayScore.toFixed(1)}</span>
           </div>
         </div>
       `;
     }
 
     const contractId = document.getElementById('result-contract-id');
-    if (contractId) contractId.textContent = filename.replace('.pdf', '');
+    if (contractId) contractId.textContent = data.contract_number || filename.replace('.pdf', '');
 
     const badge = document.getElementById('result-badge');
     if (badge) {
-      const badgeClass = score <= 3 ? 'badge-risk-low' : score <= 5 ? 'badge-risk-medium' : score <= 7 ? 'badge-risk-high' : 'badge-risk-critical';
-      const label = score <= 3 ? 'Riesgo Bajo' : score <= 5 ? 'Riesgo Medio' : score <= 7 ? 'Riesgo Alto' : 'Riesgo Crítico';
-      badge.innerHTML = `<span class="${badgeClass}">${label}</span>`;
+      const levelLabel = level === 'CRITICO' ? 'Crítico' : level === 'ALTO' ? 'Alto' : level === 'MEDIO' ? 'Medio' : level === 'BAJO' ? 'Bajo' : level;
+      const isReal = !isError && score !== null;
+      badge.innerHTML = `<span class="badge-risk-${level.toLowerCase()}">Riesgo ${levelLabel}</span>
+        <span class="ml-2 text-xs ${isReal ? 'text-green-600' : 'text-gray-400'}">${isReal ? '● Pipeline real' : '● Sin resultado'}</span>`;
     }
 
     const summary = document.getElementById('result-summary');
-    if (summary) summary.textContent = `Score: ${score.toFixed(1)}/10 · Procesado con OCR + DeepSeek v4 Flash`;
+    if (summary) {
+      const providerText = data.llm_provider ? ` · ${data.llm_provider}` : '';
+      summary.textContent = score !== null
+        ? `Score: ${score.toFixed(1)}/10${providerText} · ${data.alertas?.length || 0} alertas`
+        : `Resultado: ${level}${providerText}`;
+    }
+
+    // Show alertas if any
+    const alertasDiv = document.getElementById('result-alertas');
+    if (alertasDiv && data.alertas?.length) {
+      alertasDiv.innerHTML = data.alertas.map((a: string) => `<li class="text-xs text-red-600">⚠ ${a}</li>`).join('');
+      alertasDiv.classList.remove('hidden');
+    }
+
+    // Update Dify chat button text
+    if (askDifyBtn) {
+      askDifyBtn.textContent = 'Consultar en Dify Chat →';
+    }
   }
 </script>

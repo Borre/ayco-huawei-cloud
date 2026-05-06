@@ -15,7 +15,7 @@ const etlSteps = [
 ---
 
 <BaseLayout title="Data Governance" description="Arquitectura en capas ODS → DW → DM con DWS y DLI — Gobernanza de datos">
-  <Header slot="header" />
+  <Header slot="header" currentPage="data-governance" />
 
   <!-- Page Hero -->
   <section class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white py-12">
@@ -26,7 +26,10 @@ const etlSteps = [
         <span class="text-sm text-emerald-200">Demo 2</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2">Data Governance</h1>
-      <p class="text-lg text-emerald-100">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
+      <p class="text-lg text-emerald-100 mb-3">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-900">
+        📐 Arquitectura de Referencia — Datos en vivo en DWS Console y Langfuse
+      </span>
     </div>
   </section>
 
@@ -78,7 +81,7 @@ const etlSteps = [
   <!-- DWS Layered Architecture -->
   <section class="bg-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="section-title mb-2">DWS — Arquitectura en Capas</h2>
+      <h2 class="section-title mb-2 !text-gs-navy">DWS — Arquitectura en Capas</h2>
       <p class="section-subtitle mb-8">Los datos 'maduran' de crudos (ODS) a analíticos (DM). Cada capa agrega validación y transformación.</p>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
@@ -166,7 +169,11 @@ const etlSteps = [
 
   <!-- Data Quality Metrics -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <h2 class="section-title mb-8">Métricas de Calidad de Datos</h2>
+    <h2 class="section-title mb-2">Métricas de Calidad de Datos</h2>
+    <p class="text-xs text-amber-600 mb-6 flex items-center">
+      <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Valores de referencia — Métricas reales en DWS SQL Editor (Paso 2 del demo)
+    </p>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
       {[
         { label: 'Completitud', value: '98.7%', desc: 'Campos no nulos vs total', color: 'bg-emerald-500' },
@@ -188,3 +195,87 @@ const etlSteps = [
   <Footer slot="footer" />
   <ChatWidget />
 </BaseLayout>
+
+<script>
+  // Fetch real data from AYCO API and update hardcoded values
+  async function loadLiveData() {
+    try {
+      const [qualityResp, layersResp] = await Promise.all([
+        fetch('/api/dws/quality'),
+        fetch('/api/dws/layers'),
+      ]);
+
+      if (!qualityResp.ok || !layersResp.ok) {
+        console.warn('API no disponible, usando valores de referencia');
+        return;
+      }
+
+      const quality = await qualityResp.json();
+      const layers = await layersResp.json();
+
+      // Update DWS layer counts (ODS/DW/DM cards)
+      const ods = layers.layers?.ods || {};
+      const dw = layers.layers?.dw || {};
+      const dm = layers.layers?.dm || {};
+
+      updateLayerCount('vendors', ods.vendors);
+      updateLayerCount('customers', ods.customers);
+      updateLayerCount('transactions', ods.transactions);
+      updateLayerCount('dim_vendor', dw.dim_vendor);
+      updateLayerCount('dim_customer', dw.dim_customer);
+      updateLayerCount('fact_transaction', dw.fact_transaction);
+      updateLayerCount('vendor_risk_summary', dm.vendor_risk_summary);
+      updateLayerCount('city_risk', dm.city_risk);
+      updateLayerCount('anomaly_summary', dm.anomaly_summary);
+
+      // Update Data Quality metrics
+      const completitud = quality.metrics?.completitud?.[0];
+      const consistencia = quality.metrics?.consistencia?.[0];
+      const duplicados = quality.metrics?.duplicados?.[0];
+
+      if (completitud) {
+        updateQualityMetric(0, `${completitud.pct || 100}%`, `Total: ${completitud.total} · Con score: ${completitud.con_score}`);
+      }
+      if (consistencia) {
+        const pct = consistencia.total > 0
+          ? Math.round(consistencia.en_rango / consistencia.total * 100)
+          : 100;
+        updateQualityMetric(1, `${pct}%`, `${consistencia.en_rango}/${consistencia.total} en rango 0-10`);
+      }
+      if (duplicados) {
+        updateQualityMetric(2, duplicados.duplicados === 0 ? '0 dup' : `${duplicados.duplicados} dup`, duplicados.duplicados === 0 ? 'Sin contratos duplicados' : 'Duplicados detectados');
+      }
+
+      // Show "live" indicator
+      const heroBadge = document.querySelector('section.bg-gradient-to-br span.inline-flex');
+      if (heroBadge) {
+        heroBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-200 text-green-900';
+        heroBadge.textContent = '✅ Datos en vivo desde DWS';
+      }
+    } catch (err) {
+      console.warn('Error al cargar datos en vivo:', err);
+    }
+  }
+
+  function updateLayerCount(name, count) {
+    if (count === null || count === undefined) return;
+    const spans = document.querySelectorAll('.card .flex.justify-between .font-mono');
+    for (const span of spans) {
+      if (span.parentElement?.querySelector('.text-gs-gray-500')?.textContent?.trim() === name) {
+        span.textContent = `${count.toLocaleString()} registros`;
+      }
+    }
+  }
+
+  function updateQualityMetric(index, value, desc) {
+    const cards = document.querySelectorAll('.grid-cols-1.md\\:grid-cols-3 > .card');
+    if (cards[index]) {
+      const valueEl = cards[index].querySelector('.metric-value');
+      const descEl = cards[index].querySelector('.text-sm');
+      if (valueEl) valueEl.textContent = value;
+      if (descEl) descEl.textContent = desc;
+    }
+  }
+
+  loadLiveData();
+</script>

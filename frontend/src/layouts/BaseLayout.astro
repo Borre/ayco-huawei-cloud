@@ -15,6 +15,7 @@ const { title, description = 'Inteligencia Artificial para la Gestión de Riesgo
   <meta name="description" content={description} />
   <title>{title} | AYCO × Huawei Cloud</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <slot name="head" />
 </head>
 <body class="min-h-screen flex flex-col">
   <slot name="header" />
@@ -22,9 +23,6 @@ const { title, description = 'Inteligencia Artificial para la Gestión de Riesgo
     <slot />
   </main>
   <slot name="footer" />
-
-  <!-- Chat Widget (global) -->
-  <div id="chat-widget-container"></div>
 
   <script>
     // Intersection Observer for scroll animations

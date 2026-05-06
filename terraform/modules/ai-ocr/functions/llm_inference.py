@@ -287,8 +287,7 @@ def upload_to_obs(bucket, key, data, context):
     """Upload to OBS."""
     try:
         from obs import ObsClient
-        ak = _context_get(context, "access_key", os.environ.get("HUAWEI_ACCESS_KEY", ""))
-        sk = _context_get(context, "secret_key", os.environ.get("HUAWEI_SECRET_KEY", ""))
+        ak, sk = _credentials(context)
         endpoint = os.environ.get("OBS_ENDPOINT", "obs.la-north-2.myhuaweicloud.com")
         client = ObsClient(access_key_id=ak, secret_access_key=sk, server=f"https://{endpoint}")
         client.putContent(bucket, key, data)
@@ -310,6 +309,21 @@ def _context_get(context, key, default=""):
     if isinstance(context, dict):
         return context.get(key, default)
     return getattr(context, key, default)
+
+
+def _credentials(context):
+    """Get AK/SK — prefers temporary credentials via IAM agency, falls back to env vars."""
+    try:
+        ak = context.getSecurityAccessKey()
+        sk = context.getSecuritySecretKey()
+        if ak and sk:
+            return (ak, sk)
+    except (AttributeError, Exception):
+        pass
+    return (
+        os.environ.get("HUAWEI_ACCESS_KEY", ""),
+        os.environ.get("HUAWEI_SECRET_KEY", ""),
+    )
 
 
 def _repair_json(text: str) -> dict | None:

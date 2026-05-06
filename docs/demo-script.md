@@ -28,6 +28,16 @@
 
 ---
 
+## ⚠️ Watchpoints — 3 cosas a vigilar durante el demo
+
+| # | Issue | Impacto | Acción |
+|---|-------|---------|--------|
+| ⚠️ | **ContractUploader del frontend es simulación** — `handleFile()` usa `Math.random()`, no conecta con OBS/FunctionGraph | Bajo — la demo usa OBS por CLI | **No subir PDFs por el uploader del frontend.** La animación es visual. El pipeline real se muestra en Tab 9 (FunctionGraph logs). Si el público pregunta, decir: "El uploader es una simulación visual. El pipeline real está corriendo en FunctionGraph — vamos a ver los logs." |
+| ⚠️ | **Data Governance es contenido estático** — métricas hardcodeadas, no queries en vivo | Medio — página delgada, puede generar desconfianza si se detienen | **Mostrarla ≤30 segundos.** "Esto es la arquitectura de referencia." E inmediatamente cambiar a Tab 7 (DWS SQL Editor) para queries en vivo. La página tiene badges de "Arquitectura de Referencia". |
+| ⚠️ | **Dify Console solo en `101.44.185.139/console`** — no accesible desde el frontend (149.232.129.39) | Bajo — el script lo aclara | **No intentar `/console` desde el frontend ni del proxy nginx.** La consola de Dify se abre directo en Tab 5. El frontend solo tiene el chat widget (via `/api/dify/` proxy). |
+
+---
+
 ## Pre-Workshop Checklist (complete by May 7, 6 PM)
 
 ### Infraestructura
@@ -354,9 +364,11 @@ ORDER BY score_promedio DESC;
 
 **Tema técnico:** Arquitectura ODS→DW→DM, calidad de datos con SQL, DLI Spark serverless, trazabilidad LLM con Langfuse, IAM y KMS.
 
-## Paso 0: Navegar a Data Governance (15s)
+## Paso 0: Navegar a Data Governance (15s) ⚡ RÁPIDO
 
 Click en "Data Governance" en el header. URL: `http://149.232.129.39/data-governance/`
+
+**⚠️ Esta página es arquitectura de referencia estática. No detenerse.** Señalar el badge "Arquitectura de Referencia", mencionar que los datos reales están en DWS Console, y pasar inmediatamente a Paso 1.
 
 ---
 
@@ -571,20 +583,13 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 
 ---
 
-## Paso 2: Contract Upload — Live Pipeline con Contratos Reales (3 min)
+## Paso 2: Pipeline de Contratos — Logs en Vivo (3 min)
+
+**⚠️ El uploader del frontend es simulación visual. No arrastrar PDFs.** En su lugar:
 
 **Qué hacer:**
-1. Vuelve al frontend. Arrastra un PDF de los contratos de demo:
-   - Sugerencia 1: `contrato-bajo-riesgo-consultoria.pdf` ($850K, BAJO, garantía 15%) — muestra pipeline normal
-   - Sugerencia 2: `contrato-critico-datacenter.pdf` ($22.5M, CRÍTICO, empresa RFC 2024) — muestra alertas máximas
-   - Hay 9 contratos disponibles en `data/contracts/` con perfiles BAJO/MEDIO/ALTO/CRÍTICO
-2. Mientras la animación de procesamiento corre:
-   - "Extrayendo texto con OCR..." (20%)
-   - "Analizando cláusulas contractuales..." (45%)
-   - "Evaluando riesgo con IA..." (70%)
-   - "Generando reporte..." (90%)
-3. **Cambia a Tab 9** (Huawei Console > FunctionGraph > llm-inference > Logs).
-4. Muestra los logs EN VIVO del pipeline:
+1. **Cambia directo a Tab 9** (Huawei Console > FunctionGraph > llm-inference > Logs).
+2. Muestra los logs EN VIVO del pipeline que ya está corriendo:
    ```
    [2026-05-08 10:23:15] OCR trigger: new PDF detected in OBS bucket ayco-contracts-raw
    [2026-05-08 10:23:16] OCR complete: 4,231 chars extracted
@@ -595,11 +600,18 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
    [2026-05-08 10:23:21] Langfuse trace: a4f8c2e1-... → us.cloud.langfuse.com
    ```
 
-5. El resultado aparece en el frontend con RiskGauge y score.
-6. Si subiste el contrato crítico (0163), señala las alertas: "Empresa constituida en 2024", "Sin garantía", "$22.5M — 3x el promedio"
+3. Explica: "Estos contratos se subieron previamente via CLI a OBS. El pipeline de 3 funciones serverless se disparó automáticamente."
+4. Si el público pregunta por el uploader del frontend: "Es una simulación visual. El pipeline real es este — FunctionGraph event-driven."
+5. Cambia a Tab 7 (DWS) y ejecuta para mostrar los resultados reales:
+```sql
+SELECT contract_number, vendor_name, risk_score, risk_level, monto_total
+FROM public.risk_results
+ORDER BY risk_score DESC
+LIMIT 5;
+```
 
 **🎤 Speaker:**
-> "El uploader dispara un pipeline de 3 funciones serverless. OCR extrae texto del PDF, parse lo estructura, y el LLM evalúa riesgo. Todo en FunctionGraph — serverless, event-driven. Los logs que ven son en vivo desde la consola de Huawei. En 4 segundos: 4,231 caracteres de OCR, 12 campos estructurados, y un score de riesgo generado por DeepSeek v4 Flash. Miren las alertas del contrato crítico: empresa RFC 2024 — constituida hace menos de 2 años —, sin garantía, y un monto 3 veces superior al promedio. El LLM no solo da un número: explica por qué."
+> "El pipeline real de análisis de contratos usa 3 funciones serverless en FunctionGraph. Los contratos se suben a OBS — bucket S3-compatible — y el pipeline se dispara automáticamente. OCR extrae texto del PDF, parse lo estructura en JSON, y el LLM evalúa riesgo con DeepSeek v4 Flash via MaaS. En 4 segundos: 4,231 caracteres de OCR, 12 campos estructurados, y un score de riesgo. Lo que ven en los logs es en vivo. El uploader del frontend es una simulación visual para mostrar el flujo — el pipeline real es este, event-driven, sin intervención manual."
 
 ---
 

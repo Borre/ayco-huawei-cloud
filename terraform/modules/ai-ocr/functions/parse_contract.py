@@ -105,8 +105,18 @@ def read_from_obs(bucket, key, context):
     endpoint = os.environ.get("OBS_ENDPOINT", "obs.la-north-2.myhuaweicloud.com")
     client = ObsClient(access_key_id=ak, secret_access_key=sk, server=f"https://{endpoint}")
     try:
-        resp = client.getObject(bucket, key)
-        return resp.body.buffer.read().decode("utf-8")
+        resp = client.getObject(bucket, key, loadStreamInMemory=True)
+        body = getattr(resp, "body", None)
+        if isinstance(body, bytes):
+            return body.decode("utf-8")
+        if body is not None and hasattr(body, "buffer") and body.buffer is not None:
+            buf = body.buffer
+            if isinstance(buf, bytes):
+                return buf.decode("utf-8")
+            return buf.read().decode("utf-8")
+        if body is not None and hasattr(body, "read") and callable(body.read):
+            return body.read().decode("utf-8")
+        raise RuntimeError(f"Cannot read body. type={type(body)}")
     finally:
         client.close()
 
@@ -127,10 +137,19 @@ def upload_json_to_obs(bucket, key, data, context):
 
 
 def _credentials(context):
-    return (
-        _context_get(context, "access_key") or os.environ.get("HUAWEI_ACCESS_KEY", ""),
-        _context_get(context, "secret_key") or os.environ.get("HUAWEI_SECRET_KEY", ""),
-    )
+    """Get AK/SK — prefers env vars (work for API invocations), falls back to agency temp creds."""
+    env_ak = os.environ.get("HUAWEI_ACCESS_KEY", "")
+    env_sk = os.environ.get("HUAWEI_SECRET_KEY", "")
+    if env_ak and env_sk:
+        return (env_ak, env_sk)
+    try:
+        ak = context.getSecurityAccessKey()
+        sk = context.getSecuritySecretKey()
+        if ak and sk:
+            return (ak, sk)
+    except (AttributeError, Exception):
+        pass
+    return ("", "")
 
 
 def _context_get(context, key):

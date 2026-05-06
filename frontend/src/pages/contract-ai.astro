@@ -21,7 +21,7 @@ const contracts = [
 ---
 
 <BaseLayout title="Contract AI" description="Análisis inteligente de contratos con OCR + DeepSeek v4 Flash — Chatbot RAG">
-  <Header slot="header" />
+  <Header slot="header" currentPage="contract-ai" />
 
   <!-- Page Hero -->
   <section class="bg-gradient-to-br from-amber-700 to-amber-500 text-white py-12">
@@ -106,7 +106,7 @@ const contracts = [
   <!-- Pre-analyzed Contracts -->
   <section class="bg-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="section-title mb-2">Contratos Pre-analizados</h2>
+      <h2 class="section-title mb-2 !text-gs-navy">Contratos Pre-analizados</h2>
       <p class="section-subtitle mb-8">Resultados del pipeline OCR + DeepSeek v4 Flash para los contratos de demostración.</p>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
@@ -216,7 +216,7 @@ const contracts = [
         const chatInput = document.getElementById('chat-input') as HTMLInputElement;
         const chatForm = document.getElementById('chat-form');
 
-        if (chatWindow?.classList.contains('hidden')) {
+        if (chatWindow?.classList.contains('chat-window-closed')) {
           chatToggle?.click();
         }
 
@@ -228,5 +228,26 @@ const contracts = [
         }, 300);
       });
     });
+  </script>
+
+  <!-- LIVE LANGFUSE SCRIPT -->
+  <script is:inline>
+    fetch('/api/langfuse/metrics')
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'ok') {
+          // Langfuse unavailable — keep "—" placeholders
+          return;
+        }
+        const setEl = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+        setEl('langfuse-traces', data.traces_today != null ? data.traces_today.toString() : '—');
+        setEl('langfuse-latency', data.avg_latency_ms != null ? `${data.avg_latency_ms} ms` : '—');
+        setEl('langfuse-tokens', data.total_tokens != null ? data.total_tokens.toLocaleString() : '—');
+        setEl('langfuse-cost', data.estimated_cost_usd != null ? `$${data.estimated_cost_usd.toFixed(4)}` : '—');
+      })
+      .catch(() => {});
   </script>
 </BaseLayout>

@@ -1,5 +1,16 @@
 ---
-// Header with Grupo Salinas branding
+export interface Props {
+  currentPage?: string;
+}
+
+const { currentPage = '' } = Astro.props;
+
+const navLinks = [
+  { href: '/', label: 'Inicio', id: 'home' },
+  { href: '/risk-scoring/', label: 'Risk Scoring', id: 'risk-scoring' },
+  { href: '/data-governance/', label: 'Data Governance', id: 'data-governance' },
+  { href: '/contract-ai/', label: 'Contract AI', id: 'contract-ai' },
+];
 ---
 
 <header class="bg-gs-navy text-white sticky top-0 z-40 shadow-lg">
@@ -21,18 +32,19 @@
 
       <!-- Navigation -->
       <nav class="hidden md:flex items-center space-x-1">
-        <a href="/" class="px-4 py-2 text-sm font-medium text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-          Inicio
-        </a>
-        <a href="/risk-scoring/" class="px-4 py-2 text-sm font-medium text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-          Risk Scoring
-        </a>
-        <a href="/data-governance/" class="px-4 py-2 text-sm font-medium text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-          Data Governance
-        </a>
-        <a href="/contract-ai/" class="px-4 py-2 text-sm font-medium text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-          Contract AI
-        </a>
+        {navLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+              currentPage === link.id
+                ? 'text-white bg-white/10'
+                : 'text-gs-gray-300 hover:text-white hover:bg-white/10',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
       </nav>
 
       <!-- Huawei Cloud badge -->
@@ -51,10 +63,19 @@
 
     <!-- Mobile menu -->
     <div id="mobile-menu" class="hidden md:hidden pb-4">
-      <a href="/" class="block px-3 py-2 text-sm text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg">Inicio</a>
-      <a href="/risk-scoring/" class="block px-3 py-2 text-sm text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg">Risk Scoring</a>
-      <a href="/data-governance/" class="block px-3 py-2 text-sm text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg">Data Governance</a>
-      <a href="/contract-ai/" class="block px-3 py-2 text-sm text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg">Contract AI</a>
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            'block px-3 py-2 text-sm rounded-lg',
+            currentPage === link.id
+              ? 'text-white bg-white/10'
+              : 'text-gs-gray-300 hover:text-white hover:bg-white/10',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
     </div>
   </div>
 </header>

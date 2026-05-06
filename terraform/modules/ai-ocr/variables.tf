@@ -81,6 +81,24 @@ variable "langfuse_secret_key" {
   default     = ""
 }
 
+variable "access_key" {
+  description = "Huawei Cloud AK — fallback for FunctionGraph env vars"
+  type        = string
+  sensitive   = true
+}
+
+variable "secret_key" {
+  description = "Huawei Cloud SK — fallback"
+  type        = string
+  sensitive   = true
+}
+
+variable "agency" {
+  description = "IAM Agency for FunctionGraph cross-service access (OBS, etc.)"
+  type        = string
+  default     = "fgs_default_agency"
+}
+
 variable "langfuse_host" {
   description = "Langfuse host URL"
   type        = string

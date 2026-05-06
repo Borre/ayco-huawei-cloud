@@ -9,127 +9,163 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
 ---
 
 <BaseLayout title="Risk Scoring" description="Evaluación de riesgo financiero en tiempo real — DLI Spark + DWS + Dashboards">
-  <Header slot="header" />
+  <Header slot="header" currentPage="risk-scoring" />
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/vendor/leaflet.css" />
+    <script is:inline src="/vendor/leaflet.js"></script>
+  </Fragment>
 
-  <!-- Page Hero -->
-  <section class="bg-gradient-to-br from-gs-navy to-gs-navy-light text-white py-12 relative overflow-hidden">
-    <div class="absolute top-4 right-4 flex items-center bg-risk-low/20 px-3 py-1 rounded-full border border-risk-low/30 backdrop-blur-sm">
-      <span class="w-2 h-2 bg-risk-low rounded-full animate-pulse mr-2"></span>
-      <span class="text-xs font-semibold text-risk-low uppercase tracking-wider">Live DWS Connection</span>
+  <!-- Premium Hero -->
+  <section class="relative py-20 overflow-hidden bg-hero-gradient">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 opacity-20 pointer-events-none">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-gs-blue/20 rounded-full blur-[120px] animate-pulse-soft"></div>
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-gs-gold/10 rounded-full blur-[120px]"></div>
     </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center space-x-2 mb-4">
-        <a href="/" class="text-gs-gray-300 hover:text-white text-sm">Inicio</a>
-        <span class="text-gs-gray-600">/</span>
-        <span class="text-sm text-gs-gold">Demo 1</span>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center bg-gs-blue/10 border border-gs-blue/20 px-3 py-1 rounded-full mb-6">
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2" id="live-dot"></span>
+            <span class="text-xs font-bold text-gs-blue uppercase tracking-widest" id="live-label">Live Intelligence</span>
+          </div>
+          <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">
+            Risk <span class="text-gs-blue">Scoring</span>
+          </h1>
+          <p class="text-xl text-gs-gray-300 max-w-2xl font-medium leading-relaxed">
+            Monitoreo en tiempo real de la exposición financiera mediante MPP (Massive Parallel Processing) en Huawei Cloud.
+          </p>
+        </div>
+        <div class="flex flex-col items-end">
+          <p class="text-xs font-bold text-gs-gray-300 uppercase tracking-widest mb-1 opacity-60">Source Region</p>
+          <p class="text-lg font-bold text-white flex items-center">
+            <span class="mr-2">🇲🇽</span> la-north-2
+          </p>
+        </div>
       </div>
-      <h1 class="text-3xl md:text-4xl font-bold mb-2">Risk Scoring</h1>
-      <p class="text-lg text-gs-gray-300">Evaluación de riesgo financiero en tiempo real con DLI Spark y Data Warehouse.</p>
     </div>
   </section>
 
-  <!-- Pipeline -->
-  <section class="bg-white border-b border-gs-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline de Datos</h2>
+  <!-- Pipeline Section (Dark Mode) -->
+  <section class="py-12 bg-gs-navy-light/30 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-xs font-black text-gs-gray-600 uppercase tracking-[0.3em] mb-8 text-center">Data Pipeline Architecture</h2>
       <PipelineDiagram variant="risk" />
     </div>
   </section>
 
-  <!-- KPIs -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
-      <MetricCard value="16" label="Proveedores Activos" trend="datos reales DWS" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' />
-      <MetricCard value="20" label="Contratos Analizados" trend="pipeline completo" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>' />
-      <MetricCard value="1 Crítico" label="Alertas de Riesgo" trend="10 alto, 3 medio, 6 bajo" trendUp={false} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>' />
-      <MetricCard value="$133M" label="Exposición Total MXN" trend="datos reales DWS" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
+  <!-- High-Impact KPIs (LIVE from DWS) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="kpi-grid">
+      <div id="kpi-vendors"><MetricCard value="—" label="Proveedores" trend="Cargando..." trendUp={true} /></div>
+      <div id="kpi-contracts"><MetricCard value="—" label="Contratos" trend="Cargando..." trendUp={true} /></div>
+      <div id="kpi-critical"><MetricCard value="—" label="Crítico" trend="Cargando..." trendUp={false} /></div>
+      <div id="kpi-exposure"><MetricCard value="—" label="Exposición" trend="Cargando..." trendUp={true} /></div>
     </div>
   </section>
 
-  <!-- Risk Distribution + Gauge -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Risk Distribution Chart (Live Streamlit Embed) -->
-      <div class="lg:col-span-2 card p-6">
-        <h3 class="text-lg font-bold text-gs-navy mb-4">Análisis de Riesgo Geoespacial & Detalle</h3>
-        <div class="aspect-video bg-gs-gray-900 rounded-xl overflow-hidden border border-gs-gray-200 shadow-inner">
-          <iframe 
-            src="http://101.44.185.139:8501/?embed=true" 
-            class="w-full h-full border-none" 
-            title="AYCO Risk Dashboard"
-          ></iframe>
+  <!-- Main Intelligence Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      
+      <!-- Live Geospatial Risk Map (Leaflet) -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-bold text-white tracking-tight">Geospatial Risk Analysis</h3>
+            <span class="text-xs font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-md border border-emerald-500/20" id="map-badge">Live Sync</span>
+        </div>
+        <div class="card p-1 group">
+          <div class="aspect-video bg-gs-navy rounded-xl overflow-hidden border border-white/5 shadow-2xl relative">
+            <div id="risk-map" class="w-full h-full"></div>
+            <div id="map-loading" class="absolute inset-0 flex items-center justify-center bg-gs-navy z-[1000]">
+              <div class="flex flex-col items-center space-y-3">
+                <div class="w-8 h-8 border-2 border-gs-blue border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs text-gs-gray-600 uppercase tracking-widest font-bold">Cargando mapa...</span>
+              </div>
+            </div>
+            <div id="map-error" class="absolute inset-0 flex items-center justify-center bg-gs-navy z-[1000] hidden">
+              <div class="flex flex-col items-center space-y-3 text-center px-8">
+                <svg class="w-10 h-10 text-gs-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <p class="text-sm text-gs-gray-500">No hay datos geoespaciales disponibles</p>
+                <p class="text-xs text-gs-gray-600">Los contratos se mostrarán en el mapa cuando haya datos de ubicación</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Average Risk Gauge -->
-      <div class="card p-6 flex flex-col items-center justify-center">
-        <h3 class="text-lg font-bold text-gs-navy mb-6">Riesgo Promedio</h3>
-        <RiskGauge score={5.1} label="Global" size="lg" />
-        <div class="mt-6 w-full space-y-2">
-          <div class="flex items-center justify-between text-sm">
-            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-low mr-2"/>Bajo (0-3)</span>
-            <span class="font-semibold">6 contratos</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-medium mr-2"/>Medio (3-5)</span>
-            <span class="font-semibold">3 contratos</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-high mr-2"/>Alto (5-7)</span>
-            <span class="font-semibold">10 contratos</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-critical mr-2"/>Crítico (7-10)</span>
-            <span class="font-semibold">1 contrato</span>
-          </div>
+      <!-- Risk Gauge Card (LIVE from DWS) -->
+      <div class="flex flex-col gap-8">
+        <div class="card p-8 flex flex-col items-center justify-center text-center">
+            <h3 class="text-xl font-bold text-white mb-8 tracking-tight">Risk Score Index</h3>
+            <div id="risk-gauge-container">
+              <RiskGauge score={5.1} label="Global" size="lg" animated={false} />
+            </div>
+            <div class="mt-10 w-full space-y-3" id="risk-breakdown">
+              <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                <span class="flex items-center text-sm font-bold text-gs-gray-300">
+                    <span class="w-2 h-2 rounded-full bg-risk-low mr-3 shadow-[0_0_10px_rgba(0,212,170,0.5)]"></span>
+                    Bajo Riesgo
+                </span>
+                <span class="font-black text-white" id="count-bajo">—</span>
+              </div>
+              <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                <span class="flex items-center text-sm font-bold text-gs-gray-300">
+                    <span class="w-2 h-2 rounded-full bg-risk-medium mr-3 shadow-[0_0_10px_rgba(255,215,0,0.5)]"></span>
+                    Medio Riesgo
+                </span>
+                <span class="font-black text-white" id="count-medio">—</span>
+              </div>
+              <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                <span class="flex items-center text-sm font-bold text-gs-gray-300">
+                    <span class="w-2 h-2 rounded-full bg-risk-high mr-3 shadow-[0_0_10px_rgba(255,140,0,0.5)]"></span>
+                    Alto Riesgo
+                </span>
+                <span class="font-black text-white" id="count-alto">—</span>
+              </div>
+              <div class="flex items-center justify-between p-3 rounded-xl bg-gs-navy border border-risk-critical/30">
+                <span class="flex items-center text-sm font-bold text-risk-critical">
+                    <span class="w-2 h-2 rounded-full bg-risk-critical mr-3 shadow-[0_0_10px_rgba(255,68,68,0.5)] animate-pulse"></span>
+                    Crítico
+                </span>
+                <span class="font-black text-risk-critical" id="count-critico">—</span>
+              </div>
+            </div>
+        </div>
+
+        <div class="card p-6 bg-gs-gold/5 border-gs-gold/20">
+            <p class="text-xs font-black text-gs-gold uppercase tracking-[0.2em] mb-2">Datos en Vivo</p>
+            <p class="text-sm text-gs-gray-300 leading-relaxed font-medium" id="live-source-note">
+                Métricas consultadas directamente desde DWS GaussDB vía API. Se actualizan con cada carga de página.
+            </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Top Risk Vendors Table -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-    <div class="card overflow-hidden">
-      <div class="p-6 border-b border-gs-gray-100">
-        <h3 class="text-lg font-bold text-gs-navy">Top 5 Proveedores de Mayor Riesgo</h3>
-      </div>
+  <!-- Contract Intelligence Table (LIVE from DWS) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+    <div class="flex items-center justify-between mb-8">
+        <h3 class="text-2xl font-bold text-white tracking-tight">Contract Intelligence Repository</h3>
+        <span class="text-xs font-bold text-gs-gray-300 uppercase tracking-widest" id="table-count">20 contratos</span>
+    </div>
+    <div class="card">
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-gs-gray-50 text-gs-gray-600">
+        <table class="w-full text-left">
+          <thead class="bg-white/5 border-b border-white/10">
             <tr>
-              <th class="text-left px-6 py-3 font-semibold">Proveedor</th>
-              <th class="text-left px-6 py-3 font-semibold">Estado</th>
-              <th class="text-left px-6 py-3 font-semibold">Score</th>
-              <th class="text-left px-6 py-3 font-semibold">Exposición</th>
-              <th class="text-left px-6 py-3 font-semibold">Acción</th>
+              <th class="px-8 py-5 text-xs font-black text-gs-gray-600 uppercase tracking-widest">Contract / Vendor</th>
+              <th class="px-8 py-5 text-xs font-black text-gs-gray-600 uppercase tracking-widest">Region</th>
+              <th class="px-8 py-5 text-xs font-black text-gs-gray-600 uppercase tracking-widest">Score</th>
+              <th class="px-8 py-5 text-xs font-black text-gs-gray-600 uppercase tracking-widest">Exposure</th>
+              <th class="px-8 py-5 text-xs font-black text-gs-gray-600 uppercase tracking-widest text-right">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gs-gray-100">
-            {[
-              { name: 'Constructora y Desarrolladora del Golfo', state: 'Tabasco', score: 9.2, exposure: '$12.5M', id: 'AYCO-2026-0149' },
-              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.9M', id: 'AYCO-2026-0147' },
-              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', id: 'AYCO-2026-0165' },
-              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.6M', id: 'AYCO-2026-0155' },
-              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', id: 'AYCO-2026-0154' },
-            ].map((v) => (
-              <tr class="hover:bg-gs-gray-50 transition-colors">
-                <td class="px-6 py-4 font-medium text-gs-navy">{v.name}</td>
-                <td class="px-6 py-4 text-gs-gray-600">{v.state}</td>
-                <td class="px-6 py-4">
-                  <span class={v.score >= 8 ? 'badge-risk-critical' : 'badge-risk-high'}>{v.score}</span>
-                </td>
-                <td class="px-6 py-4 font-semibold">{v.exposure}</td>
-                <td class="px-6 py-4">
-                  <a 
-                    href={`http://149.232.129.39/contract-ai/`} 
-                    target="_blank"
-                    class="inline-flex items-center px-3 py-1 bg-gs-navy text-white text-xs font-bold rounded hover:bg-gs-navy-light transition-all shadow-sm"
-                  >
-                    Contract AI 🤖
-                  </a>
-                </td>
-              </tr>
-            ))}
+          <tbody class="divide-y divide-white/5" id="contract-table-body">
+            <tr><td colspan="5" class="px-8 py-12 text-center text-gs-gray-500">Cargando datos desde DWS...</td></tr>
           </tbody>
         </table>
       </div>
@@ -138,4 +174,302 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
 
   <Footer slot="footer" />
   <ChatWidget />
+
+  <!-- LIVE DATA SCRIPT -->
+  <script is:inline>
+    const API = '/api';
+
+    var riskMap = null;
+    var mapMarkers = [];
+
+    var STATE_COORDS = {
+      'AGUASCALIENTES': [21.8823, -102.2826],
+      'BAJA CALIFORNIA': [30.4525, -115.0189],
+      'BAJA CALIFORNIA SUR': [26.0444, -111.6660],
+      'CAMPECHE': [19.8302, -90.5349],
+      'CHIAPAS': [16.4161, -93.5300],
+      'CHIHUAHUA': [28.6328, -106.0691],
+      'CIUDAD DE MEXICO': [19.4326, -99.1332],
+      'CDMX': [19.4326, -99.1332],
+      'COAHUILA': [27.0587, -101.7068],
+      'COLIMA': [19.2452, -103.7250],
+      'DURANGO': [24.0277, -104.6532],
+      'GUANAJUATO': [21.0190, -101.2574],
+      'GUERRERO': [17.4392, -99.5451],
+      'HIDALGO': [20.0915, -98.7624],
+      'JALISCO': [20.6597, -103.3496],
+      'MEXICO': [19.4326, -99.1332],
+      'EDO. DE MEXICO': [19.4326, -99.1332],
+      'ESTADO DE MEXICO': [19.4326, -99.1332],
+      'MICHOACAN': [19.2514, -102.0442],
+      'MORELOS': [18.9191, -99.2417],
+      'NAYARIT': [21.5085, -104.8954],
+      'NUEVO LEON': [25.5922, -99.9962],
+      'OAXACA': [17.0732, -96.7266],
+      'PUEBLA': [19.0414, -98.2063],
+      'QUERETARO': [20.3879, -100.0496],
+      'QUINTANA ROO': [21.1631, -86.8023],
+      'SAN LUIS POTOSI': [22.1565, -100.9855],
+      'SINALOA': [24.8091, -107.3940],
+      'SONORA': [29.2972, -110.3309],
+      'TABASCO': [17.8409, -92.6189],
+      'TAMAULIPAS': [24.2669, -98.8363],
+      'TLAXCALA': [19.3181, -98.2375],
+      'VERACRUZ': [19.5312, -96.9276],
+      'YUCATAN': [20.7099, -89.0943],
+      'ZACATECAS': [22.7709, -102.5832],
+    };
+
+    function getRiskColor(score) {
+      if (score >= 8) return '#ff4444';
+      if (score >= 6) return '#ff8c00';
+      if (score >= 4) return '#ffd700';
+      return '#00d4aa';
+    }
+
+    function getRiskLabel(score) {
+      if (score >= 8) return 'CRITICO';
+      if (score >= 6) return 'ALTO';
+      if (score >= 4) return 'MEDIO';
+      return 'BAJO';
+    }
+
+    function initMap() {
+      var mapEl = document.getElementById('risk-map');
+      if (!mapEl || typeof L === 'undefined') {
+        document.getElementById('map-loading')?.classList.add('hidden');
+        document.getElementById('map-error')?.classList.remove('hidden');
+        return;
+      }
+
+      riskMap = L.map('risk-map', {
+        center: [23.6345, -102.5528],
+        zoom: 5,
+        zoomControl: false,
+        attributionControl: false,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 18,
+      }).addTo(riskMap);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(riskMap);
+    }
+
+    function updateMap(contracts) {
+      if (!riskMap) return;
+
+      mapMarkers.forEach(function(m) { riskMap.removeLayer(m); });
+      mapMarkers = [];
+
+      var hasLocation = false;
+      var stateCount = {};
+      contracts.forEach(function(c) {
+        var state = (c.state || '').toUpperCase().trim();
+        var coords = STATE_COORDS[state];
+        if (!coords) return;
+
+        hasLocation = true;
+        var score = c.risk_score || 0;
+        var color = getRiskColor(score);
+        var name = (c.vendor_name || c.contract_number || '').substring(0, 30);
+        var fmtMXN = function(n) {
+          if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+          if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+          return '$' + (n/1e3).toFixed(0) + 'K';
+        };
+
+        if (!stateCount[state]) stateCount[state] = 0;
+        var idx = stateCount[state];
+        stateCount[state]++;
+        var angle = (idx * 137.508) * (Math.PI / 180);
+        var dist = 0.15 + (idx * 0.05);
+        var lat = coords[0] + Math.cos(angle) * dist;
+        var lng = coords[1] + Math.sin(angle) * dist;
+
+        var circle = L.circleMarker([lat, lng], {
+          radius: Math.max(6, Math.min(16, score * 1.5)),
+          fillColor: color,
+          color: color,
+          weight: 2,
+          opacity: 0.8,
+          fillOpacity: 0.5,
+        }).addTo(riskMap);
+
+        circle.bindPopup(
+          '<div style="font-family:Inter,system-ui,sans-serif;min-width:180px">' +
+            '<div style="font-weight:700;font-size:13px;margin-bottom:4px;color:#0a0e17">' + escapeHtml(name) + '</div>' +
+            '<div style="font-size:11px;color:#6C757D;margin-bottom:8px">' + escapeHtml(c.contract_number || '') + '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+              '<span style="font-size:11px;font-weight:600;color:#6C757D">Riesgo</span>' +
+              '<span style="font-size:14px;font-weight:800;color:' + color + '">' + score.toFixed(1) + ' · ' + getRiskLabel(score) + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">' +
+              '<span style="font-size:11px;font-weight:600;color:#6C757D">Exposición</span>' +
+              '<span style="font-size:14px;font-weight:800;color:#0a0e17">' + fmtMXN(c.monto_total || 0) + '</span>' +
+            '</div>' +
+          '</div>',
+          { className: 'risk-map-popup', closeButton: false }
+        );
+
+        mapMarkers.push(circle);
+      });
+
+      document.getElementById('map-loading')?.classList.add('hidden');
+
+      if (!hasLocation) {
+        document.getElementById('map-error')?.classList.remove('hidden');
+      } else if (mapMarkers.length > 0) {
+        var group = L.featureGroup(mapMarkers);
+        riskMap.fitBounds(group.getBounds().pad(0.2));
+      }
+    }
+
+    async function loadLiveData() {
+      try {
+        var [kpisRes, breakdownRes, contractsRes] = await Promise.all([
+          fetch(API + '/dashboard/kpis'),
+          fetch(API + '/risk/breakdown'),
+          fetch(API + '/dws/contracts?limit=20'),
+        ]);
+
+        var kpis = kpisRes.ok ? (await kpisRes.json()).kpis : null;
+        var breakdown = breakdownRes.ok ? await breakdownRes.json() : null;
+        var contracts = contractsRes.ok ? (await contractsRes.json()).contracts : null;
+
+        if (kpis) updateKPIs(kpis);
+        if (breakdown) updateBreakdown(breakdown);
+        if (contracts) {
+          updateContractTable(contracts);
+          updateMap(contracts);
+        }
+
+        var dot = document.getElementById('live-dot');
+        var label = document.getElementById('live-label');
+        if (dot && label && kpis) {
+          dot.className.baseVal = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2';
+          label.textContent = 'Live \u00b7 DWS Connected';
+        }
+      } catch (e) {
+        console.warn('DWS fetch falló, usando datos estáticos:', e.message);
+        document.getElementById('map-loading')?.classList.add('hidden');
+        document.getElementById('map-error')?.classList.remove('hidden');
+      }
+    }
+
+    function updateKPIs(kpis) {
+      var fmtMXN = function(n) {
+        if (n >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B';
+        if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+        return '$' + (n/1e3).toFixed(0) + 'K';
+      };
+
+      setMetricValue('kpi-vendors', kpis.unique_vendors.toString(), 'Únicos en DWS');
+      setMetricValue('kpi-contracts', kpis.total_contracts.toString(), 'Analizados');
+      setMetricValue('kpi-critical', kpis.critical_count.toString(), kpis.critical_count > 0 ? '⚠️ Alerta' : '✅ Sin críticos');
+      setMetricValue('kpi-exposure', fmtMXN(kpis.total_exposure_mxn), 'Score avg ' + kpis.avg_risk_score);
+
+      var gaugeContainer = document.getElementById('risk-gauge-container');
+      if (gaugeContainer) {
+        updateRiskGauge(gaugeContainer, kpis.avg_risk_score);
+      }
+    }
+
+    function updateRiskGauge(container, score) {
+      var color = score <= 3 ? '#22C55E' : score <= 5 ? '#F59E0B' : score <= 7 ? '#EF4444' : '#7C2D12';
+      var circle = container.querySelector('.gauge-circle');
+      if (circle) {
+        var circumference = parseFloat(circle.getAttribute('stroke-dasharray'));
+        var offset = circumference - (score / 10) * circumference;
+        circle.setAttribute('stroke', color);
+        circle.style.strokeDashoffset = offset;
+        circle.style.filter = 'drop-shadow(0 0 6px ' + color + '40)';
+      }
+      var scoreEl = container.querySelector('[class*="font-bold"]');
+      if (scoreEl) {
+        scoreEl.textContent = score.toFixed(1);
+        scoreEl.style.color = color;
+      }
+    }
+
+    function setMetricValue(id, value, trend) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var valueEl = el.querySelector('.text-2xl, .text-3xl, [class*="font-bold"]');
+      var trendEl = el.querySelector('.text-xs, [class*="text-gs-gray"]');
+      if (valueEl) valueEl.textContent = value;
+      if (trendEl) trendEl.textContent = trend;
+    }
+
+    function updateBreakdown(data) {
+      var map = {
+        'BAJO': 'count-bajo',
+        'MEDIO': 'count-medio',
+        'ALTO': 'count-alto',
+        'CRITICO': 'count-critico',
+      };
+      if (data.breakdown) {
+        for (var i = 0; i < data.breakdown.length; i++) {
+          var b = data.breakdown[i];
+          var el = document.getElementById(map[b.risk_level]);
+          if (el) el.textContent = b.count;
+        }
+      }
+      if (data.global_risk_score) {
+        var gaugeContainer = document.getElementById('risk-gauge-container');
+        if (gaugeContainer) {
+          updateRiskGauge(gaugeContainer, data.global_risk_score);
+        }
+      }
+    }
+
+    function updateContractTable(contracts) {
+      var tbody = document.getElementById('contract-table-body');
+      var countEl = document.getElementById('table-count');
+      if (!tbody) return;
+      if (countEl) countEl.textContent = contracts.length + ' contratos';
+
+      var fmtMXN = function(n) {
+        if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+        return '$' + (n/1e6).toFixed(1) + 'M';
+      };
+
+      tbody.innerHTML = contracts.map(function(c, i) {
+        var score = c.risk_score || 0;
+        var badgeClass = score >= 8 ? 'badge-risk-critical' : score >= 6 ? 'badge-risk-high' : score >= 4 ? 'badge-risk-medium' : 'badge-risk-low';
+        var name = (c.vendor_name || c.contract_number || '').substring(0, 35);
+        return '<tr class="group hover:bg-white/[0.02] transition-colors">' +
+          '<td class="px-8 py-6">' +
+            '<p class="font-bold text-white text-lg group-hover:text-gs-blue transition-colors">' + escapeHtml(name) + '</p>' +
+            '<p class="text-xs font-bold text-gs-gray-600 mt-1 uppercase tracking-widest">' + escapeHtml(c.contract_number || '') + '</p>' +
+          '</td>' +
+          '<td class="px-8 py-6">' +
+            '<span class="text-sm font-bold text-gs-gray-300 flex items-center">' +
+              '<svg class="w-3 h-3 mr-2 text-gs-gold" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>' +
+              escapeHtml(c.state || '—') +
+            '</span>' +
+          '</td>' +
+          '<td class="px-8 py-6">' +
+            '<span class="' + badgeClass + '">' + score.toFixed(1) + '</span>' +
+          '</td>' +
+          '<td class="px-8 py-6 font-black text-white">' + fmtMXN(c.monto_total || 0) + '</td>' +
+          '<td class="px-8 py-6 text-right">' +
+            '<a href="http://101.44.185.139/chat?query=Analiza el contrato ' + escapeHtml(c.contract_number || '') + '"' +
+              ' target="_blank" class="btn-primary py-2 px-4 text-xs">' +
+              'Deep Analysis AI' +
+            '</a>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    initMap();
+    loadLiveData();
+  </script>
 </BaseLayout>

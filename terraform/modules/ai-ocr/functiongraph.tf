@@ -13,14 +13,17 @@ resource "huaweicloud_fgs_function" "ocr_trigger" {
   func_code   = filebase64("${path.module}/functions/ocr_trigger.py")
   memory_size = 256
   timeout     = 30
+  agency      = var.agency
   description = "Triggers OCR on contract PDF upload to OBS"
 
   user_data = jsonencode({
-    OCR_ENDPOINT      = "ocr.ap-southeast-1.myhuaweicloud.com"
+    OCR_ENDPOINT      = "ocr.la-north-2.myhuaweicloud.com"
     OBS_ENDPOINT      = "obs.la-north-2.myhuaweicloud.com"
     OBS_BUCKET        = var.obs_contracts_raw
     OBS_TEXT_BUCKET   = var.obs_contracts_text
     HUAWEI_PROJECT_ID = var.project_id
+    HUAWEI_ACCESS_KEY = var.access_key
+    HUAWEI_SECRET_KEY = var.secret_key
   })
 }
 
@@ -39,12 +42,15 @@ resource "huaweicloud_fgs_function" "parse_contract" {
   func_code   = filebase64("${path.module}/functions/parse_contract.py")
   memory_size = 512
   timeout     = 60
+  agency      = var.agency
   description = "Parses OCR text into structured contract data"
 
   user_data = jsonencode({
     OBS_ENDPOINT       = "obs.la-north-2.myhuaweicloud.com"
     OBS_TEXT_BUCKET    = var.obs_contracts_text
     OBS_RESULTS_BUCKET = var.obs_contracts_results
+    HUAWEI_ACCESS_KEY  = var.access_key
+    HUAWEI_SECRET_KEY  = var.secret_key
   })
 }
 
@@ -63,6 +69,7 @@ resource "huaweicloud_fgs_function" "llm_inference" {
   func_code   = filebase64("${path.module}/functions/llm_inference.py")
   memory_size = 1024
   timeout     = 120
+  agency      = var.agency
   description = "DeepSeek inference for contract risk analysis"
 
   user_data = jsonencode({ for k, v in {
@@ -72,6 +79,8 @@ resource "huaweicloud_fgs_function" "llm_inference" {
     DEEPSEEK_API_KEY    = var.deepseek_api_key
     DIFY_API_URL        = var.dify_api_url
     OBS_RESULTS_BUCKET  = var.obs_contracts_results
+    HUAWEI_ACCESS_KEY   = var.access_key
+    HUAWEI_SECRET_KEY   = var.secret_key
     LANGFUSE_PUBLIC_KEY = var.langfuse_public_key
     LANGFUSE_SECRET_KEY = var.langfuse_secret_key
     LANGFUSE_HOST       = var.langfuse_host

@@ -37,7 +37,7 @@ const demoCards = [
 ---
 
 <BaseLayout title="Inicio">
-  <Header slot="header" />
+  <Header slot="header" currentPage="home" />
 
   <!-- Hero Section -->
   <section class="bg-hero-gradient text-white relative overflow-hidden">
@@ -81,38 +81,14 @@ const demoCards = [
     </div>
   </section>
 
-  <!-- KPI Bar -->
+  <!-- KPI Bar (LIVE from DWS API) -->
   <section class="bg-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
-        <MetricCard
-          value="2,300+"
-          label="Proveedores Analizados"
-          trend="+12% este mes"
-          trendUp={true}
-          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'
-        />
-        <MetricCard
-          value="99.6%"
-          label="Reducción Tiempo Análisis"
-          trend="De 3 días a 4 min"
-          trendUp={true}
-          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-        />
-        <MetricCard
-          value="$31"
-          label="Costo Diario Infra"
-          trend="USD/día"
-          trendUp={true}
-          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-        />
-        <MetricCard
-          value="4"
-          label="Minutos por Análisis"
-          trend="vs 3 días manual"
-          trendUp={true}
-          icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>'
-        />
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children" id="home-kpi-grid">
+        <div id="home-kpi-vendors"><MetricCard value="—" label="Proveedores Analizados" trend="Cargando..." trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' /></div>
+        <div id="home-kpi-reduction"><MetricCard value="99.6%" label="Reducción Tiempo Análisis" trend="De 3 días a 4 min" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' /></div>
+        <div id="home-kpi-cost"><MetricCard value="$31" label="Costo Diario Infra" trend="USD/día" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' /></div>
+        <div id="home-kpi-minutes"><MetricCard value="—" label="Contratos Analizados" trend="Pipeline DWS" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' /></div>
       </div>
     </div>
   </section>
@@ -165,7 +141,7 @@ const demoCards = [
   <section class="bg-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12" data-animate>
-        <h2 class="section-title">Arquitectura en Huawei Cloud</h2>
+        <h2 class="section-title !text-gs-navy">Arquitectura en Huawei Cloud</h2>
         <p class="section-subtitle mx-auto">
           Infraestructura completa desplegada en la-north-2 (Ciudad de México) con DeepSeek v4 Flash como LLM principal.
         </p>
@@ -211,4 +187,27 @@ const demoCards = [
 
   <Footer slot="footer" />
   <ChatWidget />
+
+  <!-- LIVE KPI SCRIPT -->
+  <script is:inline>
+    fetch('/api/dashboard/kpis')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.kpis) return;
+        const k = data.kpis;
+        const fmt = (n) => n >= 1e9 ? `${(n/1e9).toFixed(1)}B` : n >= 1e6 ? `${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `${(n/1e3).toFixed(0)}K` : String(n);
+        setKPI('home-kpi-vendors', k.unique_vendors.toString(), 'Únicos en DWS');
+        setKPI('home-kpi-minutes', k.total_contracts.toString(), `Pipeline DWS · ${k.critical_count} crítico${k.critical_count!==1?'s':''}`);
+        setKPI('home-kpi-cost', `$${k.daily_cost_usd || 31}`, k.total_exposure_mxn ? `Exposición ${fmt(k.total_exposure_mxn)}` : 'USD/día');
+        function setKPI(id, val, trend) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const v = el.querySelector('.text-2xl, .text-3xl, [class*="font-bold"]');
+          const t = el.querySelector('.text-xs, [class*="text-gs-gray"]');
+          if (v) v.textContent = val;
+          if (t) t.textContent = trend;
+        }
+      })
+      .catch(() => {});
+  </script>
 </BaseLayout>
