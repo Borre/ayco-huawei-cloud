@@ -84,5 +84,5 @@ variable "langfuse_secret_key" {
 variable "langfuse_host" {
   description = "Langfuse host URL"
   type        = string
-  default     = "https://cloud.langfuse.com"
+  default     = "https://us.cloud.langfuse.com"
 }

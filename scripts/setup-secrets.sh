@@ -64,7 +64,7 @@ maas_api_key       = "$MAAS"
 deepseek_api_key   = "$DEEPSEEK"
 langfuse_public_key = "$LANGFUSE_PUBLIC"
 langfuse_secret_key = "$LANGFUSE_SECRET"
-langfuse_host       = "${LANGFUSE_HOST:-https://cloud.langfuse.com}"
+langfuse_host       = "${LANGFUSE_HOST:-https://us.cloud.langfuse.com}"
 EOF
 
 echo "✓ terraform.tfvars generated (secrets resolved from 1Password)"

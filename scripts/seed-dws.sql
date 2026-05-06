@@ -105,6 +105,7 @@ GROUP BY anomaly_type;
 CREATE TABLE IF NOT EXISTS risk_results (
     contract_number    VARCHAR(50) PRIMARY KEY,
     vendor_name        VARCHAR(200),
+    state              VARCHAR(10),
     monto_total        NUMERIC(15,2),
     plazo_dias         INT,
     penalizacion_pct   NUMERIC(5,2),
@@ -121,16 +122,18 @@ CREATE TABLE IF NOT EXISTS risk_results (
 CREATE INDEX IF NOT EXISTS idx_risk_results_level ON risk_results(risk_level);
 CREATE INDEX IF NOT EXISTS idx_risk_results_score ON risk_results(risk_score DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_results_vendor ON risk_results(vendor_name);
+CREATE INDEX IF NOT EXISTS idx_risk_results_state ON risk_results(state);
 
 CREATE OR REPLACE VIEW dm.contract_vendor_risk_summary AS
 SELECT
     vendor_name,
+    state,
     COUNT(*) AS contracts,
     SUM(monto_total) AS total_exposure,
     ROUND(AVG(risk_score), 2) AS avg_risk,
     MAX(risk_level) AS highest_risk_level
 FROM risk_results
-GROUP BY vendor_name;
+GROUP BY vendor_name, state;
 
 -- ─── RPT: Queries de reportes ────────────────────────
 SELECT vendor_id, name, sector, risk_level, risk_score, annual_revenue_mxn

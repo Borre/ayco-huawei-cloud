@@ -36,6 +36,7 @@ def analyze_contract(text):
 {{
   "contract_number": "extrae del contrato",
   "contratista": "nombre del contratista",
+  "estado": "Código de estado de México (ej. CDMX, JAL, NLE, QRO, PUE, GTO, SON, CHIH, BC, TAMPS)",
   "monto_total": 1234567.89,
   "plazo_dias": 365,
   "penalizacion_pct": 5.0,
@@ -48,6 +49,7 @@ def analyze_contract(text):
 }}
 
 risk_level debe ser uno de: BAJO, MEDIO, ALTO, CRITICO.
+Si no encuentras el estado explícitamente, intenta inferirlo de la dirección o jurisdicción, o usa CDMX por defecto.
 
 Contrato:
 {text[:8000]}
@@ -86,14 +88,16 @@ def load_to_dws(analysis):
     """Insert risk analysis into DWS."""
     alertas = "|".join(analysis.get("alertas", []))
     recs = "|".join(analysis.get("recomendaciones", []))
+    state = analysis.get("estado", "CDMX")
 
     sql = f"""INSERT INTO risk_results (
-        contract_number, vendor_name, monto_total, plazo_dias,
+        contract_number, vendor_name, state, monto_total, plazo_dias,
         penalizacion_pct, garantia_pct, risk_score, risk_level,
         alertas, recomendaciones, resumen, llm_provider
     ) VALUES (
         '{analysis['contract_number']}',
         '{analysis['contratista']}',
+        '{state}',
         {analysis['monto_total']},
         {analysis.get('plazo_dias', 365)},
         {analysis.get('penalizacion_pct', 0)},
@@ -106,6 +110,7 @@ def load_to_dws(analysis):
         'MaaS/DeepSeek-v3.2'
     ) ON CONFLICT (contract_number) DO UPDATE SET
         vendor_name = EXCLUDED.vendor_name,
+        state = EXCLUDED.state,
         monto_total = EXCLUDED.monto_total,
         risk_score = EXCLUDED.risk_score,
         risk_level = EXCLUDED.risk_level,
@@ -132,7 +137,7 @@ def save_results(analysis):
     csv_file = out_dir / "risk_results.csv"
     import csv
     fieldnames = [
-        "contract_number", "contratista", "monto_total", "plazo_dias",
+        "contract_number", "contratista", "estado", "monto_total", "plazo_dias",
         "penalizacion_pct", "garantia_pct", "risk_score", "risk_level",
         "alertas", "recomendaciones", "resumen"
     ]
@@ -145,6 +150,7 @@ def save_results(analysis):
         row = {
             "contract_number": analysis["contract_number"],
             "contratista": analysis["contratista"],
+            "estado": analysis.get("estado", "CDMX"),
             "monto_total": analysis["monto_total"],
             "plazo_dias": analysis.get("plazo_dias", 365),
             "penalizacion_pct": analysis.get("penalizacion_pct", 0),
