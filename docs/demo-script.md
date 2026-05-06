@@ -217,20 +217,18 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 
 ```sql
 -- CAPA ODS: datos crudos, sin transformar
-SELECT contract_number, vendor_name, risk_score, risk_level
-FROM ods.risk_results
+SELECT vendor_id, name, state, sector, risk_score, risk_level
+FROM ods.vendors
 LIMIT 5;
 
 -- CAPA DW: esquema estrella, datos limpios y normalizados
-SELECT r.contract_number, v.vendor_name, v.estado,
-       r.risk_score, r.risk_level, r.alertas
-FROM dw.fact_risk r
-JOIN dw.dim_vendor v ON r.vendor_key = v.vendor_key
-WHERE r.risk_level = 'CRITICO';
+SELECT vendor_id, name, state, sector, risk_score, risk_level
+FROM dw.dim_vendor
+WHERE risk_level = 'CRITICO';
 
 -- CAPA DM: vistas analíticas para consumo de negocio
 SELECT * FROM dm.contract_vendor_risk_summary
-ORDER BY risk_score DESC
+ORDER BY avg_risk DESC
 LIMIT 5;
 ```
 
@@ -253,18 +251,18 @@ SELECT
   COUNT(risk_score) AS con_score,
   COUNT(*) - COUNT(risk_score) AS sin_score,
   ROUND(COUNT(risk_score)::numeric / COUNT(*) * 100, 1) AS completitud_pct
-FROM ods.risk_results;
+FROM public.risk_results;
 
 -- CONSISTENCIA: ¿todos los scores están en rango válido?
 SELECT
   COUNT(*) AS total,
   COUNT(*) FILTER (WHERE risk_score BETWEEN 0 AND 10) AS en_rango,
   COUNT(*) FILTER (WHERE risk_score < 0 OR risk_score > 10) AS fuera_rango
-FROM ods.risk_results;
+FROM public.risk_results;
 
 -- DUPLICADOS: ¿hay contratos repetidos?
 SELECT contract_number, COUNT(*) AS duplicados
-FROM ods.risk_results
+FROM public.risk_results
 GROUP BY contract_number
 HAVING COUNT(*) > 1;
 ```
