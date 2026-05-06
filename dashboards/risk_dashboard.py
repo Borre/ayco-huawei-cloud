@@ -63,11 +63,11 @@ def get_dws_connection():
     """Robust DWS connection with environment fallback."""
     try:
         return psycopg2.connect(
-            host=os.getenv("DWS_ENDPOINT", "127.0.0.1"),
+            host=os.getenv("DWS_ENDPOINT") or os.getenv("DWS_HOST", "127.0.0.1"),
             port=int(os.getenv("DWS_PORT", "8000")),
-            dbname=os.getenv("DWS_DATABASE", "ayco_db"),
+            dbname=os.getenv("DWS_DATABASE") or os.getenv("DWS_DB", "ayco_db"),
             user=os.getenv("DWS_USER", "ayco_admin"),
-            password=os.getenv("DWS_PASSWORD", ""),
+            password=os.getenv("DWS_PASSWORD") or os.getenv("DWS_PASS", ""),
             connect_timeout=3,
         )
     except Exception:
