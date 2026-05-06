@@ -107,10 +107,10 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
           <tbody class="divide-y divide-gs-gray-100">
             {[
               { name: 'Constructora y Desarrolladora del Golfo', state: 'Tabasco', score: 9.2, exposure: '$12.5M', id: 'AYCO-2026-0149' },
-              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.85M', id: 'AYCO-2026-0147' },
-              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', id: 'AYCO-2026-0148' },
-              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.5M', id: 'AYCO-2026-0150' },
-              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', id: 'AYCO-2026-0151' },
+              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.9M', id: 'AYCO-2026-0147' },
+              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', id: 'AYCO-2026-0165' },
+              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.6M', id: 'AYCO-2026-0155' },
+              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', id: 'AYCO-2026-0154' },
             ].map((v) => (
               <tr class="hover:bg-gs-gray-50 transition-colors">
                 <td class="px-6 py-4 font-medium text-gs-navy">{v.name}</td>
@@ -121,11 +121,11 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
                 <td class="px-6 py-4 font-semibold">{v.exposure}</td>
                 <td class="px-6 py-4">
                   <a 
-                    href={`http://101.44.185.139/chat?query=Analiza el contrato ${v.id} de ${v.name}`} 
+                    href={`http://149.232.129.39/contract-ai/`} 
                     target="_blank"
                     class="inline-flex items-center px-3 py-1 bg-gs-navy text-white text-xs font-bold rounded hover:bg-gs-navy-light transition-all shadow-sm"
                   >
-                    Consultar AI 🤖
+                    Contract AI 🤖
                   </a>
                 </td>
               </tr>

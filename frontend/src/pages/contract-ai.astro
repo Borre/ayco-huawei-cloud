@@ -8,9 +8,15 @@ import RiskGauge from '../components/RiskGauge.astro';
 import PipelineDiagram from '../components/PipelineDiagram.astro';
 
 const contracts = [
-  { id: 'AYCO-2026-0149', name: 'Constructora y Desarrolladora del Golfo', risk: 9.2, amount: '$12.5M MXN', type: 'Crítico', factors: ['Penalización 40%', 'Sin garantía', 'Arbitraje UNCITRAL'] },
-  { id: 'AYCO-2026-0147', name: 'Outsourcing del Sureste', risk: 8.7, amount: '$3.85M MXN', type: 'Alto Riesgo', factors: ['Penalización 30%', 'Sin garantía', 'Cláusula de rescisión ambigua'] },
+  { id: 'AYCO-2026-0149', name: 'Constructora y Desarrolladora del Golfo', risk: 9.2, amount: '$12.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Arbitraje UNCITRAL', 'Empresa RFC 2024'] },
+  { id: 'AYCO-2026-0147', name: 'Outsourcing del Sureste', risk: 8.7, amount: '$3.85M MXN', type: 'Alto Riesgo', factors: ['Penalización 30%', 'Sin garantía', 'Rescisión ambigua'] },
+  { id: 'AYCO-2026-0162', name: 'CodeSec Solutions', risk: 8.5, amount: '$7.8M MXN', type: 'Alto Riesgo', factors: ['Penalización 40%', 'Sin garantía', 'Sector financiero'] },
+  { id: 'AYCO-2026-0164', name: 'Servicios Corporativos Olmeca', risk: 8.2, amount: '$9.6M MXN', type: 'Alto Riesgo', factors: ['Penalización 35%', 'Exonerado garantía', 'Tapachula CNBV-flagged'] },
+  { id: 'AYCO-2026-0161', name: 'Transportes Cuauhtémoc', risk: 6.4, amount: '$4.2M MXN', type: 'Medio Riesgo', factors: ['Penalización 25%', 'Garantía 5%', 'Carta crédito'] },
+  { id: 'AYCO-2026-0165', name: 'Meditek del Centro', risk: 5.8, amount: '$5.8M MXN', type: 'Medio Riesgo', factors: ['Penalización 20%', 'Fianza solo 1er año', 'Equipo médico'] },
   { id: 'AYCO-2026-0148', name: 'Energía Solar del Golfo', risk: 2.3, amount: '$450K MXN', type: 'Bajo Riesgo', factors: ['Penalización 5%', 'Garantía 20%', 'Arbitraje ICC'] },
+  { id: 'AYCO-2026-0160', name: 'Consultoría Administrativa Querétaro', risk: 1.8, amount: '$850K MXN', type: 'Bajo Riesgo', factors: ['Penalización 10%', 'Fianza 15%', 'Depósito $50K'] },
+  { id: 'AYCO-2026-0163', name: 'DataNube Mexicana', risk: 9.8, amount: '$22.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Sin garantía', 'Arbitraje UNCITRAL · Empresa fantasma'] },
 ];
 ---
 
@@ -169,13 +175,13 @@ const contracts = [
           Langfuse registra cada interacción del chatbot: qué modelo se usó, qué prompt se envió,
           cuántos tokens consumió, y cuánto tardó. Esto es <strong>auditoría de IA</strong> en tiempo real.
         </p>
-        <a href="https://cloud.langfuse.com/project/clz3g3r910007jxqg2kjh5a5e/traces"
+        <a href="https://us.cloud.langfuse.com/project/clz3g3r910007jxqg2kjh5a5e/traces"
            target="_blank" rel="noopener"
            class="inline-flex items-center px-6 py-3 bg-gs-navy text-white rounded-xl hover:bg-gs-blue transition-colors font-semibold">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           Abrir Langfuse Dashboard →
         </a>
-        <p class="text-xs text-gs-gray-400 mt-3">cloud.langfuse.com → Proyecto AYCO Demo</p>
+        <p class="text-xs text-gs-gray-400 mt-3">us.cloud.langfuse.com → Proyecto AYCO Demo</p>
       </div>
 
       <!-- What Langfuse shows -->

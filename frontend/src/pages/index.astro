@@ -100,7 +100,7 @@ const demoCards = [
           icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
         />
         <MetricCard
-          value="$35"
+          value="$31"
           label="Costo Diario Infra"
           trend="USD/día"
           trendUp={true}
@@ -175,12 +175,16 @@ const demoCards = [
         {[
           { name: 'VPC + CFW', desc: 'Red aislada', icon: '🔒' },
           { name: 'ECS ×2', desc: 'Dify + Web', icon: '🖥️' },
-          { name: 'DLI + DWS', desc: 'Analytics', icon: '📊' },
+          { name: 'DLI + DWS', desc: '3 nodos MPP', icon: '📊' },
           { name: 'DataArts', desc: 'ETL + API', icon: '🔄' },
           { name: 'FunctionGraph', desc: 'OCR + LLM', icon: '⚡' },
-          { name: 'OBS ×5', desc: 'Storage', icon: '📁' },
+          { name: 'OBS ×5', desc: 'Data Lake', icon: '📁' },
           { name: 'MaaS DeepSeek', desc: 'v4 Flash', icon: '🧠' },
-          { name: 'Langfuse', desc: 'Observabilidad', icon: '📈' },
+          { name: 'Dify ×3 Apps', desc: 'RAG Chatbots', icon: '💬' },
+          { name: 'Streamlit', desc: 'Live Dashboard', icon: '📈' },
+          { name: 'Langfuse', desc: 'LLM Observability', icon: '🔍' },
+          { name: 'CTS', desc: 'Audit Trail', icon: '🛡️' },
+          { name: 'Terraform', desc: 'IaC Zero-Diff', icon: '🏗️' },
         ].map((svc) => (
           <div class="card p-4 text-center hover:-translate-y-1 transition-transform">
             <div class="text-3xl mb-2">{svc.icon}</div>
