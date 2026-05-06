@@ -130,9 +130,15 @@ with col_right:
     if not map_df.empty:
         map_df["lat"] = map_df["state"].map(lambda x: STATE_COORDS.get(x, [19.43, -99.13])[0])
         map_df["lon"] = map_df["state"].map(lambda x: STATE_COORDS.get(x, [19.43, -99.13])[1])
-        fig_map = px.scatter_mapbox(map_df, lat="lat", lon="lon", color="risk", size="count",
-                                    color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
-                                    zoom=3.5, mapbox_style="carto-darkmatter", height=300)
+        fig_map = px.scatter_geo(map_df, lat="lat", lon="lon", color="risk", size="count",
+                                color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
+                                projection="natural earth", height=300)
+        fig_map.update_geos(
+            bgcolor="rgba(0,0,0,0)", 
+            landcolor="#1a1f2e",  
+            subunitcolor="#2d3748",
+            showcountries=True
+        )
         fig_map.update_layout(margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
         st.plotly_chart(fig_map, use_container_width=True)
 
