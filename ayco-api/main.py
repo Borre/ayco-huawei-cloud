@@ -29,6 +29,7 @@ import psycopg2
 import psycopg2.extras
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from urllib.request import Request, urlopen
 from base64 import b64encode
 
@@ -57,6 +58,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Dify Chat Proxy config
+DIFY_BASE_URL = os.environ.get("DIFY_BASE_URL", "http://101.44.185.139")
+DIFY_API_KEY = os.environ.get("DIFY_API_KEY", "app-Y8MxfRygyUWOAfyTlo1MQSJx")
 
 
 # ─── OBS Client (lazy init) ────────────────────────────
@@ -505,6 +510,117 @@ def dws_contracts(limit: int = 20):
             status_code=502,
             detail=f"Error consultando DWS: {str(e)}",
         )
+
+
+# ─── Dify Chat Proxy ────────────────────────────────
+@app.get("/api/chat")
+def chat_proxy(query: str = ""):
+    """Proxy to Dify chat-messages API. Returns HTML page with AI response."""
+    if not query:
+        return HTMLResponse("<html><body style=\"background:#0a0e1a;color:#e2e8f0;font-family:system-ui;padding:2rem;\"><h2>AYCO Deep Analysis</h2><p>No query provided.</p></body></html>")
+
+    try:
+        payload = json.dumps({
+            "inputs": {},
+            "query": query,
+            "response_mode": "blocking",
+            "user": "ayco-demo",
+        }).encode("utf-8")
+
+        req = Request(
+            f"{DIFY_BASE_URL}/v1/chat-messages",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {DIFY_API_KEY}",
+                "Content-Type": "application/json",
+            },
+        )
+        resp = urlopen(req, timeout=60)
+        data = json.loads(resp.read().decode("utf-8"))
+        answer = data.get("answer", "Sin respuesta del modelo.")
+        conversation_id = data.get("conversation_id", "")
+
+    except Exception as e:
+        answer = f"Error conectando a Dify: {str(e)}"
+        conversation_id = ""
+
+    html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AYCO Deep Analysis</title>
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{
+    background: #0a0e1a;
+    color: #e2e8f0;
+    font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+  }}
+  .card {{
+    max-width: 800px;
+    width: 100%;
+    background: #111827;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 2rem;
+  }}
+  .header {{
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1e293b;
+  }}
+  .header h1 {{ font-size: 1.25rem; color: #f8fafc; }}
+  .header span {{ font-size: 0.75rem; color: #64748b; background: #1e293b; padding: 2px 8px; border-radius: 4px; }}
+  .query-box {{
+    background: #1e293b;
+    border-left: 3px solid #38bdf8;
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }}
+  .answer {{
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 1.5rem;
+    line-height: 1.8;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+  }}
+  .answer strong {{ color: #f8fafc; }}
+  .footer {{
+    margin-top: 1.5rem;
+    font-size: 0.7rem;
+    color: #475569;
+    text-align: right;
+  }}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <svg width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#1e293b"/><text x="16" y="22" text-anchor="middle" fill="#38bdf8" font-size="16" font-weight="bold">AI</text></svg>
+    <h1>AYCO Contract Risk Analysis</h1>
+    <span>DeepSeek v3.1</span>
+  </div>
+  <div class="query-box">Query: {query}</div>
+  <div class="answer">{answer}</div>
+  <div class="footer">Dify conversation_id: {conversation_id}</div>
+</div>
+</body>
+</html>"""
+
+    return HTMLResponse(html)
 
 
 # ─── Entrypoint ────────────────────────────────────────
