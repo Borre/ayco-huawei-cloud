@@ -35,7 +35,7 @@
 - [ ] Run `make demo` and verify all services are healthy
 - [ ] Run `bash scripts/health-check.sh` — all checks must pass
 - [ ] **Frontend accessible:** `curl -s http://149.232.129.39/` returns 200
-- [ ] **Dify API:** `curl -s http://101.44.185.139/v1/` responds
+- [ ] **Dify API:** `curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" http://101.44.185.139/v1/chat-messages` returns 401 (API viva, solo falta body)
 - [ ] **DWS:** `PGPASSWORD=... psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c "SELECT 1"` returns 1
 - [ ] **Streamlit:** `curl -s http://101.44.185.139:8501/_stcore/health` returns ok
 - [ ] Contract data seeded: 20 rows in `public.risk_results` + 2,300 vendors, 500 customers, 5,000 transactions in ODS/DW/DM
