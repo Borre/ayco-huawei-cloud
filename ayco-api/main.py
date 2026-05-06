@@ -513,16 +513,125 @@ def dws_contracts(limit: int = 20):
 
 
 # ─── Dify Chat Proxy ────────────────────────────────
+
+@app.get("/api/chat/debug")
+def chat_debug(query: str = ""):
+    """Debug endpoint: shows DWS contract lookup + enriched query without calling Dify."""
+    import re
+    contract_match = re.search(r'AYCO[-\s]?\d{4}[-\s]?\d{4}', query, re.IGNORECASE)
+    result = {
+        "query": query,
+        "contract_match": str(contract_match),
+        "contract_number": "",
+        "dws_found": False,
+        "contract_context_preview": "",
+        "contract_data_html": "",
+    }
+    if contract_match:
+        contract_number = contract_match.group(0).replace(" ", "-")
+        # Normalize format: AYCO20260181 → AYCO-2026-0181, but don't double-dash
+        needs_normalize = not ("-" in contract_number)
+        if needs_normalize and len(contract_number) == 12:
+            contract_number = f"{contract_number[:4]}-{contract_number[4:8]}-{contract_number[8:]}"
+        result["contract_number"] = contract_number
+        try:
+            conn = _get_dws_conn()
+            cur = conn.cursor()
+            cur.execute("""SELECT contract_number, vendor_name, risk_score, risk_level,
+                       monto_total, plazo_dias, penalizacion_pct, garantia_pct,
+                       alertas, recomendaciones, state, analyzed_at
+                FROM risk_results WHERE contract_number ILIKE %s LIMIT 1""",
+                (f"%{contract_number}%",))
+            row = cur.fetchone()
+            cur.close()
+            conn.close()
+            if row:
+                result["dws_found"] = True
+                contract_context = f"DATOS DEL CONTRATO EN EL SISTEMA DWS:\n- Número: {row[0]}\n- Contratista: {row[1]}"
+                result["contract_context_preview"] = contract_context[:200]
+                result["contract_data_html"] = f'<div class="contract-data">Found: {row[0]}</div>'
+        except Exception as e:
+            result["error"] = str(e)
+    return result
+
+
 @app.get("/api/chat")
 def chat_proxy(query: str = ""):
-    """Proxy to Dify chat-messages API. Returns HTML page with AI response."""
+    """Proxy to Dify chat-messages API. Injects DWS contract context when query mentions a contract number."""
     if not query:
         return HTMLResponse("<html><body style=\"background:#0a0e1a;color:#e2e8f0;font-family:system-ui;padding:2rem;\"><h2>AYCO Deep Analysis</h2><p>No query provided.</p></body></html>")
+
+    # Extract contract number from query and fetch from DWS
+    import re
+    contract_match = re.search(r'AYCO[-\s]?\d{4}[-\s]?\d{4}', query, re.IGNORECASE)
+    contract_context = ""
+    contract_number = ""
+    if contract_match:
+        contract_number = contract_match.group(0).replace(" ", "-")
+        # Normalize format: AYCO20260181 → AYCO-2026-0181, but don't double-dash
+        needs_normalize = not ("-" in contract_number)
+        if needs_normalize and len(contract_number) == 12:
+            contract_number = f"{contract_number[:4]}-{contract_number[4:8]}-{contract_number[8:]}"
+        try:
+            conn = _get_dws_conn()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT contract_number, vendor_name, risk_score, risk_level,
+                       monto_total, plazo_dias, penalizacion_pct, garantia_pct,
+                       alertas, recomendaciones, state, analyzed_at
+                FROM risk_results
+                WHERE contract_number ILIKE %s
+                LIMIT 1
+            """, (f"%{contract_number}%",))
+            row = cur.fetchone()
+            cur.close()
+            conn.close()
+            if row:
+                contract_context = f"""DATOS DEL CONTRATO EN EL SISTEMA DWS:
+- Número: {row[0]}
+- Contratista: {row[1]}
+- Risk Score: {row[2]}/10
+- Nivel de Riesgo: {row[3]}
+- Monto Total: ${row[4]:,.2f} MXN
+- Plazo: {row[5]} días
+- Penalización: {row[6]}%
+- Garantía: {row[7]}%
+- Estado: {row[10] or 'No especificado'}
+- Alertas: {row[8]}
+- Recomendaciones del sistema: {row[9]}
+- Analizado: {str(row[11])[:19] if row[11] else 'N/A'}
+
+Basado en estos datos del contrato, responde la siguiente consulta del usuario. Si el usuario pregunta algo que no está en los datos, indícalo claramente.
+
+CONSULTA DEL USUARIO: """
+        except Exception as e:
+            contract_context = f"[No se pudo consultar DWS para {contract_number}: {e}]\n\n"
+
+    enriched_query = f"{contract_context}{query}"
+
+    # Build contract data HTML card
+    contract_data_html = ""
+    if contract_number and contract_context and "DATOS DEL CONTRATO" in contract_context:
+        # Parse contract_context back into safe HTML
+        lines = contract_context.split("\n")
+        data_lines = []
+        for line in lines:
+            if line.startswith("- "):
+                parts = line[2:].split(": ", 1)
+                if len(parts) == 2:
+                    key, val = parts
+                    val_class = "val"
+                    if key.strip() == "Nivel de Riesgo":
+                        val_class = f"val risk-{val.strip()}"
+                    elif key.strip() == "Alertas":
+                        val = val.replace(" | ", "<br>• ")
+                    data_lines.append(f'<span class="label">{key}:</span> <span class="{val_class}">{val}</span><br>')
+        contract_data_html = f'<div class="contract-data"><h3>📋 Datos del Contrato — {contract_number}</h3>{"".join(data_lines)}</div>'
 
     try:
         payload = json.dumps({
             "inputs": {},
-            "query": query,
+            "query": enriched_query,
             "response_mode": "blocking",
             "user": "ayco-demo",
         }).encode("utf-8")
@@ -598,6 +707,22 @@ def chat_proxy(query: str = ""):
     white-space: pre-wrap;
   }}
   .answer strong {{ color: #f8fafc; }}
+  .contract-data {{
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }}
+  .contract-data h3 {{ color: #38bdf8; font-size: 0.9rem; margin-bottom: 0.5rem; }}
+  .contract-data .label {{ color: #64748b; }}
+  .contract-data .val {{ color: #e2e8f0; }}
+  .risk-CRITICO {{ color: #ff4444; font-weight: bold; }}
+  .risk-ALTO {{ color: #ff8c00; font-weight: bold; }}
+  .risk-MEDIO {{ color: #ffd700; }}
+  .risk-BAJO {{ color: #00d4aa; }}
   .footer {{
     margin-top: 1.5rem;
     font-size: 0.7rem;
@@ -614,6 +739,7 @@ def chat_proxy(query: str = ""):
     <span>DeepSeek v3.1</span>
   </div>
   <div class="query-box">Query: {query}</div>
+  {contract_data_html}
   <div class="answer">{answer}</div>
   <div class="footer">Dify conversation_id: {conversation_id}</div>
 </div>
