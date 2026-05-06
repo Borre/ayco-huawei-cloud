@@ -148,6 +148,45 @@ frontend-deploy: frontend
 	@echo "=== Deploying frontend to ECS ==="
 	bash $(FRONTEND)/deploy.sh
 
+# ─── Dashboard ──────────────────────────────────────
+dashboard:
+	@echo "=== Deploying Streamlit Dashboard ==="
+	bash $(SCRIPTS)/deploy-dashboard.sh
+
+dashboard-status:
+	@echo "=== Dashboard Health ==="
+	@curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\n" http://101.44.185.139:8501 || echo "Streamlit: DOWN"
+
+# ─── Agent Tools ────────────────────────────────────
+agent-tools:
+	@echo "=== Deploying Agent Tools Mock Server ==="
+	bash $(SCRIPTS)/deploy-agent-tools.sh
+
+agent-tools-status:
+	@curl -s http://101.44.185.139:8400/health | python3 -m json.tool 2>/dev/null || echo "Agent Tools: DOWN"
+
+# ─── MaaS HK Fix ────────────────────────────────────
+maas-fix:
+	@echo "=== Re-applying MaaS HK fix ==="
+	bash $(SCRIPTS)/maas-hk-fix.sh
+
+# ─── Frontend Iframe Fix ────────────────────────────
+frontend-iframe:
+	@echo "=== Embedding Streamlit iframe in Risk Scoring ==="
+	@FRONTEND_IP=$$(cd $(TF_DIR) && terraform output -raw web_public_ip 2>/dev/null); \
+	curl -s "http://$$FRONTEND_IP/risk-scoring/" | \
+	python3 -c "
+import sys, urllib.request
+html = sys.stdin.read()
+old = '<div class=\"aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200\"> <div class=\"text-center\"> <p class=\"text-6xl mb-4\">📊</p> <p class=\"text-sm text-gs-gray-600\">Dashboard Grafana embebido</p>'
+new = '<iframe src=\"http://101.44.185.139:8501\" style=\"width:100%; height:100%; min-height:480px; border:none; border-radius:12px;\" title=\"AYCO Risk Dashboard\"></iframe>'
+if old in html:
+    html = html.replace(old, new)
+    print('iframe embedded')
+else:
+    print('placeholder not found — skipping')
+" > /dev/null
+
 # ─── Help ─────────────────────────────────────────────
 help:
 	@echo "AYCO Huawei Cloud — Terraform Automation"
@@ -168,6 +207,12 @@ help:
 	@echo "    make fmt-check        Check formatting (CI/CD)"
 	@echo "    make validate         Validate Terraform syntax"
 	@echo "    make lint             Run all checks (fmt + validate)"
+	@echo "  make dashboard         Deploy Streamlit dashboard on ECS"
+	@echo "  make dashboard-status  Check dashboard health"
+	@echo "  make agent-tools       Deploy Agent Tools mock server"
+	@echo "  make agent-tools-status Check Agent Tools health"
+	@echo "  make maas-fix          Re-apply MaaS HK /v1->/v2 fix"
+	@echo "  make frontend-iframe   Embed Streamlit iframe in Risk Scoring"
 	@echo ""
 	@echo "  Fases individuales:"
 	@echo "    make apply-foundation"

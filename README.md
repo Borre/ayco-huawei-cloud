@@ -44,7 +44,7 @@ make status
 |------|---------|------------|
 | 0-5 min | PPT (3 slides) | Problem → Solution → Value |
 | 5-15 min | Demo 1: Risk Scoring | OCR → Parse → MaaS DeepSeek → DLI Spark → DWS |
-| 15-25 min | Demo 2: Data Governance | DataArts Factory ETL pipeline + DataService REST API |
+| 15-25 min | Demo 2: Data Governance | DWS layered queries + DLI Spark + Langfuse traces |
 | 25-38 min | Demo 3: Contract AI + Dify | Dify chatbot + live OCR processing |
 | 38-41 min | ROI + Success Case | Business impact |
 | 41-45 min | Q&A | — |
@@ -88,7 +88,7 @@ make status
 | `make apply-ai-ocr` | Apply AI/OCR only |
 | **Data & Testing** | |
 | `make upload-contracts` | Upload PDFs to OBS (triggers OCR pipeline) |
-| `make test-dataarts` | Test DataArts DataService REST APIs |
+| `make test-dataarts` | Test DataArts DataService REST APIs (if provisioned) |
 | `make generate-data` | Generate all synthetic demo data |
 | **Code Quality** | |
 | `make fmt` | Format Terraform files |
@@ -145,7 +145,7 @@ Every LLM call is traced automatically via Langfuse REST API (non-blocking, no S
 │   └── modules/
 │       ├── foundation/                   # VPC, SG, OBS, KMS, IAM
 │       ├── compute/                      # ECS (Dify, Web), EIPs
-│       ├── data-platform/                # DLI, DWS, DataArts
+│       ├── data-platform/                # DLI, DWS
 │       └── ai-ocr/                       # FunctionGraph (OCR, parse, LLM)
 ├── scripts/
 │   ├── setup-secrets.sh                  # 1Password → terraform.tfvars

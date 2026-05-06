@@ -41,7 +41,7 @@ terraform -chdir=terraform plan
 - [ ] `terraform apply` — full infrastructure deploy
   - [ ] foundation module (VPC, subnets, SGs, OBS buckets, KMS, IAM)
   - [ ] compute module (ECS for Dify, web server, EIPs)
-  - [ ] data-platform module (DLI, DWS, DataArts)
+  - [ ] data-platform module (DLI, DWS)
   - [ ] ai-ocr module (FunctionGraph functions)
 - [ ] DNS resolution works from all ECS instances
   - [ ] Run `scripts/fix-dns.sh`
@@ -75,10 +75,13 @@ bash scripts/setup-dify.sh
   - [ ] Verify `ocr_trigger.py` deployed and enabled
   - [ ] Verify `llm_inference.py` deployed and enabled
   - [ ] Test trigger with a sample OBS upload event
-- [ ] DataArts pipeline tested
-  - [ ] Verify DataArts Factory workspace created
-  - [ ] Run test job: DLI Spark SQL -> DWS ingestion
-  - [ ] Verify data flows from ODS to DW to DM layers
+- [ ] DWS layered schema verified
+  - [ ] Verify `ods.risk_results` table has data (20 rows)
+  - [ ] Verify `dw.fact_risk` and `dw.dim_vendor` views exist
+  - [ ] Verify `dm.contract_vendor_risk_summary` returns results
+- [ ] DLI Spark aggregation tested
+  - [ ] Run Spark SQL aggregation query in DLI console
+  - [ ] Verify aggregated results match DWS source data
 
 ### Commands
 
@@ -105,7 +108,7 @@ bash scripts/spark-risk-aggregation.py
     - [ ] Contract AI page: uploader drag&drop funciona, chatbot responde
     - [ ] ChatWidget abre/cierra en todas las páginas, streaming funciona
   - [ ] Demo 1 (Risk Scoring): frontend `/risk-scoring/` + Huawei Console
-  - [ ] Demo 2 (Data Governance): frontend `/data-governance/` + DataArts Console
+  - [ ] Demo 2 (Data Governance): DWS SQL Editor + DLI Spark + Langfuse
   - [ ] Demo 3 (Contract AI): frontend `/contract-ai/` chatbot + uploader en vivo
 - [ ] Health check passes — run `scripts/health-check.sh` (0 failures)
 - [ ] **Frontend health check:**
@@ -124,9 +127,12 @@ bash scripts/spark-risk-aggregation.py
   - [ ] Verify contract analysis results appear in Dify KB
   - [ ] Test chatbot can answer questions about contract clauses
 - [ ] DataService API tested
-  - [ ] Verify DataService REST endpoint returns risk data
-  - [ ] Test from ECS: `curl http://<dataservice-api>/risk_results` returns JSON
+  - [ ] Verify DWS queries return data for all 3 layers (ods, dw, dm)
+  - [ ] Test from ECS: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT * FROM dm.contract_vendor_risk_summary LIMIT 5;"`
   - [ ] Verify response includes `risk_score`, `risk_level`, `alertas` fields
+- [ ] Langfuse traces verified
+  - [ ] Open Langfuse dashboard: `https://cloud.langfuse.com` → ayco-demo
+  - [ ] Verify traces show LLM calls with input/output/metadata
 
 ### Commands
 
@@ -230,12 +236,19 @@ Common fixes:
   python terraform/modules/ai-ocr/functions/parse_contract.py  # run with sample PDF
   ```
 
-### DataArts pipeline stuck or failing
+### DWS layered schema empty or missing
 
-- **DLI cluster:** Check DLI queue is active and has available slots.
-- **IAM permissions:** DataArts needs DWS write + OBS read + DLI execute permissions.
-- **Check job logs:** Huawei Cloud > DataArts Factory > Job > Click failed job > Logs.
-- **Re-run job:** Delete and recreate the job if schema changed.
+- **ODS layer:** Verify seed script ran: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "SELECT COUNT(*) FROM ods.risk_results;"`
+- **DW layer:** Views may need re-creation after DWS restart: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f scripts/seed-dws.sql`
+- **DM layer:** Materialized views need manual refresh: `psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -c "REFRESH MATERIALIZED VIEW dm.contract_vendor_risk_summary;"`
+- **DLI aggregation:** If Spark job fails, check DLI queue status in console. Queue "default" must be active.
+
+### Langfuse not showing traces
+
+- **API keys:** Verify LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY in `.env`
+- **Project:** Ensure project `ayco-demo` exists in Langfuse Cloud
+- **FunctionGraph:** Verify langfuse-setup.sh ran: `bash scripts/langfuse-setup.sh`
+- **Test trace:** Send a manual test via `curl` to Langfuse ingestion API
 
 ### Terraform apply fails
 
@@ -321,7 +334,7 @@ ls backports/
 | `bash scripts/backup-record-demos.sh` | Generate Plan B recordings |
 | `make apply-foundation` | Deploy VPC, OBS, KMS, IAM only |
 | `make apply-compute` | Deploy ECS + EIPs only |
-| `make apply-data-platform` | Deploy DLI, DWS, DataArts only |
+| `make apply-data-platform` | Deploy DLI, DWS only |
 | `make apply-ai-ocr` | Deploy FunctionGraph functions only |
 
 ### URLs Quick Reference

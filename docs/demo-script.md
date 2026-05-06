@@ -31,22 +31,21 @@
 - [ ] **Chatbot functional:** Open `http://149.232.129.39/contract-ai/` → click quick action → response streams
 - [ ] Confirm Dify is accessible at ECS public IP, port 80
 - [ ] Confirm DWS endpoint responds (PG client test)
-- [ ] Confirm DataArts Studio instance is running in Huawei Console
 - [ ] Run `python3 scripts/generate-contract-data.py` to generate 20 seed contracts
 - [ ] Upload 20 contract PDFs/TXTs to OBS bucket `ayco-contracts-raw`
-- [ ] Have Huawei Console tabs open and pinned: OBS, FunctionGraph, DLI, DWS, DataArts, ECS/Dify
+- [ ] Have Huawei Console tabs open and pinned: OBS, FunctionGraph, DLI, DWS, ECS/Dify
 - [ ] Verify DeepSeek API key is valid: `curl -H "Authorization: Bearer $DEEPSEEK_API_KEY" https://api.deepseek.com/v1/models`
 - [ ] Run `bash scripts/langfuse-setup.sh` and verify Langfuse dashboard displays traces
 - [ ] Open Langfuse dashboard tab: https://cloud.langfuse.com → project ayco-demo (pinned)
-- [ ] Confirm DataArts Catalog metadata collection task executed (lineage graph populated)
 - [ ] **Browser tabs pinned (in order):**
   1. `http://149.232.129.39/` (Landing — punto de partida)
   2. `http://149.232.129.39/risk-scoring/` (Demo 1)
   3. `http://149.232.129.39/data-governance/` (Demo 2)
   4. `http://149.232.129.39/contract-ai/` (Demo 3 — principal)
-  5. Huawei Console > DataArts Studio (para mostrar gobernanza interna)
-  6. Langfuse Cloud > ayco-demo
-  7. Huawei Console > FunctionGraph (logs OCR en vivo)
+  5. Huawei Console > DWS SQL Editor (queries de governance en vivo)
+  6. Huawei Console > DLI SQL Editor (Spark aggregation)
+  7. Langfuse Cloud > ayco-demo
+  8. Huawei Console > FunctionGraph (logs OCR en vivo)
 
 ---
 
@@ -192,9 +191,11 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 
 ---
 
-# Demo 2: Data Governance & Intelligence (15-25 min)
+# Demo 2: Data Pipeline & Governance (15-25 min)
 
-## Runtime Flow — Cómo Interactuar con el Dashboard
+> **Nota:** Este demo muestra governance de datos con la infraestructura base desplegada (DWS, DLI Spark, Langfuse). DataArts Studio se menciona como escalador industrial para producción, pero no se requiere para el demo funcional.
+
+## Runtime Flow — Cómo Interactuar
 
 ### Paso 0: Navegar a Data Governance (15s)
 
@@ -206,86 +207,131 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 
 ---
 
-### Paso 1: Pipeline ETL Visual (1 min)
+### Paso 1: Arquitectura en Capas — DWS Console (3 min)
+
+**Este es el concepto clave de governance: datos organizados en capas con reglas.**
 
 **Qué hacer:**
-1. La página carga con header verde esmeralda (diferenciación visual del Demo 1).
-2. Señala el **PipelineDiagram** variante "governance":
-   ```
-   📁 OBS Storage → 🔄 DataArts ETL → 🗄️ DWS Target → 🌐 DataService API
-   ```
-3. Explica el flujo: datos crudos en OBS, transformación en DataArts, carga a DWS, exposición como API.
+1. Abre una tab con Huawei Console > Data Warehouse Service > Cluster `ayco-dws` > SQL Editor.
+2. Ejecuta las 3 queries en secuencia (pre-copiadas en el portapapeles o en un archivo de texto):
+
+```sql
+-- CAPA ODS: datos crudos, sin transformar
+SELECT contract_number, vendor_name, risk_score, risk_level
+FROM ods.risk_results
+LIMIT 5;
+
+-- CAPA DW: esquema estrella, datos limpios y normalizados
+SELECT r.contract_number, v.vendor_name, v.estado,
+       r.risk_score, r.risk_level, r.alertas
+FROM dw.fact_risk r
+JOIN dw.dim_vendor v ON r.vendor_key = v.vendor_key
+WHERE r.risk_level = 'CRITICO';
+
+-- CAPA DM: vistas analíticas para consumo de negocio
+SELECT * FROM dm.contract_vendor_risk_summary
+ORDER BY risk_score DESC
+LIMIT 5;
+```
+
+3. Muestra los resultados de cada query. Señala cómo los datos "maduran" de crudo a analítico.
 
 **🎤 Speaker:**
-> "El pipeline de gobernanza toma datos crudos de OBS, los transforma con DataArts Studio, los carga a DWS con validaciones de calidad, y los expone como APIs REST gobernadas. Vamos a ver cada etapa."
+> "Governance empieza con arquitectura. Tenemos 3 capas en nuestro data warehouse. ODS son los datos crudos — tal como llegan del pipeline de OCR e IA. DW es el esquema estrella — datos limpios, normalizados, con llaves foráneas. DM son las vistas analíticas que el negocio consume. Si un regulador pregunta '¿de dónde sale este número?', podemos rastrear desde la vista analítica hasta el dato crudo. Eso es trazabilidad."
 
 ---
 
-### Paso 2: ETL Steps Detallados (2 min)
+### Paso 2: Calidad de Datos — Queries de Validación (1.5 min)
 
 **Qué hacer:**
-1. Haz scroll. Aparecen 5 cards apiladas, cada una representando una etapa del ETL:
-   - **Extract** (📥) — Lectura desde OBS (CSV, JSON, PDFs) ✓ Completado
-   - **Transform** (🔄) — Limpieza, normalización CNBV, deduplicación ✓ Completado
-   - **Validate** (✅) — Reglas de calidad: nulos, rangos, consistencia ✓ Completado
-   - **Load** (📤) — Escritura a DWS con particionamiento ✓ Completado
-   - **Publish** (🌐) — DataService API REST con cache y rate limiting ● Activo (parpadea)
-2. Cada card tiene un indicador de estado: check verde (completado) o spinner azul (activo).
-3. Señala que "Publish" está activo — la API está sirviendo requests en tiempo real.
+1. Sigue en el SQL Editor de DWS. Ejecuta queries de calidad:
+
+```sql
+-- COMPLETITUD: ¿cuántos campos están vacíos?
+SELECT
+  COUNT(*) AS total,
+  COUNT(risk_score) AS con_score,
+  COUNT(*) - COUNT(risk_score) AS sin_score,
+  ROUND(COUNT(risk_score)::numeric / COUNT(*) * 100, 1) AS completitud_pct
+FROM ods.risk_results;
+
+-- CONSISTENCIA: ¿todos los scores están en rango válido?
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (WHERE risk_score BETWEEN 0 AND 10) AS en_rango,
+  COUNT(*) FILTER (WHERE risk_score < 0 OR risk_score > 10) AS fuera_rango
+FROM ods.risk_results;
+
+-- DUPLICADOS: ¿hay contratos repetidos?
+SELECT contract_number, COUNT(*) AS duplicados
+FROM ods.risk_results
+GROUP BY contract_number
+HAVING COUNT(*) > 1;
+```
+
+2. Muestra los resultados: completitud 100%, todos en rango, 0 duplicados.
 
 **🎤 Speaker:**
-> "5 etapas, cada una validada. Extract lee de OBS, Transform normaliza los datos con estándares CNBV, Validate ejecuta 5 reglas de calidad — si alguna falla, el pipeline se detiene. Load escribe a DWS con particionamiento por fecha. Y Publish expone todo como API REST. El punto azul parpadeante significa que la API está activa ahora mismo."
+> "Gobernanza sin métricas es marketing. Aquí vemos los números: 100% de completitud — ningún campo vacío. Todos los scores entre 0 y 10. Cero duplicados. Si alguno falla, el pipeline se detiene y lanza alerta. Esto no es un dashboard bonito — es una garantía de calidad."
 
 ---
 
-### Paso 3: DataService API Explorer (2 min)
+### Paso 3: DLI Spark — Pipeline de Agregación (2 min)
 
 **Qué hacer:**
-1. Scroll. Aparece la sección "DataService API" con un indicador verde "API en vivo" y la URL base.
-2. Debajo hay una tabla con 5 endpoints:
+1. Abre Huawei Console > Data Lake Insight > SQL Editor.
+2. Ejecuta el job de Spark que agrega los datos:
 
-| Method | Path | Descripción | Status | Latencia |
-|--------|------|-------------|--------|----------|
-| GET | `/api/v1/vendors` | Lista de proveedores con scores | 200 OK | 45ms |
-| GET | `/api/v1/vendors/{id}/risk` | Detalle de riesgo por proveedor | 200 OK | 32ms |
-| GET | `/api/v1/transactions` | Transacciones con anomalías CNBV | 200 OK | 58ms |
-| POST | `/api/v1/analyze` | Análisis on-demand de contrato | 201 Created | 4.2s |
-| GET | `/api/v1/alerts` | Alertas activas de compliance | 200 OK | 28ms |
+```sql
+-- Spark SQL: agregar riesgo por proveedor y estado
+SELECT
+  vendor_name,
+  risk_level,
+  COUNT(*) AS contratos,
+  AVG(risk_score) AS score_promedio,
+  SUM(monto_total) AS exposicion_total
+FROM risk_results
+GROUP BY vendor_name, risk_level
+ORDER BY score_promedio DESC
+LIMIT 10;
+```
 
-3. Señala que GET tiene badge verde y POST tiene badge azul.
-4. Las latencias están en la columna derecha — todas bajo 100ms excepto el análisis on-demand (4.2s porque invoca el LLM).
+3. Muestra el resultado: "De 20 contratos individuales → vista agregada por proveedor y nivel de riesgo."
 
 **🎤 Speaker:**
-> "Estos son los 5 endpoints de la DataService API. Cualquier aplicación interna de AYCO puede consumir estos datos sin saber SQL, sin acceso a DWS. Solo necesita un token. Fíjense en las latencias: 45 milisegundos para listar proveedores, 28 para alertas. El análisis on-demand tarda 4 segundos porque invoca DeepSeek en vivo."
+> "DLI es Spark serverless — se paga por uso, cero cuando está idle. Este job toma los 20 contratos individuales y los agrega por proveedor y nivel de riesgo. En producción, esto corre cada hora automáticamente. El punto es: no necesitas un cluster de Hadoop prendido 24/7 para procesar datos. Serverless puro."
 
 ---
 
-### Paso 4: Métricas de Calidad de Datos (1 min)
+### Paso 4: Trazabilidad LLM — Langfuse (1.5 min)
+
+**Este es el cierre de governance para IA: cada decisión del modelo queda registrada.**
 
 **Qué hacer:**
-1. Scroll. Aparecen 3 cards de métricas de calidad:
-   - **Completitud:** 98.7% (campos no nulos vs total) — barra verde casi llena
-   - **Consistencia:** 99.2% (reglas de negocio válidas) — barra verde casi llena
-   - **Freshness:** <5min (latencia de datos actualizados) — barra azul
-2. Cada card tiene una barra de progreso visual.
+1. Abre la tab de Langfuse Cloud: `https://cloud.langfuse.com` → proyecto `ayco-demo`.
+2. Muestra la lista de traces recientes. Click en uno de los contratos (ej: AYCO-2026-0149).
+3. Muestra el detalle del trace:
+   - **Input:** El texto del contrato extraído por OCR
+   - **Output:** El JSON con risk_score, risk_level, alertas, recomendaciones
+   - **Metadata:** modelo (DeepSeek-V4-Flash), latencia, tokens, proveedor (MaaS)
+   - **Timestamp:** cuándo se analizó
 
 **🎤 Speaker:**
-> "Gobernanza de datos sin métricas es marketing. Aquí vemos los números reales: 98.7% de completitud, 99.2% de consistencia, y los datos se actualizan cada 5 minutos. Si algún indicador cae, se dispara una alerta."
+> "Cada vez que el modelo de IA analiza un contrato, Langfuse registra qué entró, qué salió, cuánto tardó, y qué modelo lo procesó. Si un regulador pregunta '¿cómo se determinó que este contrato es crítico?', tenemos la traza completa. Esto es auditoría de IA — no es opcional en el sector financiero. Langfuse es open-source, corre en la nube, y no requiere infraestructura adicional."
 
 ---
 
-### Paso 5: Transición a Huawei Console (opcional, 2 min)
+### Paso 5: Governance Completo — Resumen Visual (30s)
 
-**Qué hacer (si hay tiempo):**
-1. Abre Huawei Console > DataArts Studio > Catalog.
-2. Muestra el grafo de linaje: OBS → FunctionGraph → DLI → DWS → API.
-3. Click en un nodo para mostrar linaje a nivel de campo.
+**Qué hacer:**
+1. Vuelve a la tab del frontend (`/data-governance/`).
+2. Señala el pipeline visual y las métricas de la página.
 
 **🎤 Speaker:**
-> "DataArts nos da trazabilidad completa. Si un regulador pregunta '¿de dónde salió este risk score?', tenemos la respuesta en un click. Esto ningún otro cloud lo da integrado."
+> "Resumen: arquitectura en 3 capas en DWS, validación de calidad automatizada, agregación serverless con DLI Spark, y trazabilidad de cada decisión de IA con Langfuse. Todo esto con la infraestructura que ya desplegamos. Para producción, DataArts Studio agrega catálogo de metadatos, linaje visual, masking de datos sensibles y calidad automatizada sobre esta misma base. Pero el patrón ya está funcionando."
 
 **Transición a Demo 3:**
-> "Ya tenemos los datos gobernados. Pero ¿qué pasa cuando un usuario de negocio — sin saber SQL — quiere hacer preguntas? Ahí entra la IA. Vamos a Contract AI."
+> "Ya tenemos los datos gobernados — calidad, trazabilidad, auditoría. Pero ¿qué pasa cuando un usuario de negocio — sin saber SQL — quiere hacer preguntas? Ahí entra la IA. Vamos a Contract AI."
 
 ---
 
@@ -431,7 +477,7 @@ Este es el **demo principal** — el que más tiempo tiene y el que debe impresi
 # ROI + Cierre (38-41 min)
 
 **Transición:**
-> "En 35 minutos vimos una plataforma completa: scoring de riesgo con DLI y DWS, gobernanza de datos con DataArts, y análisis inteligente con DeepSeek. Todo corriendo en Huawei Cloud, con la interfaz de AYCO. Déjenme mostrarles el impacto."
+> "En 35 minutos vimos una plataforma completa: scoring de riesgo con DLI y DWS, gobernanza de datos con pipelines validados y auditoría de IA, y análisis inteligente con DeepSeek. Todo corriendo en Huawei Cloud, con la interfaz de AYCO. Déjenme mostrarles el impacto."
 
 **Vuelve a la Landing** (`http://149.232.129.39/`) y señala los KPIs del hero:
 
@@ -443,7 +489,7 @@ Este es el **demo principal** — el que más tiempo tiene y el que debe impresi
 | Precisión de scoring | Subjetivo | 99.1% tasa de éxito LLM |
 
 **🎤 Speaker:**
-> "De 3 días a 4 minutos. De análisis subjetivo a scoring con IA. De $0 a $35 dólares al día de infraestructura. Esto es lo que Huawei Cloud permite hacer con DLI, DWS, DataArts, FunctionGraph, y MaaS. Todo en la nube, todo en México, todo gobernado."
+> "De 3 días a 4 minutos. De análisis subjetivo a scoring con IA. De $0 a $35 dólares al día de infraestructura. Esto es lo que Huawei Cloud permite hacer con DLI, DWS, FunctionGraph, y MaaS. Todo en la nube, todo en México, todo gobernado."
 
 ---
 
@@ -462,7 +508,7 @@ Abre el chat widget y el audience puede hacer preguntas técnicas.
 | Dify API timeout | Cambiar a DeepSeek directo (`api.deepseek.com`) o usar respuestas cached |
 | Dashboard no carga | Mostrar queries SQL directas en psql contra DWS |
 | FunctionGraph falla | Usar `backports/demo1-llm-response.json` con respuesta pre-grabada |
-| DataArts no accesible | Mostrar Terraform code como proof de que los recursos existen |
+| DataArts no accesible | Demo 2 usa DWS + DLI + Langfuse directamente — no depende de DataArts |
 | Langfuse no carga | Mostrar código de integración Langfuse como proof |
 | Internet del venue falla | Tener grabaciones de pantalla con `scripts/backup-record-demos.sh` |
 
