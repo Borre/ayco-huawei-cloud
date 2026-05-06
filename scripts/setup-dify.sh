@@ -104,5 +104,5 @@ DASHBOARD
 echo "=== Dify deploy complete ==="
 echo "    Web:  http://$DIFY_IP"
 echo "    API:  http://$DIFY_IP/v1"
-echo "    Dashboard: http://$DIFY_IP:8501"
+echo "    Dashboard: http://$DIFY_IP/dashboard/"
 echo "    LLM:  MaaS DeepSeek v4 Flash (via Huawei Cloud)"

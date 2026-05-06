@@ -115,6 +115,8 @@ The root module (`terraform/main.tf`) wires outputs between modules. Each module
 - **Custom Tailwind colors**: `gs-navy`, `gs-blue`, `gs-gold` (Grupo Salinas brand), `risk-low/medium/high/critical`.
 - **Dify API key is client-side** via `import.meta.env.PUBLIC_DIFY_API_KEY` — exposed in built JS.
 - **`deploy.sh` hardcodes ECS IP `149.232.129.39`** — should be from Terraform output.
+- **Streamlit Dashboard servido vía nginx proxy** — puerto 8501 bloqueado en redes corporativas. Acceso: `/dashboard/` en Dify ECS (101.44.185.139) → proxy_pass a `localhost:8501`.
+- **Dify Chat API Proxy** — endpoint `/api/chat?query=...` en el FastAPI del ECS web (149.232.129.39:8001). Llama Dify `/v1/chat-messages` con API key `app-Y8MxfRygyUWOAfyTlo1MQSJx`.
 - **Risk score threshold logic is duplicated** across `RiskGauge.astro`, `ContractUploader.astro`, and page files.
 - **`stagger-children` CSS only handles 4 children** — 5th+ child won't animate.
 - **ContractUploader is fully mocked** — `handleFile()` uses `setTimeout` + `Math.random()`, no real API.

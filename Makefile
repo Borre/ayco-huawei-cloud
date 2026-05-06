@@ -89,7 +89,7 @@ demo:
 	@echo ""
 	@echo "=== AYCO DEMO READY ==="
 	@echo "    Dify: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip)"
-	@echo "    Dashboard: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip):8501"
+	@echo "    Dashboard: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip)/dashboard/"
 	@echo "    Langfuse: $$(cd $(TF_DIR) && terraform output -raw langfuse_dashboard_url)"
 
 # ─── Status ───────────────────────────────────────────
@@ -155,7 +155,7 @@ dashboard:
 
 dashboard-status:
 	@echo "=== Dashboard Health ==="
-	@curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\n" http://101.44.185.139:8501 || echo "Streamlit: DOWN"
+	@curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\n" http://101.44.185.139/dashboard/ || echo "Streamlit: DOWN"
 
 # ─── Agent Tools ────────────────────────────────────
 agent-tools:
@@ -174,7 +174,7 @@ maas-fix:
 frontend-iframe:
 	@echo "=== Embedding Streamlit iframe in Risk Scoring ==="
 	@FRONTEND_IP=$$(cd $(TF_DIR) && terraform output -raw web_public_ip 2>/dev/null); \
-	curl -s "http://$$FRONTEND_IP/risk-scoring/" | python3 -c 'import sys; html=sys.stdin.read(); old=\"<div class=aspect-video\"; new=\"<iframe src=http://101.44.185.139:8501 style=width:100%;height:100%;min-height:480px;border:none;border-radius:12px title=AYCO></iframe>\"; print(\"iframe embedded\" if old in html else \"placeholder not found\")' > /dev/null
+	curl -s "http://$$FRONTEND_IP/risk-scoring/" | python3 -c 'import sys; html=sys.stdin.read(); old=\"<div class=aspect-video\"; new=\"<iframe src=http://101.44.185.139/dashboard/ style=width:100%;height:100%;min-height:480px;border:none;border-radius:12px title=AYCO></iframe>\"; print(\"iframe embedded\" if old in html else \"placeholder not found\")' > /dev/null
 
 # ─── Help ─────────────────────────────────────────────
 help:

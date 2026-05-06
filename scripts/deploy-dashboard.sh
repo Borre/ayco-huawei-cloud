@@ -39,9 +39,9 @@ ssh -i "$SSH_KEY" root@$ECS_IP "systemctl daemon-reload && systemctl enable $SER
 
 # 5. Verify
 sleep 3
-HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' "http://$ECS_IP:8501")
+HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' "http://$ECS_IP/dashboard/")
 if [ "$HTTP_CODE" = "200" ]; then
-    echo "Dashboard UP: http://$ECS_IP:8501"
+    echo "Dashboard UP: http://$ECS_IP/dashboard/"
 else
     echo "WARNING: Dashboard returned HTTP $HTTP_CODE"
     exit 1

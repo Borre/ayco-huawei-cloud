@@ -92,7 +92,7 @@ echo -e "${CYAN}Compute:${NC}"
 if [ -n "$DIFY_IP" ]; then
   check_http "Dify Web UI" "http://$DIFY_IP" "200|302|307|308"
   check_http "Dify API" "http://$DIFY_IP/v1" "200|302|307|308|401|404"
-  check_http "Streamlit Dashboard" "http://$DIFY_IP:8501" "200|302"
+  check_http "Streamlit Dashboard" "http://$DIFY_IP/dashboard/" "200|302"
 else
   warn_check "Dify" "IP not available"
 fi
