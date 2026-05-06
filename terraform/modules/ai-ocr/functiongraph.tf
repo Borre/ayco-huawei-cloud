@@ -88,4 +88,10 @@ resource "huaweicloud_fgs_trigger" "obs_upload" {
     events                  = ["ObjectCreated"]
     suffix                  = ".pdf"
   }
+
+  lifecycle {
+    ignore_changes = [
+      obs[0].event_notification_name,  # API returns auto-generated UUID, not user-provided name
+    ]
+  }
 }

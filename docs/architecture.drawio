@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <mxfile host="Electron" agent="codex">
   <diagram name="AYCO Huawei Cloud — Demo Architecture" id="diagram-1">
     <mxGraphModel dx="1414" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
@@ -7,13 +8,13 @@
         <mxCell id="header" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0B1F3A;strokeColor=none;fontColor=#FFFFFF;fontSize=22;fontStyle=1;align=left;spacingLeft=24;verticalAlign=middle;" value="AYCO Contract Risk Intelligence — Huawei Cloud Demo Architecture" vertex="1">
           <mxGeometry height="54" width="1110" x="30" y="20" as="geometry" />
         </mxCell>
-        <mxCell id="header_sub" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;fontColor=#ffffff;fontSize=11;align=left;spacingLeft=24;verticalAlign=middle;" value="la-north-2 (Mexico City 2) · VPC 172.16.0.0/16 · 20 contracts · OBS ×3 · FunctionGraph + DLI + DWS + DataArts + Dify" vertex="1">
+        <mxCell id="header_sub" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;fontColor=#ffffff;fontSize=11;align=left;spacingLeft=24;verticalAlign=middle;" value="la-north-2 (Mexico City 2) · VPC 172.16.0.0/16 · 20 contracts · OBS ×3 · FunctionGraph + DLI + DWS + DataArts + Dify + CTS · Terraform IaC" vertex="1">
           <mxGeometry height="32" width="1110" x="30" y="80" as="geometry" />
         </mxCell>
         <mxCell id="vpc" parent="1" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F7FAFF;strokeColor=#2B6CB0;strokeWidth=2;dashed=1;dashPattern=8 4;fontColor=#1A365D;fontSize=12;fontStyle=1;align=left;spacingLeft=14;verticalAlign=top;spacingTop=10;" value="Huawei Cloud VPC — ayco-vpc" vertex="1">
           <mxGeometry height="600" width="1110" x="30" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="external" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CBD5E1;fontColor=#475569;fontSize=10;align=left;spacingLeft=10;verticalAlign=middle;" value="External services&#xa;MaaS DeepSeek v4 Flash&#xa;Langfuse Cloud" vertex="1">
+        <mxCell id="external" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CBD5E1;fontColor=#475569;fontSize=10;align=left;spacingLeft=10;verticalAlign=middle;" value="External services&#10;MaaS DeepSeek v4 Flash&#10;Langfuse Cloud" vertex="1">
           <mxGeometry height="72" width="230" x="910" y="735" as="geometry" />
         </mxCell>
         <mxCell id="lane_ingest" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D8E2F0;strokeWidth=1;fontColor=#334155;fontSize=12;fontStyle=1;align=left;spacingLeft=14;verticalAlign=top;spacingTop=8;" value="1. Ingest &amp; OCR" vertex="1">
@@ -28,61 +29,61 @@
         <mxCell id="lane_app" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D8E2F0;strokeWidth=1;fontColor=#334155;fontSize=12;fontStyle=1;align=left;spacingLeft=14;verticalAlign=top;spacingTop=8;" value="4. Apps, API &amp; Observability" vertex="1">
           <mxGeometry height="85" width="1050" x="60" y="615" as="geometry" />
         </mxCell>
-        <mxCell id="m1" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="20&#xa;contracts" vertex="1">
+        <mxCell id="m1" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="20&#10;contracts" vertex="1">
           <mxGeometry height="72" width="120" x="60" y="735" as="geometry" />
         </mxCell>
-        <mxCell id="m2" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="$133M&#xa;MXN exposure" vertex="1">
+        <mxCell id="m2" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="$133M&#10;MXN exposure" vertex="1">
           <mxGeometry height="72" width="140" x="195" y="735" as="geometry" />
         </mxCell>
-        <mxCell id="m3" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="2,300&#xa;vendors scored" vertex="1">
+        <mxCell id="m3" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="2,300&#10;vendors scored" vertex="1">
           <mxGeometry height="72" width="150" x="350" y="735" as="geometry" />
         </mxCell>
-        <mxCell id="m4" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="4 risk&#xa;levels" vertex="1">
+        <mxCell id="m4" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="4 risk&#10;levels" vertex="1">
           <mxGeometry height="72" width="120" x="515" y="735" as="geometry" />
         </mxCell>
-        <mxCell id="m5" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="8 min&#xa;demo target" vertex="1">
+        <mxCell id="m5" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EEF6FF;strokeColor=#9CC6F2;fontColor=#12355B;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" value="8 min&#10;demo target" vertex="1">
           <mxGeometry height="72" width="130" x="650" y="735" as="geometry" />
         </mxCell>
-        <mxCell id="contracts" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="Contract Inputs&#xa;3 PDFs + 17 TXT&#xa;canonical + synthetic" vertex="1">
+        <mxCell id="contracts" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="Contract Inputs&#10;3 PDFs + 17 TXT&#10;canonical + synthetic" vertex="1">
           <mxGeometry height="58" width="135" x="85" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="sg" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#C53030;strokeWidth=1.5;fontColor=#4A1111;fontSize=12;align=center;verticalAlign=middle;" value="Security Groups&#xa;HTTP/HTTPS + demo ports" vertex="1">
+        <mxCell id="sg" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#C53030;strokeWidth=1.5;fontColor=#4A1111;fontSize=12;align=center;verticalAlign=middle;" value="Security Groups&#10;HTTP/HTTPS + demo ports" vertex="1">
           <mxGeometry height="58" width="140" x="250" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="obs_raw" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS raw&#xa;ayco-contracts-raw" vertex="1">
+        <mxCell id="obs_raw" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS raw&#10;ayco-contracts-raw" vertex="1">
           <mxGeometry height="58" width="145" x="420" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="fg_ocr" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#xa;OCR trigger" vertex="1">
+        <mxCell id="fg_ocr" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#10;OCR trigger" vertex="1">
           <mxGeometry height="58" width="135" x="595" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="obs_text" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS text&#xa;ayco-contracts-text" vertex="1">
+        <mxCell id="obs_text" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS text&#10;ayco-contracts-text" vertex="1">
           <mxGeometry height="58" width="145" x="760" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="fg_parse" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#xa;parse_contract.py&#xa;field extraction" vertex="1">
+        <mxCell id="fg_parse" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#10;parse_contract.py&#10;field extraction" vertex="1">
           <mxGeometry height="62" width="150" x="170" y="360" as="geometry" />
         </mxCell>
-        <mxCell id="fg_llm" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#xa;llm_inference.py&#xa;risk score 0–10" vertex="1">
+        <mxCell id="fg_llm" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="FunctionGraph&#10;llm_inference.py&#10;risk score 0–10" vertex="1">
           <mxGeometry height="62" width="155" x="365" y="360" as="geometry" />
         </mxCell>
-        <mxCell id="obs_results" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS results&#xa;ayco-contracts-results&#xa;JSON + aggregates" vertex="1">
+        <mxCell id="obs_results" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="OBS results&#10;ayco-contracts-results&#10;JSON + aggregates" vertex="1">
           <mxGeometry height="62" width="160" x="765" y="360" as="geometry" />
         </mxCell>
-        <mxCell id="dli" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F3EEFF;strokeColor=#6B46C1;strokeWidth=1.5;fontColor=#2D1B69;fontSize=12;align=center;verticalAlign=middle;" value="DLI Spark&#xa;risk aggregation&#xa;serverless SQL" vertex="1">
+        <mxCell id="dli" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F3EEFF;strokeColor=#6B46C1;strokeWidth=1.5;fontColor=#2D1B69;fontSize=12;align=center;verticalAlign=middle;" value="DLI Spark&#10;risk aggregation&#10;serverless SQL" vertex="1">
           <mxGeometry height="62" width="150" x="115" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="cdm" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="CDM Agent&#xa;batch movement&#xa;DWS ↔ DataArts" vertex="1">
+        <mxCell id="cdm" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="CDM Agent&#10;batch movement&#10;DWS ↔ DataArts" vertex="1">
           <mxGeometry height="62" width="145" x="915" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="dify" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="ECS ayco-dify&#xa;Dify chatbot + KB&#xa;20 indexed documents" vertex="1">
+        <mxCell id="dify" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAF4FF;strokeColor=#2B6CB0;strokeWidth=1.5;fontColor=#0B2545;fontSize=12;align=center;verticalAlign=middle;" value="ECS ayco-dify&#10;Dify chatbot + KB&#10;20 indexed documents" vertex="1">
           <mxGeometry height="48" width="170" x="115" y="642" as="geometry" />
         </mxCell>
-        <mxCell id="streamlit" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C05621;strokeWidth=1.5;fontColor=#4A250B;fontSize=12;align=center;verticalAlign=middle;" value="Streamlit dashboard&#xa;KPIs + charts&#xa;port 8501" vertex="1">
+        <mxCell id="streamlit" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C05621;strokeWidth=1.5;fontColor=#4A250B;fontSize=12;align=center;verticalAlign=middle;" value="Streamlit dashboard&#10;KPIs + charts&#10;port 8501" vertex="1">
           <mxGeometry height="48" width="165" x="330" y="642" as="geometry" />
         </mxCell>
-        <mxCell id="dataservice" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="DataService API&#xa;GET /risk-results&#xa;masked fallback output" vertex="1">
+        <mxCell id="dataservice" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="DataService API&#10;GET /risk-results&#10;masked fallback output" vertex="1">
           <mxGeometry height="48" width="165" x="540" y="642" as="geometry" />
         </mxCell>
-        <mxCell id="langfuse" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="Langfuse&#xa;traces · tokens · cost&#xa;non-blocking" vertex="1">
+        <mxCell id="langfuse" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#1E293B;fontSize=12;align=center;verticalAlign=middle;" value="Langfuse&#10;traces · tokens · cost&#10;non-blocking" vertex="1">
           <mxGeometry height="48" width="165" x="750" y="642" as="geometry" />
         </mxCell>
         <mxCell id="note1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CBD5E1;fontColor=#475569;fontSize=10;align=left;spacingLeft=10;verticalAlign=middle;" value="Presenter note: the demo security story is VPC isolation, Security Groups, IAM and KMS. Managed perimeter firewalling is outside this demo scope." vertex="1">
@@ -133,16 +134,16 @@
         <mxCell id="e17" edge="1" parent="1" source="fg_llm" style="endArrow=block;html=1;rounded=1;strokeColor=#64748B;strokeWidth=1.5;dashed=1;dashPattern=5 3;fontColor=#475569;fontSize=10;labelBackgroundColor=#FFFFFF;" target="langfuse" value="LLM traces">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dws" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F3EEFF;strokeColor=#6B46C1;strokeWidth=1.5;fontColor=#2D1B69;fontSize=12;align=center;verticalAlign=middle;" value="DWS&#xa;ayco_db&#xa;risk_results + marts" vertex="1">
+        <mxCell id="dws" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F3EEFF;strokeColor=#6B46C1;strokeWidth=1.5;fontColor=#2D1B69;fontSize=12;align=center;verticalAlign=middle;" value="DWS · 3 datanodes MPP&#10;ayco_db&#10;risk_results + marts&#10;EXPLAIN ANALYZE live" vertex="1">
           <mxGeometry height="62" width="150" x="305" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="dataarts" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="DataArts Studio&#xa;Catalog · Lineage&#xa;Security · Factory · API" vertex="1">
+        <mxCell id="dataarts" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#EAFBF1;strokeColor=#2F855A;strokeWidth=1.5;fontColor=#123524;fontSize=12;align=center;verticalAlign=middle;" value="DataArts Studio&#10;Catalog · Lineage&#10;Security · Factory · API" vertex="1">
           <mxGeometry height="62" width="170" x="495" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="kms" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#C53030;strokeWidth=1.5;fontColor=#4A1111;fontSize=12;align=center;verticalAlign=middle;" value="KMS + IAM&#xa;OBS/DWS encryption&#xa;least privilege roles" vertex="1">
+        <mxCell id="kms" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#C53030;strokeWidth=1.5;fontColor=#4A1111;fontSize=12;align=center;verticalAlign=middle;" value="KMS + IAM&#10;OBS/DWS encryption&#10;least privilege roles" vertex="1">
           <mxGeometry height="62" width="170" x="705" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="maas" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C05621;strokeWidth=1.5;fontColor=#4A250B;fontSize=12;align=center;verticalAlign=middle;" value="Huawei MaaS&#xa;DeepSeek v4 Flash&#xa;LLM inference" vertex="1">
+        <mxCell id="maas" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#C05621;strokeWidth=1.5;fontColor=#4A250B;fontSize=12;align=center;verticalAlign=middle;" value="Huawei MaaS&#10;DeepSeek v4 Flash&#10;LLM inference" vertex="1">
           <mxGeometry height="62" width="155" x="565" y="360" as="geometry" />
         </mxCell>
         <mxCell id="e10" edge="1" parent="1" source="dli" style="endArrow=block;html=1;rounded=1;strokeColor=#2563EB;strokeWidth=2;fontColor=#1D4ED8;fontSize=10;labelBackgroundColor=#FFFFFF;" target="dws" value="aggregates">
@@ -151,7 +152,7 @@
         <mxCell id="e8" edge="1" parent="1" source="maas" style="endArrow=block;html=1;rounded=1;strokeColor=#2F855A;strokeWidth=2;fontColor=#276749;fontSize=10;labelBackgroundColor=#FFFFFF;" target="obs_results" value="risk response">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-      </root>
+      <mxCell id="cts" parent="1" value="CTS&#10;Cloud Trace Service&#10;all API calls audited" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFF1F2;strokeColor=#C53030;strokeWidth=1.5;fontColor=#4A1111;fontSize=12;align=center;verticalAlign=middle;" vertex="1"><mxGeometry height="56" width="150" x="900" y="510" as="geometry" /></mxCell><mxCell id="e18" edge="1" parent="1" source="kms" target="cts" value="audits" style="endArrow=block;html=1;rounded=1;strokeColor=#C53030;strokeWidth=1.5;dashed=1;dashPattern=5 3;fontColor=#4A1111;fontSize=10;labelBackgroundColor=#FFFFFF;"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="terraform" parent="1" value="Terraform IaC · terraform plan = zero-diff&#10;~350 lines HCL · 4 modules · ~20 resources · github.com/Borre/ayco-huawei-cloud" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F0F0F0;strokeColor=#64748B;strokeWidth=2;fontColor=#1E293B;fontSize=12;fontStyle=1;align=left;spacingLeft=14;verticalAlign=middle;dashed=1;dashPattern=4 3;" vertex="1"><mxGeometry height="42" width="1110" x="30" y="750" as="geometry" /></mxCell><mxCell id="e19" edge="1" parent="1" source="terraform" target="vpc" value="manages all resources" style="endArrow=block;html=1;rounded=1;strokeColor=#64748B;strokeWidth=2;dashed=1;fontColor=#475569;fontSize=10;labelBackgroundColor=#FFFFFF;"><mxGeometry relative="1" as="geometry" /></mxCell></root>
     </mxGraphModel>
   </diagram>
 </mxfile>

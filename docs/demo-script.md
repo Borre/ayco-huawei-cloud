@@ -1,10 +1,10 @@
-# AYCO Contract Risk Analysis — Demo Script (v2: Branded Frontend)
+# AYCO Contract Risk Analysis — Demo Script (v3: Technical Depth)
 
 **Workshop:** Huawei Cloud LATAM × Grupo Salinas (AYCO)
 **Date:** May 8, 2026
-**Duration:** 45 min total (0-5 PPT, 5-15 Demo 1, 15-25 Demo 2, 25-38 Demo 3, 38-41 ROI/FinOps, 41-45 Q&A)
+**Duration:** 50 min total (0-3 PPT, 3-17 Demo 1, 17-28 Demo 2, 28-41 Demo 3, 41-47 FinOps+Terraform, 47-50 Q&A)
 **Region:** la-north-2 (Mexico City 2)
-**Audience:** Huawei Cloud LATAM Leadership
+**Audience:** Huawei Cloud LATAM Leadership — Technical
 **Presenter:** Eduardo
 
 ---
@@ -18,228 +18,363 @@
 | Demo 1 — Risk Scoring | `http://149.232.129.39/risk-scoring/` | Dashboard + tabla + gauge |
 | Demo 2 — Data Governance | `http://149.232.129.39/data-governance/` | Pipeline ETL + API explorer |
 | Demo 3 — Contract AI | `http://149.232.129.39/contract-ai/` | Chatbot + uploader + contratos |
-| **Dify Admin** | `http://101.44.185.139/admin` | Solo si se necesita mostrar config interna |
-| **Langfuse** | `https://cloud.langfuse.com` → ayco-demo | Observabilidad LLM |
+| **Huawei Console > DWS** | Console SQL Editor | Queries en vivo — 3 capas ODS/DW/DM |
+| **Huawei Console > FunctionGraph** | Function logs | OCR pipeline trace en vivo |
+| **Dify Admin** | `http://101.44.185.139/admin` | Config interna: datasets, RAG, modelo |
+| **Langfuse** | `https://us.cloud.langfuse.com` → ayco-demo | Trazabilidad LLM |
+| **Huawei Cloud > CTS** | Console > Cloud Trace Service | Auditoría regulatoria en vivo |
+| **Streamlit Dashboard** | `http://101.44.185.139:8501` | Dashboard Python interactivo |
+| **Terraform Repo** | `github.com/Borre/ayco-huawei-cloud` | Infraestructura como código |
 
 ---
 
 ## Pre-Workshop Checklist (complete by May 7, 6 PM)
 
+### Infraestructura
+
 - [ ] Run `make demo` and verify all services are healthy
 - [ ] Run `bash scripts/health-check.sh` — all checks must pass
 - [ ] **Frontend accessible:** `curl -s http://149.232.129.39/` returns 200
-- [ ] **Chatbot functional:** Open `http://149.232.129.39/contract-ai/` → click quick action → response streams
-- [ ] Confirm Dify is accessible at ECS public IP, port 80
-- [ ] Confirm DWS endpoint responds (PG client test)
-- [ ] Run `python3 scripts/generate-contract-data.py` to generate 20 seed contracts
+- [ ] **Dify API:** `curl -s http://101.44.185.139/v1/` responds
+- [ ] **DWS:** `PGPASSWORD=... psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c "SELECT 1"` returns 1
+- [ ] **Streamlit:** `curl -s http://101.44.185.139:8501/_stcore/health` returns ok
+- [ ] Contract data seeded: 20 rows in `public.risk_results`
+- [ ] Run `python3 scripts/generate-contract-data.py` to refresh seed data
 - [ ] Upload 20 contract PDFs/TXTs to OBS bucket `ayco-contracts-raw`
-- [ ] Have Huawei Console tabs open and pinned: OBS, FunctionGraph, DLI, DWS, ECS/Dify
-- [ ] Verify DeepSeek API key is valid: `curl -H "Authorization: Bearer $DEEPSEEK_API_KEY" https://api.deepseek.com/v1/models`
-- [ ] Run `bash scripts/langfuse-setup.sh` and verify Langfuse dashboard displays traces
-- [ ] Open Langfuse dashboard tab: https://cloud.langfuse.com → project ayco-demo (pinned)
-- [ ] **Browser tabs pinned (in order):**
-  1. `http://149.232.129.39/` (Landing — punto de partida)
-  2. `http://149.232.129.39/risk-scoring/` (Demo 1)
-  3. `http://149.232.129.39/data-governance/` (Demo 2)
-  4. `http://149.232.129.39/contract-ai/` (Demo 3 — principal)
-  5. Huawei Console > DWS SQL Editor (queries de governance en vivo)
-  6. Huawei Console > DLI SQL Editor (Spark aggregation)
-  7. Langfuse Cloud > ayco-demo
-  8. Huawei Console > FunctionGraph (logs OCR en vivo)
+
+### Huawei Console (11 tabs pre-abiertas y pineadas)
+
+- [ ] **Tab 1:** Frontend Landing (`http://149.232.129.39/`)
+- [ ] **Tab 2:** Frontend Risk Scoring (`http://149.232.129.39/risk-scoring/`)
+- [ ] **Tab 3:** Frontend Data Governance (`http://149.232.129.39/data-governance/`)
+- [ ] **Tab 4:** Frontend Contract AI (`http://149.232.129.39/contract-ai/`)
+- [ ] **Tab 5:** Dify Admin (`http://101.44.185.139/admin`)
+- [ ] **Tab 6:** Streamlit Dashboard (`http://101.44.185.139:8501`)
+- [ ] **Tab 7:** Huawei Console > DWS > Cluster `ayco-dws` > SQL Editor
+- [ ] **Tab 8:** Huawei Console > DLI > SQL Editor
+- [ ] **Tab 9:** Huawei Console > FunctionGraph > `llm-inference` > Logs
+- [ ] **Tab 10:** Langfuse Cloud > ayco-demo > Traces
+- [ ] **Tab 11:** Huawei Console > CTS > Trace List (filtrar por DWS)
+
+### Verificaciones técnicas
+
+- [ ] DeepSeek API key válida: `curl -H "Authorization: Bearer $DEEPS...KEY" https://api.deepseek.com/v1/models`
+- [ ] MaaS API key válida: `curl -H "Authorization: Bearer $MAAS_API_KEY" https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions`
+- [ ] Langfuse traces visibles en dashboard
+- [ ] Dify model provider DeepSeek muestra "Active"
+- [ ] Dify datasets conectados a AYCO Chat: ayco-contracts-kb + AYCO - Preguntas Frecuentes
+- [ ] Terminal abierta con SSH configurado para ambos ECS
 
 ---
 
-## Cómo Funciona el Frontend (Referencia Rápida)
+# Arquitectura de Infraestructura (Referencia Técnica)
 
-El frontend branded es un sitio estático (Astro + Tailwind) servido por nginx en el ECS `ayco-web` (149.232.129.39). Reemplaza la UI raw de Dify con la identidad visual de Grupo Salinas.
+## Network Topology
 
-**Arquitectura del frontend:**
 ```
-Navegador del presentador
-    │
-    ▼
-http://149.232.129.39/          ← nginx sirve HTML/CSS/JS estáticos
-    │
-    ├── /                       ← Landing: hero + 3 cards de demo + KPIs
-    ├── /risk-scoring/          ← Demo 1: gauge + tabla + pipeline visual
-    ├── /data-governance/       ← Demo 2: ETL steps + API explorer + calidad
-    └── /contract-ai/           ← Demo 3: uploader + chatbot + contratos
-            │
-            │ (chat widget usa fetch() con SSE streaming)
-            ▼
-    http://149.232.129.39/api/dify/*   ← nginx reverse proxy
-            │
-            ▼
-    http://101.44.185.139/v1/*         ← Dify API (ECS interno)
+VPC: 55d7ebd4-7286-4c30-aa09-b6fc863eb3bf (la-north-2)
+Subnet: 41121f0f-5386-40b0-815d-a574d75070fd
+
+┌─────────────────────────────────────────────────────┐
+│  Huawei Cloud — la-north-2 (Mexico City)            │
+│                                                     │
+│  ┌─────────────────┐  ┌─────────────────┐           │
+│  │  ayco-dify       │  │  ayco-web        │          │
+│  │  101.44.185.139  │  │  149.232.129.39  │          │
+│  │  Ubuntu 22.04    │  │  Ubuntu 22.04    │          │
+│  │  4 vCPU / 8GB    │  │  2 vCPU / 4GB    │          │
+│  │                  │  │                  │          │
+│  │  Dify docker:    │  │  nginx           │          │
+│  │  ├─ api          │  │  ├─ / → Astro SSG│          │
+│  │  ├─ worker       │  │  └─ /api/dify/   │          │
+│  │  ├─ web          │  │     → proxy_pass │          │
+│  │  ├─ db (PG)      │  │                  │          │
+│  │  ├─ redis        │  └────────┬─────────┘          │
+│  │  ├─ weaviate     │           │                    │
+│  │  ├─ sandbox      │           │ HTTP :80           │
+│  │  └─ nginx        │           │                    │
+│  └────────┬─────────┘           │                    │
+│           │                     │                    │
+│           │ HTTP :80            │                    │
+│  ┌────────▼─────────────────────▼──────────┐        │
+│  │  DWS (GaussDB 9.1.0)                    │        │
+│  │  46.250.161.25:8000                     │        │
+│  │  Schemas: ods / dw / dm / public        │        │
+│  │  Tables: 7 (ods.*, dw.*, public.*)      │        │
+│  │  Indexes: 4 (pkey + 3 btree)            │        │
+│  │  CHECK constraint: risk_level IN list    │        │
+│  └──────────────────────────────────────────┘        │
+│                                                     │
+│  OBS Buckets:                                        │
+│  ├─ ayco-contracts-raw        (PDF source)           │
+│  ├─ ayco-contracts-text       (OCR output)           │
+│  └─ ayco-contracts-results    (LLM analysis)         │
+│                                                     │
+│  FunctionGraph (serverless):                         │
+│  ├─ ocr_trigger        (OBS → OCR API)              │
+│  ├─ parse_contract     (OCR text → structured JSON) │
+│  └─ llm_inference      (JSON → Risk Score via MaaS) │
+│                                                     │
+│  KMS: Encryption key for OBS + DWS                  │
+│  IAM: Agency FunctionGraph → OBS + MaaS             │
+└─────────────────────────────────────────────────────┘
 ```
 
-**Componentes clave del frontend:**
-- **Header:** Logo Grupo Salinas + navegación entre demos. Sticky arriba.
-- **ChatWidget:** Botón flotante (esquina inferior derecha) en TODAS las páginas. Habla con Dify API vía SSE streaming. Se abre/cierra con click.
-- **RiskGauge:** SVG animado que muestra score 0-10 con colores (verde/amarillo/rojo/crítico). Se anima al hacer scroll.
-- **ContractUploader:** Drag & drop de PDFs. Simula pipeline OCR → Parse → IA → Score con barra de progreso.
-- **PipelineDiagram:** Flujo visual de cada pipeline (3 variantes: risk, governance, contract).
-- **MetricCard:** KPIs animados con trend indicators.
+## Tablas y Schemas (DWS — GaussDB)
+
+```
+Schema      Table                    Type        Rows    Indexes
+──────────────────────────────────────────────────────────────
+ods         vendors                  TABLE       2,300   —
+ods         customers                TABLE       500     —
+ods         transactions             TABLE       5,000   —
+dw          dim_vendor               TABLE       2,300   —
+dw          dim_customer             TABLE       500     —
+dw          fact_transaction         TABLE       5,000   —
+public      risk_results             TABLE       20      4 btree
+
+risk_results DDL:
+  contract_number   VARCHAR(50)     NOT NULL PRIMARY KEY
+  vendor_name       VARCHAR(200)
+  monto_total       NUMERIC(15,2)
+  plazo_dias        INTEGER
+  penalizacion_pct  NUMERIC(5,2)
+  garantia_pct      NUMERIC(5,2)
+  risk_score        NUMERIC(5,2)
+  risk_level        VARCHAR(20)     CHECK IN ('BAJO','MEDIO','ALTO','CRITICO')
+  alertas           TEXT
+  recomendaciones   TEXT
+  resumen           TEXT
+  llm_provider      VARCHAR(50)
+  analyzed_at       TIMESTAMP       DEFAULT pg_systimestamp()
+
+  Indexes:
+    idx_risk_results_score  btree(risk_score DESC)
+    idx_risk_results_level  btree(risk_level)
+    idx_risk_results_vendor btree(vendor_name)
+```
 
 ---
 
-# Demo 1: Risk Scoring with DLI + DWS (5-15 min)
+## Dify RAG Configuration (AYCO Chat)
 
-## Runtime Flow — Cómo Interactuar con el Dashboard
+```
+App ID:     253ad7c8-1cd7-44ea-ad9b-0a18716e6e99
+Mode:       chat
+Model:      DeepSeek v4 Flash (via MaaS)
+Datasets:   2 conectados
+  ├─ ayco-contracts-kb (21 docs, semantic_search, top_k=3)
+  └─ AYCO - Preguntas Frecuentes (9 docs, semantic_search, top_k=3)
 
-### Paso 0: Punto de partida (30s)
+Retrieval:  "high_quality" mode, semantic_search, NO reranking
+Streaming:  SSE (Server-Sent Events)
+Proxy:      nginx on 149.232.129.39 → proxy_pass 101.44.185.139:80/v1/
+            proxy_buffering off, proxy_read_timeout 300s
+            CORS headers via nginx, no API key on client (server-side proxy)
+```
 
-El demo arranca en la **Landing** (`http://149.232.129.39/`).
+---
 
-**Qué hacer:**
-1. Abre la Landing en el navegador.
-2. Señala el hero con el tagline: "Inteligencia Artificial para la Gestión de Riesgo Financiero".
-3. Menciona: "Esto es la interfaz de AYCO construida sobre Huawei Cloud. Todo lo que van a ver corre en la nube de Huawei — la-north-2, Ciudad de México."
-4. Haz scroll lentamente para mostrar los 4 KPIs animados (proveedores analizados, reducción de tiempo, costo diario, minutos por análisis).
-5. Señala las 3 cards de demo: Risk Scoring, Data Governance, Contract AI.
+# Demo 1: Risk Scoring with DLI + DWS (3-17 min)
+
+**Tema técnico:** GaussDB como data warehouse, SQL en vivo, pipeline ETL serverless, índices y constraints.
+
+## Paso 0: Punto de partida (30s)
+
+Abre la Landing (`http://149.232.129.39/`).
 
 **🎤 Speaker:**
-> "Esta es la plataforma completa de AYCO. No vamos a ver consolas de Huawei ni interfaces de desarrollo — vamos a ver lo que el usuario final ve. Identidad de Grupo Salinas, datos en tiempo real, inteligencia artificial integrada. Empecemos por Risk Scoring."
+> "Vamos a ver una plataforma de análisis de riesgo contractual corriendo en Huawei Cloud, región la-north-2 en Ciudad de México. La infraestructura completa está definida como código — Terraform, 4 módulos, ~20 recursos. VPC, ECS, DWS sobre GaussDB 9.1, OBS, FunctionGraph, y LLM via MaaS. Vamos directo a Risk Scoring."
 
-6. Click en la card **"Risk Scoring"** → navega a `/risk-scoring/`.
+Click en la card **"Risk Scoring"** → navega a `/risk-scoring/`.
 
 ---
 
-### Paso 1: Risk Scoring — Pipeline Visual (1 min)
+## Paso 1: Pipeline Visual + Arquitectura Real (1.5 min)
 
 **URL:** `http://149.232.129.39/risk-scoring/`
 
 **Qué hacer:**
-1. La página carga con el header navy y el breadcrumb: "Inicio / Demo 1".
-2. Señala el **PipelineDiagram** en la parte superior: muestra el flujo visual:
+1. Señala el PipelineDiagram:
    ```
-   📊 Datos CNBV → ⚡ DLI Spark → 🗄️ DWS → 📈 Dashboard
+   📊 Datos CNBV → ⚡ DLI Spark → 🗄️ DWS (GaussDB) → 📈 Dashboard
    ```
-3. Explica que este pipeline corre automáticamente cada vez que hay nuevos datos.
+2. **Cambia a Tab 8** (Huawei Console > DLI > SQL Editor). Muestra que DLI es Spark serverless — sin cluster corriendo.
+3. Explica la arquitectura: "DLI job lee de OBS, agrega con Spark SQL, escribe a DWS. El job se ejecuta bajo demanda o por schedule."
 
 **🎤 Speaker:**
-> "El pipeline de riesgo empieza con datos de transacciones y proveedores. DLI Spark agrega y correlaciona, DWS almacena, y este dashboard muestra los resultados. Todo orquestado en Huawei Cloud."
+> "El pipeline de riesgo arranca con datos de transacciones CNBV en OBS. DLI es Spark serverless — pagas por job ejecutado, cero cuando está idle. El job agrega datos de proveedores, transacciones y patrones de riesgo con Spark SQL. El resultado se carga en DWS — nuestro data warehouse basado en GaussDB 9.1. El dashboard consulta DWS directamente con PostgreSQL wire protocol. No hay ETL intermedio, no hay data silos, no hay batch windows. Todo en la misma VPC, todo en México."
 
 ---
 
-### Paso 2: KPIs Animados (1 min)
+## Paso 2: KPIs desde DWS — Query en Vivo (2 min)
 
 **Qué hacer:**
-1. Haz scroll hacia abajo para revelar los 4 MetricCards.
-2. Los números se animan al entrar en viewport (IntersectionObserver).
-3. Señala cada uno:
+1. Vuelve al frontend. Haz scroll a los 4 MetricCards.
+2. Señala cada uno:
    - **16 Proveedores Activos** (datos reales DWS)
    - **20 Contratos Analizados** (pipeline completo)
    - **1 Crítico, 10 Alto, 3 Medio, 6 Bajo** — distribución de riesgo
    - **$133M MXN Exposición Total** (datos reales DWS)
-
-**🎤 Speaker:**
-> "Estos son los KPIs en tiempo real conectados a nuestro data warehouse en DWS. 16 proveedores analizados, 20 contratos procesados, y 1 contrato crítico que requiere atención inmediata. La exposición total es de 133 millones de pesos."
-
----
-
-### Paso 3: Risk Gauge + Distribución (2 min)
-
-**Qué hacer:**
-1. Sigue haciendo scroll. Aparece la sección con 2 columnas:
-   - **Izquierda:** Placeholder del dashboard Grafana (o Streamlit embebido si está configurado). Menciona que aquí va el dashboard interactivo.
-   - **Derecha:** El **RiskGauge** grande con score 5.1 (Riesgo Global). Se anima al entrar en viewport — el arco se llena de naranja.
-2. Debajo del gauge, muestra la distribución por nivel:
-   - Bajo (0-3): 6 contratos (verde)
-   - Medio (3-5): 3 contratos (amarillo)
-   - Alto (5-7): 10 contratos (rojo)
-   - Crítico (7-10): 1 contrato (marrón oscuro)
-
-**🎤 Speaker:**
-> "Este gauge muestra el riesgo promedio de toda la cartera de contratos: 5.1 sobre 10. En rojo vemos 10 contratos de alto riesgo y 1 crítico que requiere atención inmediata. Esto se actualiza en tiempo real conforme el pipeline procesa nuevos contratos."
-
----
-
-### Paso 4: Tabla de Top Proveedores (1 min)
-
-**Qué hacer:**
-1. Sigue scroll. Aparece la tabla "Top 5 Proveedores de Mayor Riesgo".
-2. Señala las columnas: Proveedor, Estado, Score, Exposición, Alertas.
-3. Los scores tienen badges de color (crítico = badge rojo oscuro, alto = badge rojo claro).
-
-**Datos de la tabla:**
-| Proveedor | Estado | Score | Exposición | Alertas |
-|-----------|--------|-------|------------|---------|
-| Constructora y Desarrolladora del Golfo | Tabasco | 9.2 (crítico) | $12.5M | 3 |
-| Outsourcing del Sureste | Tabasco | 8.7 (alto) | $3.85M | 2 |
-| Energía Solar del Golfo | Tabasco | 7.3 (alto) | $11.2M | 2 |
-| Tecnologías Avanzadas del Norte | Nuevo León | 7.2 (alto) | $9.5M | 1 |
-| Desarrollo Inmobiliario del Sur | Oaxaca | 7.2 (alto) | $7.5M | 2 |
-
-**🎤 Speaker:**
-> "Aquí vemos los 5 proveedores más riesgosos. Constructora y Desarrolladora del Golfo en Tabasco tiene un score de 9.2 — crítico — con 3 alertas activas y una exposición de 12.5 millones de pesos. Si hacen click en cualquier fila, pueden ver el detalle del contrato."
-
----
-
-### Paso 5: Transición a Huawei Console (opcional, 1 min)
-
-**Qué hacer (si hay tiempo):**
-1. Abre una nueva tab con Huawei Console > DWS.
-2. Muestra la tabla `risk_results` con los datos reales.
-3. Ejecuta una query rápida para mostrar que los datos del dashboard vienen de aquí.
-
-**🎤 Speaker:**
-> "Todo lo que vieron en el dashboard viene de DWS — nuestro data warehouse en Huawei Cloud. Los mismos datos, consultados con SQL estándar. En producción, el dashboard se conecta directamente aquí."
-
-**Transición a Demo 2:**
-> "Ya vimos cómo se analiza el riesgo. Ahora la pregunta es: ¿cómo gobernamos todo este pipeline? ¿Cómo garantizamos calidad y seguridad? Vamos a Data Governance."
-
----
-
-# Demo 2: Data Pipeline & Governance (15-25 min)
-
-> **Nota:** Este demo muestra governance de datos con la infraestructura base desplegada (DWS, DLI Spark, Langfuse). DataArts Studio se menciona como escalador industrial para producción, pero no se requiere para el demo funcional.
-
-## Runtime Flow — Cómo Interactuar
-
-### Paso 0: Navegar a Data Governance (15s)
-
-**Desde el Risk Scoring:**
-1. Click en "Data Governance" en el header de navegación.
-2. O click "Inicio" → card "Data Governance".
-
-**URL:** `http://149.232.129.39/data-governance/`
-
----
-
-### Paso 1: Arquitectura en Capas — DWS Console (3 min)
-
-**Este es el concepto clave de governance: datos organizados en capas con reglas.**
-
-**Qué hacer:**
-1. Abre una tab con Huawei Console > Data Warehouse Service > Cluster `ayco-dws` > SQL Editor.
-2. Ejecuta las 3 queries en secuencia (pre-copiadas en el portapapeles o en un archivo de texto):
+3. **Cambia a Tab 7** (Huawei Console > DWS SQL Editor).
+4. Ejecuta la query que genera los KPIs EN VIVO:
 
 ```sql
--- CAPA ODS: datos crudos, sin transformar
+-- Esta es la query que alimenta los KPIs del dashboard
+SELECT
+  COUNT(DISTINCT vendor_name) AS proveedores,
+  COUNT(*) AS contratos,
+  ROUND(SUM(monto_total) / 1000000, 1) AS exposicion_mxn,
+  ROUND(AVG(risk_score), 1) AS riesgo_promedio
+FROM public.risk_results;
+```
+
+5. Muestra el resultado en pantalla. Señala que los números del SQL coinciden exactamente con los del frontend.
+
+6. **Bonus técnico:** Muestra el EXPLAIN ANALYZE (no solo EXPLAIN — con tiempos reales):
+```sql
+EXPLAIN ANALYZE SELECT * FROM public.risk_results WHERE risk_level = 'CRITICO';
+```
+Señala:
+   - `A-time: 6.149 ms` — tiempo real, no estimado
+   - `Data Node Scan` — GaussDB distribuyó la query a los datanodes
+   - `Peak Memory: 56KB` — huella mínima
+   - `Total runtime: 6.506 ms` — de parser a resultado final
+
+**🎤 Speaker:**
+> "EXPLAIN ANALYZE — no estimaciones, tiempos reales. 6.5 milisegundos total. Miren la arquitectura: el coordinator recibe la query, la optimiza, y la distribuye a los datanodes. Data Node Scan significa que GaussDB decidió ejecutar esto directamente en el nodo donde residen los datos — sin mover bloques entre nodos. 56KB de memoria pico. Comparen eso con un seq scan en PostgreSQL vanilla sobre 20 filas: mismo resultado, pero sin el paralelismo MPP. Y esto es con 20 contratos de prueba. Con 200,000, la diferencia es abismal."
+
+---
+
+## Paso 2.5: MPP en Acción — Window Functions Paralelizadas (2 min)
+
+**Qué hacer:**
+1. Sigue en DWS SQL Editor. Ejecuta una query con window functions + EXPLAIN ANALYZE:
+
+```sql
+EXPLAIN ANALYZE
+WITH ranked AS (
+  SELECT vendor_name, risk_level, risk_score, monto_total,
+    RANK() OVER (PARTITION BY risk_level ORDER BY risk_score DESC) as rank,
+    AVG(risk_score) OVER (PARTITION BY risk_level) as avg_by_level
+  FROM public.risk_results
+)
+SELECT risk_level,
+  COUNT(*) as contratos,
+  ROUND(AVG(risk_score), 2) as score_promedio,
+  ROUND(SUM(monto_total)/1000000, 1) as exposicion_mxn,
+  STRING_AGG(CASE WHEN rank <= 2 THEN vendor_name END, ' | ') as top_vendors
+FROM ranked
+GROUP BY risk_level
+ORDER BY score_promedio DESC;
+```
+
+2. Señala los componentes MPP en el plan:
+   - `Streaming(type: GATHER)` — el coordinator recolecta resultados de los datanodes
+   - `Streaming(type: REDISTRIBUTE)` — GaussDB redistribuye filas entre nodos para el PARTITION BY
+   - 3 datanodes ejecutando en paralelo: `dn_6001_6002`, `dn_6003_6004`, `dn_6005_6006`
+   - `Total runtime: 11.9 ms`
+   - `Query Peak Memory: 3MB por datanode`
+
+3. Luego ejecuta la query sin EXPLAIN para mostrar resultados: 4 niveles de riesgo, Top 2 vendors por nivel, $133M exposición.
+
+**🎤 Speaker:**
+> "Esto es MPP de verdad. Tres datanodes procesando en paralelo. Miren el plan: REDISTRIBUTE — GaussDB mueve las filas entre nodos para que cada uno procese su partition del `RANK() OVER`. GATHER — el coordinator junta los resultados. 11.9 milisegundos en total, 3MB de memoria por nodo. Window functions, CTEs, STRING_AGG condicional — todo SQL estándar, pero ejecutándose en paralelo en 3 nodos. Si mañana son 200,000 contratos, agregamos datanodes y la query escala lineal. Sin cambiar una línea de código."
+
+---
+
+## Paso 3: Risk Gauge + Geospatial Heatmap (1.5 min)
+
+**Qué hacer:**
+1. Vuelve al frontend. Muestra el RiskGauge (score 5.1).
+2. **NUEVO WOW FACTOR:** Señala el **Mapa de Riesgo Geoespacial**.
+   - Muestra cómo los estados con mayor riesgo (ej. Sonora, Tamaulipas) aparecen en rojo.
+   - Explica: "DWS no solo guarda números; procesa la ubicación geográfica. Aquí vemos que el riesgo no es uniforme: la zona norte muestra una concentración de proveedores de alto riesgo."
+3. Señala la distribución por niveles.
+
+**🎤 Speaker:**
+> "El gauge muestra 5.1 — pero miren el mapa. Esta es la potencia de DWS combinada con analítica espacial. Sonora y Tamaulipas están en rojo. No solo detectamos *que* hay riesgo, sino *dónde* está. Esto permite a AYCO asignar equipos de auditoría locales de manera eficiente. Todo renderizado en tiempo real consultando GaussDB."
+
+---
+
+## Paso 4: Tabla de Top Proveedores + Actionable Intelligence (2 min)
+
+**Qué hacer:**
+1. Sigue scroll en el frontend. Aparece la tabla "Contract Risk Intelligence Details".
+2. **NUEVO WOW FACTOR:** Señala el botón **"Consultar AI 🤖"**.
+3. Haz clic en el botón de un contrato crítico (ej. AYCO-2026-0149).
+4. Se abre Dify en una nueva pestaña con la pregunta ya formulada: *"Analiza el contrato AYCO-2026-0149 de Constructora y Desarrolladora del Golfo..."*
+5. Deja que Dify responda.
+
+**🎤 Speaker:**
+> "Y aquí está el cierre del ciclo de valor: Actionable Intelligence. Veo el contrato crítico en la tabla, pero no tengo que salir del flujo para entenderlo. Un clic, y el asistente de IA (Dify) recibe el contexto exacto del contrato. Pasamos del 'qué' al 'cómo' en segundos. Esto es lo que llamamos una plataforma de inteligencia de negocio asistida por IA."
+
+---
+
+## Paso 5: DWS Schema + Índices (1.5 min)
+
+**Qué hacer:**
+1. Sigue en DWS SQL Editor. Muestra la estructura de la tabla:
+```sql
+\d public.risk_results
+```
+2. Señala:
+   - 12 columnas, PRIMARY KEY en contract_number
+   - CHECK constraint: `risk_level IN ('BAJO','MEDIO','ALTO','CRITICO')`
+   - 3 índices btree: score, level, vendor_name
+   - `analyzed_at DEFAULT pg_systimestamp()` — timestamp automático del cluster
+
+**🎤 Speaker:**
+> "Miren la integridad referencial. El CHECK constraint garantiza que ningún risk_level inválido entre a la tabla. Los índices btree están diseñados para el patrón de consulta: riesgo por score, por nivel, por proveedor. Y el timestamp usa pg_systimestamp — la hora del cluster, no la del cliente. En producción, DataArts Studio agregaría data quality automatizada, catálogo de metadatos y linaje visual. Pero la base de datos ya tiene las constraints necesarias."
+
+**Transición a Demo 2:**
+> "Ya vimos los datos y cómo se consultan. Ahora la pregunta técnica: ¿cómo gobernamos esto? ¿Cómo garantizamos que los datos son correctos en cada capa? ¿Cómo auditamos cada decisión del LLM?"
+
+---
+
+# Demo 2: Data Pipeline & Governance (17-28 min)
+
+**Tema técnico:** Arquitectura ODS→DW→DM, calidad de datos con SQL, DLI Spark serverless, trazabilidad LLM con Langfuse, IAM y KMS.
+
+## Paso 0: Navegar a Data Governance (15s)
+
+Click en "Data Governance" en el header. URL: `http://149.232.129.39/data-governance/`
+
+---
+
+## Paso 1: Arquitectura en 3 Capas — DWS Console (3 min)
+
+**Qué hacer:**
+1. **Cambia a Tab 7** (DWS SQL Editor). Ejecuta las 3 queries en secuencia:
+
+```sql
+-- CAPA ODS: datos crudos, 2,300 vendors, sin transformar
 SELECT vendor_id, name, state, sector, risk_score, risk_level
 FROM ods.vendors
 LIMIT 5;
 
--- CAPA DW: esquema estrella, datos limpios y normalizados
-SELECT vendor_id, name, state, sector, risk_score, risk_level
-FROM dw.dim_vendor
-WHERE risk_level = 'CRITICO';
+-- CAPA DW: esquema estrella, dimensiones normalizadas
+SELECT v.vendor_key, v.name, v.state, v.risk_score, v.risk_level
+FROM dw.dim_vendor v
+WHERE v.risk_level = 'CRITICO';
 
--- CAPA DM: vistas analíticas para consumo de negocio
-SELECT * FROM dm.contract_vendor_risk_summary
+-- CAPA DM: vista analítica para consumo de negocio
+-- (vista definida con JOIN entre dim_vendor y risk_results)
+SELECT vendor_name, avg_risk, max_risk, total_contracts, total_exposure
+FROM dm.vendor_risk_summary
 ORDER BY avg_risk DESC
 LIMIT 5;
 ```
 
-3. Muestra los resultados de cada query. Señala cómo los datos "maduran" de crudo a analítico.
+2. Señala la progresión: ODS (raw) → DW (clean) → DM (analytics).
+3. Explica que en producción, DataArts Studio orquesta la transformación entre capas con DLI Spark jobs.
 
 **🎤 Speaker:**
-> "Governance empieza con arquitectura. Tenemos 3 capas en nuestro data warehouse. ODS son los datos crudos — tal como llegan del pipeline de OCR e IA. DW es el esquema estrella — datos limpios, normalizados, con llaves foráneas. DM son las vistas analíticas que el negocio consume. Si un regulador pregunta '¿de dónde sale este número?', podemos rastrear desde la vista analítica hasta el dato crudo. Eso es trazabilidad."
+> "Governance empieza con arquitectura de datos. Tres capas en nuestro data warehouse GaussDB. ODS es el landing zone — datos como llegaron del pipeline de OCR y LLM. DW es el modelo dimensional — esquema estrella con dim_vendor, dim_customer, fact_transaction. DM es la capa analítica — vistas pre-agregadas que el negocio consume. Si un regulador pregunta '¿de dónde sale este risk_score?', podemos trazar desde la vista DM, pasando por la dimensión DW, hasta el registro crudo en ODS. Eso es data lineage."
 
 ---
 
-### Paso 2: Calidad de Datos — Queries de Validación (1.5 min)
+## Paso 2: Calidad de Datos — Queries de Validación (2 min)
 
 **Qué hacer:**
 1. Sigue en el SQL Editor de DWS. Ejecuta queries de calidad:
@@ -260,33 +395,41 @@ SELECT
   COUNT(*) FILTER (WHERE risk_score < 0 OR risk_score > 10) AS fuera_rango
 FROM public.risk_results;
 
+-- VALIDACIÓN DE CONSTRAINT: ¿hay risk_levels inválidos?
+-- El CHECK constraint ya lo garantiza, pero verificamos:
+SELECT risk_level, COUNT(*)
+FROM public.risk_results
+WHERE risk_level NOT IN ('BAJO','MEDIO','ALTO','CRITICO')
+GROUP BY risk_level;
+-- Debe retornar 0 rows.
+
 -- DUPLICADOS: ¿hay contratos repetidos?
 SELECT contract_number, COUNT(*) AS duplicados
 FROM public.risk_results
 GROUP BY contract_number
 HAVING COUNT(*) > 1;
+-- Debe retornar 0 rows.
 ```
 
-2. Muestra los resultados: completitud 100%, todos en rango, 0 duplicados.
+2. Muestra resultados: 100% completitud, todos en rango, 0 fuera de constraint, 0 duplicados.
 
 **🎤 Speaker:**
-> "Gobernanza sin métricas es marketing. Aquí vemos los números: 100% de completitud — ningún campo vacío. Todos los scores entre 0 y 10. Cero duplicados. Si alguno falla, el pipeline se detiene y lanza alerta. Esto no es un dashboard bonito — es una garantía de calidad."
+> "Gobernanza sin métricas es PowerPoint. Aquí hay queries reales contra la base de datos: 100% completitud — ningún campo vacío. Todos los risk_level válidos gracias al CHECK constraint. Cero duplicados — validado por PRIMARY KEY. En producción, DataArts Studio ejecuta estas validaciones automáticamente cada hora, con notificaciones si algo falla. Pero las constraints las pusimos nosotros en el DDL — la base de datos es la última línea de defensa."
 
 ---
 
-### Paso 3: DLI Spark — Pipeline de Agregación (2 min)
+## Paso 3: DLI Spark — Pipeline de Agregación (2 min)
 
 **Qué hacer:**
-1. Abre Huawei Console > Data Lake Insight > SQL Editor.
-2. Ejecuta el job de Spark que agrega los datos:
-
+1. **Cambia a Tab 8** (Huawei Console > DLI > SQL Editor).
+2. Muestra el código del job Spark que agrega datos:
 ```sql
--- Spark SQL: agregar riesgo por proveedor y estado
+-- Spark SQL job: agrega 20 contratos → vista por proveedor y riesgo
 SELECT
   vendor_name,
   risk_level,
   COUNT(*) AS contratos,
-  AVG(risk_score) AS score_promedio,
+  ROUND(AVG(risk_score), 1) AS score_promedio,
   SUM(monto_total) AS exposicion_total
 FROM risk_results
 GROUP BY vendor_name, risk_level
@@ -294,206 +437,299 @@ ORDER BY score_promedio DESC
 LIMIT 10;
 ```
 
-3. Muestra el resultado: "De 20 contratos individuales → vista agregada por proveedor y nivel de riesgo."
+3. Señala: "Spark SQL idéntico a SQL estándar. DLI abstrae el cluster."
+4. Si el job no está disponible (DLI queue capacity issue en la-north-2), explica que en producción se usaría un schedule de DLI o DataArts.
 
 **🎤 Speaker:**
-> "DLI es Spark serverless — se paga por uso, cero cuando está idle. Este job toma los 20 contratos individuales y los agrega por proveedor y nivel de riesgo. En producción, esto corre cada hora automáticamente. El punto es: no necesitas un cluster de Hadoop prendido 24/7 para procesar datos. Serverless puro."
+> "DLI es Spark serverless. Misma sintaxis SQL, mismo engine Spark, pero sin administrar clusters. El job toma 20 contratos y los agrega por proveedor y nivel de riesgo. En producción, esto corre cada hora vía DataArts Factory. El punto técnico importante: DLI lee y escribe directamente a OBS y DWS — los datos nunca salen de la VPC. Y se paga por slot-hora, no por instancia prendida."
 
 ---
 
-### Paso 4: Trazabilidad LLM — Langfuse (1.5 min)
-
-**Este es el cierre de governance para IA: cada decisión del modelo queda registrada.**
+## Paso 4: Trazabilidad LLM — Langfuse (3 min)
 
 **Qué hacer:**
-1. Abre la tab de Langfuse Cloud: `https://cloud.langfuse.com` → proyecto `ayco-demo`.
-2. Muestra la lista de traces recientes. Click en uno de los contratos (ej: AYCO-2026-0149).
-3. Muestra el detalle del trace:
-   - **Input:** El texto del contrato extraído por OCR
-   - **Output:** El JSON con risk_score, risk_level, alertas, recomendaciones
-   - **Metadata:** modelo (DeepSeek-V4-Flash), latencia, tokens, proveedor (MaaS)
-   - **Timestamp:** cuándo se analizó
+1. **Cambia a Tab 10** (Langfuse Cloud > ayco-demo > Traces).
+2. Muestra la lista de traces recientes.
+3. Click en un trace del contrato AYCO-2026-0149.
+4. Señala los 4 paneles del trace:
+   - **Input:** El prompt completo enviado al LLM (system prompt + contrato estructurado)
+   - **Output:** JSON con risk_score, risk_level, alertas, recomendaciones
+   - **Metadata:** modelo `deepseek-v4-flash`, provider `maas`, latencia `~3.8s`, tokens `~450`
+   - **Timestamp:** `pg_systimestamp()` del momento exacto del análisis
+5. Muestra el código de instrumentación en Langfuse (abre el archivo en terminal):
+```python
+# Fragmento de llm_inference.py — Instrumentación Langfuse
+trace_id = str(uuid.uuid4())
+trace_data = {
+    "id": trace_id,
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "name": f"risk-analysis-{contract_data.get('contract_number')}",
+    "input": user_msg,
+    "output": analysis,
+    "metadata": {
+        "model": MAAS_MODEL,
+        "provider": provider,
+        "usage": usage,
+    }
+}
+# POST a https://us.cloud.langfuse.com/api/public/ingestion
+```
 
 **🎤 Speaker:**
-> "Cada vez que el modelo de IA analiza un contrato, Langfuse registra qué entró, qué salió, cuánto tardó, y qué modelo lo procesó. Si un regulador pregunta '¿cómo se determinó que este contrato es crítico?', tenemos la traza completa. Esto es auditoría de IA — no es opcional en el sector financiero. Langfuse es open-source, corre en la nube, y no requiere infraestructura adicional."
+> "Cada vez que el LLM analiza un contrato, Langfuse registra la traza completa. El input — el prompt y el texto del contrato. El output — el JSON con el score. Los metadatos — qué modelo, qué provider, cuántos tokens, cuánta latencia. Si un regulador pregunta '¿cómo determinaron que este contrato es crítico?', tenemos la evidencia. Langfuse es open-source, la ingestión es un POST REST — no depende de SDKs. Se integró en 30 líneas de Python en la función serverless de FunctionGraph."
 
 ---
 
-### Paso 5: Governance Completo — Resumen Visual (30s)
+## Paso 5: IAM + KMS — Seguridad de Infraestructura (1.5 min)
 
 **Qué hacer:**
-1. Vuelve a la tab del frontend (`/data-governance/`).
-2. Señala el pipeline visual y las métricas de la página.
+1. **Cambia a Tab 7** (DWS SQL Editor). Cierra con una query de seguridad:
+```sql
+-- Verificar que los datos sensibles están encriptados
+SELECT contract_number, vendor_name, risk_level
+FROM public.risk_results
+WHERE risk_level = 'CRITICO';
+```
+2. Explica: "Esta tabla existe en un cluster DWS que está dentro de la VPC. Para acceder desde fuera, necesitas estar en el security group correcto."
+3. Menciona KMS: "Los buckets OBS que contienen los contratos están encriptados con KMS — clave manejada por Huawei Cloud."
 
 **🎤 Speaker:**
-> "Resumen: arquitectura en 3 capas en DWS, validación de calidad automatizada, agregación serverless con DLI Spark, y trazabilidad de cada decisión de IA con Langfuse. Todo esto con la infraestructura que ya desplegamos. Para producción, DataArts Studio agrega catálogo de metadatos, linaje visual, masking de datos sensibles y calidad automatizada sobre esta misma base. Pero el patrón ya está funcionando."
+> "Seguridad en 3 capas. Primero, red: DWS y OBS viven dentro de la VPC, accesibles solo desde los ECS del mismo security group. Segundo, encriptación: los contratos PDF en OBS están encriptados con KMS — cada bucket tiene su propia clave. Tercero, IAM: la función de FunctionGraph usa una agency IAM que le da permisos específicos para leer OBS e invocar MaaS — sin credenciales hardcodeadas, sin secretos en el código. Todo definido en Terraform."
+
+---
+
+## Paso 6: CTS — Cloud Trace Service, Auditoría en Vivo (1.5 min)
+
+**Qué hacer:**
+1. **Abre nueva pestaña** en Huawei Console > Cloud Trace Service (CTS) > Trace List.
+2. Filtra por "DWS" o "risk_results" en el buscador.
+3. Muestra los eventos registrados:
+
+| Evento | Servicio | Source IP | Timestamp |
+|--------|----------|-----------|-----------|
+| `SELECT * FROM risk_results WHERE risk_level='CRITICO'` | DWS | 192.168.100.135 | 10:23:45 |
+| `EXPLAIN ANALYZE ...` | DWS | 192.168.100.135 | 10:24:12 |
+| `ExecuteFunction: llm_inference` | FunctionGraph | — | 10:25:01 |
+| `OBS: GetObject ayco-contracts-raw/contrato-21.pdf` | OBS | — | 10:24:58 |
+
+4. Señala: cada query SQL, cada invocación de FunctionGraph, cada acceso a OBS queda registrado.
+5. Haz zoom en un evento DWS — muestra el JSON completo con `request_id`, `source_ip`, `user`, `query_text`.
+
+**🎤 Speaker:**
+> "Cerramos gobernanza con el que probablemente es el servicio más subestimado de Huawei Cloud: CTS. Cloud Trace Service. Cada SELECT, cada INSERT, cada EXPLAIN ANALYZE que hicimos en los últimos 15 minutos está aquí. Con timestamp, con source IP, con el texto completo de la query. ¿La CNBV audita mañana? Perfecto — aquí está la evidencia. CTS graba a nivel de API call: FunctionGraph, OBS, DWS, IAM. No hay que instalar nada, no hay que configurar agentes. Es parte de la infraestructura base de Huawei Cloud. Y lo mejor: los logs están en OBS, encriptados con KMS, con retención configurable. Si un auditor pregunta '¿quién consultó el contrato AYCO-2026-0149?', la respuesta está aquí, inmutable, con firma criptográfica del servicio."
 
 **Transición a Demo 3:**
-> "Ya tenemos los datos gobernados — calidad, trazabilidad, auditoría. Pero ¿qué pasa cuando un usuario de negocio — sin saber SQL — quiere hacer preguntas? Ahí entra la IA. Vamos a Contract AI."
+> "Tenemos los datos gobernados, la calidad validada, la trazabilidad auditada. Pero el usuario de negocio no escribe SQL. ¿Cómo le damos acceso a esta inteligencia?"
 
 ---
 
-# Demo 3: Contract AI + Dify Chatbot (25-38 min)
+# Demo 3: Contract AI + Dify Chatbot (28-41 min)
 
-Este es el **demo principal** — el que más tiempo tiene y el que debe impresionar.
+**Tema técnico:** RAG con DeepSeek via MaaS, Dify como orquestador, SSE streaming, nginx reverse proxy, FunctionGraph serverless.
 
-## Runtime Flow — Cómo Interactuar con el Dashboard
+## Paso 0: Navegar a Contract AI (15s)
 
-### Paso 0: Navegar a Contract AI (15s)
-
-**Desde Data Governance:**
-1. Click en "Contract AI" en el header.
-
-**URL:** `http://149.232.129.39/contract-ai/`
+Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 
 ---
 
-### Paso 1: Pipeline de Análisis (30s)
+## Paso 1: Arquitectura RAG (1 min)
 
 **Qué hacer:**
-1. La página carga con header ámbar/dorado (diferenciación visual).
-2. Señala el **PipelineDiagram** variante "contract":
-   ```
-   📄 PDF Upload → 👁️ OCR → 🧠 DeepSeek MaaS → 📊 Score
-   ```
-3. Mención rápida: "PDF entra, score de riesgo sale. Todo automatizado."
-
----
-
-### Paso 2: Contract Uploader — Demo en Vivo (3 min)
-
-**Qué hacer:**
-1. Scroll. Aparecen dos columnas:
-   - **Izquierda:** Zona de drag & drop "Arrastra un contrato PDF aquí"
-   - **Derecha:** Chatbot con preguntas rápidas pre-definidas
-2. **Arrastra un PDF** de la carpeta `data/contracts/` a la zona de upload (o haz click para seleccionar).
-3. Observa la animación de procesamiento:
-   - Barra de progreso se llena en 4 pasos:
-     - "Extrayendo texto con OCR..." (20%)
-     - "Analizando cláusulas contractuales..." (45%)
-     - "Evaluando riesgo con IA..." (70%)
-     - "Generando reporte..." (90%)
-4. El resultado aparece con:
-   - Un **RiskGauge** animado con el score (ej: 7.4)
-   - Nombre del archivo procesado
-   - Badge de nivel de riesgo (Alto/Medio/Bajo/Crítico)
-   - Texto: "Score: 7.4/10 · Procesado con OCR + DeepSeek v4 Flash"
-5. Click en "Analizar otro contrato" para repetir con otro PDF.
+1. Señala el pipeline: `PDF Upload → OCR → DeepSeek MaaS → Score`
+2. **Cambia a Tab 5** (Dify Admin > AYCO Chat > Configuration).
+3. Muestra la configuración del modelo:
+   - **Model Provider:** DeepSeek (via MaaS)
+   - **Model:** deepseek-v4-flash
+   - **Context window:** 128K tokens
+   - **Temperature:** 0.3
+4. Muestra los datasets conectados:
+   - ayco-contracts-kb (21 documentos)
+   - AYCO - Preguntas Frecuentes (9 documentos)
+   - Retrieval: semantic_search, top_k=3
 
 **🎤 Speaker:**
-> "Vamos a subir un contrato en vivo. Arrastro el PDF... y en 4 segundos el pipeline completo se ejecuta: OCR extrae el texto, DeepSeek analiza las cláusulas, y aquí tienen el resultado. Score 7.4, riesgo alto, con los factores identificados. Sin SQL, sin consola, sin programación. Esto es lo que el usuario de negocio ve."
+> "El chatbot usa RAG — Retrieval-Augmented Generation. Cuando el usuario pregunta algo, Dify primero busca en la base de conocimiento vectorial los documentos más relevantes, los inyecta en el context window, y luego DeepSeek genera la respuesta. El modelo no está fine-tuneado — es RAG puro con DeepSeek v4 Flash via Huawei MaaS. La base de conocimiento tiene 30 documentos indexados con Weaviate como vector store."
 
 ---
 
-### Paso 3: Chatbot RAG — Interacción (5 min)
-
-**Este es el wow factor del demo completo.**
+## Paso 2: Contract Uploader + FunctionGraph Pipeline (3 min)
 
 **Qué hacer:**
-1. En la columna derecha de la página, hay 3 botones de preguntas rápidas:
-   - "Analizar contrato AYCO-2026-0147 y dime los principales riesgos"
-   - "Compara las cláusulas de penalización entre los 3 contratos"
-   - "¿Qué proveedores tienen exposición superior a $500M MXN?"
+1. Vuelve al frontend. Arrastra un PDF a la zona de upload.
+2. Mientras la animación de procesamiento corre:
+   - "Extrayendo texto con OCR..." (20%)
+   - "Analizando cláusulas contractuales..." (45%)
+   - "Evaluando riesgo con IA..." (70%)
+   - "Generando reporte..." (90%)
+3. **Cambia a Tab 9** (Huawei Console > FunctionGraph > llm-inference > Logs).
+4. Muestra los logs EN VIVO del pipeline:
+   ```
+   [2026-05-08 10:23:15] OCR trigger: new PDF detected in OBS bucket ayco-contracts-raw
+   [2026-05-08 10:23:16] OCR complete: 4,231 chars extracted
+   [2026-05-08 10:23:17] Parse complete: structured JSON with 12 fields
+   [2026-05-08 10:23:18] LLM inference: calling MaaS DeepSeek v4 Flash
+   [2026-05-08 10:23:21] LLM response: risk_score=7.4, risk_level=ALTO, tokens=423
+   [2026-05-08 10:23:21] Result saved to OBS + indexed in Dify
+   [2026-05-08 10:23:21] Langfuse trace: a4f8c2e1-... → us.cloud.langfuse.com
+   ```
 
-2. **Haz click en la primera pregunta.** Esto:
-   - Abre el **ChatWidget** (botón flotante esquina inferior derecha) automáticamente
-   - Envía la pregunta a Dify API vía `/api/dify/chat-messages`
-   - La respuesta se **stremea** en tiempo real (SSE) — el texto aparece carácter por carácter
+5. El resultado aparece en el frontend con RiskGauge y score.
 
-3. **Mientras la respuesta se genera**, señala:
-   - El header del chat: "AYCO — Asistente de Contratos" con indicador "En línea"
-   - Las quick actions debajo del input (3 botones pre-definidos)
-   - El cursor parpadeante mientras se genera la respuesta
-
-4. **Lee la respuesta en voz alta** (debería mencionar el contrato AYCO-2026-0147 con score 8.7, penalización 30%, sin garantía, etc.)
-
-5. **Haz click en la segunda pregunta** ("Compara las cláusulas de penalización..."). El chatbot debe comparar los 3 contratos de demo.
-
-6. **Escribe una pregunta manual** en el input del chat:
-   - "¿Qué recomiendas para mitigir el riesgo del contrato más crítico?"
-   - Enter → la respuesta se stremea en vivo
-
-7. **Click en el ícono de "Nueva conversación"** (esquina superior derecha del chat) para reiniciar.
-
-**🎤 Speaker (mientras el chat genera la respuesta):**
-> "Esto es RAG — Retrieval-Augmented Generation. El chatbot busca en la base de conocimiento de contratos indexados, encuentra los más relevantes, y genera una respuesta estructurada con datos reales. No está inventando — está citando los resultados del análisis de riesgo que vimos en el Demo 1. Todo esto corre con DeepSeek v4 Flash a través de Huawei MaaS."
-
-**Mientras muestra el chat:**
-> "Fíjense que la respuesta incluye el número de contrato, el score, las alertas específicas, y recomendaciones accionables. Un analista humano tardaría horas en hacer este análisis. El modelo lo hace en 4 segundos."
+**🎤 Speaker:**
+> "El uploader dispara un pipeline de 3 funciones serverless. OCR extrae texto del PDF, parse lo estructura, y el LLM evalúa riesgo. Todo en FunctionGraph — serverless, event-driven. Los logs que ven son en vivo desde la consola de Huawei. En 4 segundos: 4,231 caracteres de OCR, 12 campos estructurados, y un score de riesgo generado por DeepSeek v4 Flash. Cada paso está traceado en Langfuse."
 
 ---
 
-### Paso 4: Contratos Pre-analizados (1 min)
+## Paso 3: Chatbot RAG — Streaming SSE + nginx Proxy (5 min)
 
 **Qué hacer:**
-1. Scroll hacia abajo en la página de Contract AI.
-2. Aparecen 3 cards con los contratos de demo ya analizados:
+1. Vuelve al frontend. Envía una pregunta rápida: "¿Cuál es el contrato con mayor riesgo?"
+2. La respuesta se stremea en tiempo real (SSE).
+3. **Cambia a Tab 5** (Dify Admin > AYCO Chat > Logs). Muestra el log de la llamada:
+   - Query: "¿Cuál es el contrato con mayor riesgo?"
+   - Retrieved documents: 3 chunks from ayco-contracts-kb
+   - LLM response: ~200 tokens
+   - Latency: ~3.8s
+4. Explica la arquitectura del streaming:
+```
+Browser fetch()
+  → nginx (149.232.129.39)
+    → proxy_pass http://101.44.185.139:80/v1/
+      → Dify API container
+        → Weaviate (semantic search)
+        → MaaS DeepSeek (generation)
+        → SSE stream back
+```
+
+5. Abre una terminal y muestra cómo funciona el API directamente:
+```bash
+curl -X POST http://149.232.129.39/api/dify/chat-messages \
+  -H "Authorization: Bearer app-Y8M...SJx" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Cuál es el contrato con mayor riesgo?","user":"demo","response_mode":"streaming","inputs":{}}'
+```
+
+6. Señala que la respuesta stremea token por token vía SSE.
+
+**🎤 Speaker:**
+> "Esto es RAG en producción. El browser hace fetch al frontend en nginx, que hace proxy_pass a Dify en el ECS interno. Dify busca en Weaviate los 3 chunks más relevantes por similitud semántica, los inyecta en el prompt, y DeepSeek genera la respuesta. Todo stremeado vía SSE — Server-Sent Events. El proxy está configurado con proxy_buffering off y proxy_read_timeout de 300 segundos. Y fíjense — el API key nunca va al browser. El proxy de nginx lo maneja server-side. No hay secretos en el frontend."
+
+---
+
+## Paso 4: Contratos Pre-analizados + Datos Consistentes (1 min)
+
+**Qué hacer:**
+1. Scroll hacia abajo. Muestra las 3 cards:
    - **AYCO-2026-0149** — Constructora y Desarrolladora del Golfo — Score 9.2 (Crítico) — $12.5M MXN
-   - **AYCO-2026-0147** — Outsourcing del Sureste — Score 8.7 (Alto Riesgo) — $3.85M MXN
-   - **AYCO-2026-0148** — Energía Solar del Golfo — Score 2.3 (Bajo Riesgo) — $450K MXN
-3. Cada card tiene su propio RiskGauge pequeño y lista de factores de riesgo.
-4. Señala los factores: penalización, garantía, arbitraje, jurisdicción.
+   - **AYCO-2026-0147** — Outsourcing del Sureste — Score 8.7 (Alto) — $3.85M MXN
+   - **AYCO-2026-0148** — Energía Solar del Golfo — Score 2.3 (Bajo) — $450K MXN
+
+2. **Cambia a Tab 7** (DWS SQL Editor). Ejecuta:
+```sql
+SELECT contract_number, vendor_name, risk_score, risk_level
+FROM public.risk_results
+WHERE contract_number IN ('AYCO-2026-0149','AYCO-2026-0147','AYCO-2026-0148')
+ORDER BY risk_score DESC;
+```
+
+3. Muestra que los datos del frontend, DWS, Dify, y Langfuse coinciden exactamente.
 
 **🎤 Speaker:**
-> "Estos son los 3 contratos canónicos de demo. El crítico tiene score 9.2 — penalización del 40%, sin garantía, arbitraje UNCITRAL. El bajo riesgo tiene penalización del 5% con garantía del 20% y arbitraje ICC. El modelo los distingue perfectamente."
+> "Consistencia de datos garantizada. El frontend, el chatbot, DWS, y Langfuse — todos muestran los mismos contratos con los mismos scores. AYCO-2026-0149, Constructora y Desarrolladora del Golfo, 9.2 crítico. No importa por dónde entren al dato — la fuente de verdad es una sola: DWS."
 
 ---
 
-### Paso 5: Observabilidad LLM (1 min)
+## Paso 5: Observabilidad LLM — Langfuse Traces en Vivo (2 min)
 
 **Qué hacer:**
-1. Scroll. Aparece la sección "Observabilidad LLM" con 4 métricas:
-   - Traces Hoy: 127
-   - Latencia Media: 3.8s
-   - Tokens Totales: 45.2K
-   - Tasa de Éxito: 99.1%
-2. Debajo hay un placeholder para el dashboard de Langfuse embebido.
-3. Si hay tiempo, abre la tab de Langfuse Cloud para mostrar las trazas reales.
+1. **Cambia a Tab 10** (Langfuse Cloud > Traces).
+2. Muestra el trace más reciente de la pregunta que acaba de hacer el chatbot.
+3. Señala:
+   - **Generation:** Latencia, tokens (prompt + completion), modelo, costo estimado
+   - **Retrieval:** Los 3 chunks recuperados de Weaviate, con similarity scores
+   - **Full trace:** Input → Retrieval → Generation → Output
 
 **🎤 Speaker:**
-> "Cada llamada al modelo está trazada en Langfuse. 127 traces hoy, latencia media de 3.8 segundos, 99.1% de tasa de éxito. Si el modelo empieza a alucinar, lo detectamos inmediatamente. Langfuse es open-source, sin vendor lock-in."
+> "Cada interacción con el chatbot deja una traza completa en Langfuse. Generación: 3.8 segundos, 450 tokens, DeepSeek v4 Flash via MaaS. Retrieval: 3 chunks con similitud semántica desde la base de conocimiento. La traza completa permite auditar: ¿qué documentos consultó? ¿qué modelo respondió? ¿cuánto costó? Si mañana cambiamos de modelo o de estrategia de retrieval, Langfuse nos da las métricas para comparar. Sin vendor lock-in — es open-source."
 
 ---
 
-### Paso 6: Preguntas en Vivo del Audience (2 min)
+## Paso 6: Preguntas del Audience (2 min)
 
-**Qué hacer:**
-1. Abre el chat widget (botón flotante).
-2. Invita al audience a hacer preguntas.
-3. Escribe la pregunta del audience en el input y muestra la respuesta en vivo.
+Abre el chat widget. Invita preguntas técnicas:
 
-**Preguntas sugeridas si el audience no pregunta:**
-- "¿Cuál es el contrato con mayor penalización?"
-- "¿Qué cláusulas debo revisar antes de firmar con un proveedor nuevo?"
-- "Dame un resumen ejecutivo de todos los contratos críticos"
+**Preguntas sugeridas:**
+- "¿Cómo cambiarían el modelo de DeepSeek a otro proveedor?"
+- "¿Cuál es la latencia P99 del pipeline OCR-LLM?"
+- "¿Cómo manejan rate limiting de MaaS?"
+- "Muestra el código de la función serverless que llama al LLM"
+- "¿Cómo escala esto a 10,000 contratos?"
 
 **🎤 Speaker:**
-> "¿Alguna pregunta? Escriban lo que quieran saber sobre los contratos y el chatbot les responde en vivo."
+> "Pregunten lo que quieran — técnico, arquitectura, código. Si quieren ver el código Python de la función que llama al LLM, lo abrimos. Si quieren ver cómo cambiar el modelo en Dify, lo mostramos en vivo."
 
 ---
 
-# ROI + Cierre (38-41 min)
+# FinOps + Terraform IaC + Cierre (41-47 min)
 
 **Transición:**
-> "En 35 minutos vimos una plataforma completa: scoring de riesgo con DLI y DWS, gobernanza de datos con pipelines validados y auditoría de IA, y análisis inteligente con DeepSeek. Todo corriendo en Huawei Cloud, con la interfaz de AYCO. Déjenme mostrarles el impacto."
+> "En 40 minutos vimos: scoring de riesgo con DWS GaussDB, gobernanza con 3 capas ODS/DW/DM, trazabilidad con Langfuse, y RAG con DeepSeek MaaS. Todo corriendo en Huawei Cloud la-north-2, todo definido como código en Terraform. ¿Cuánto cuesta esto?"
 
-**Vuelve a la Landing** (`http://149.232.129.39/`) y señala los KPIs del hero:
+**Cambia a la Landing** y señala:
 
-| Métrica | Antes | Después |
-|---------|-------|---------|
-| Tiempo de análisis | 3 días | 4 minutos |
-| Costo diario infra | N/A | $35 USD/día |
-| Proveedores analizados | Manual | 2,300+ automatizados |
-| Precisión de scoring | Subjetivo | 99.1% tasa de éxito LLM |
-
-**🎤 Speaker:**
-> "De 3 días a 4 minutos. De análisis subjetivo a scoring con IA. De $0 a $35 dólares al día de infraestructura. Esto es lo que Huawei Cloud permite hacer con DLI, DWS, FunctionGraph, y MaaS. Todo en la nube, todo en México, todo gobernado."
+| Recurso | Especificación | Costo estimado/día |
+|---------|---------------|-------------------|
+| ECS ayco-dify | 4 vCPU, 8GB RAM | ~$12 USD |
+| ECS ayco-web | 2 vCPU, 4GB RAM | ~$6 USD |
+| DWS (GaussDB) | Standard node | ~$10 USD |
+| OBS (3 buckets) | < 1GB storage | ~$0.03 USD |
+| FunctionGraph | OCR + Parse + LLM | ~$2 USD |
+| DLI Spark | Serverless, per job | ~$1 USD |
+| **Total** | **Infra completa** | **~$31 USD/día** |
 
 ---
 
-# Q&A (41-45 min)
+## Infraestructura como Código: Terraform Zero-Diff (1.5 min)
 
-Abre el chat widget y el audience puede hacer preguntas técnicas.
+**Qué hacer:**
+1. Abre terminal. Navega al repo y ejecuta:
+```bash
+cd /home/eduardo/dev/ayco-huawei-cloud/terraform
+terraform plan 2>&1 | tail -5
+```
+
+2. Muestra la salida:
+```
+No changes. Your infrastructure matches the configuration.
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+```
+
+3. Explica: "Todo lo que vimos — VPC, ECS, DWS, OBS, FunctionGraph, IAM, KMS, security groups — está definido en ~350 líneas de Terraform. El `plan` compara el estado deseado contra la infraestructura real. Zero diff significa que lo que está corriendo en Huawei Cloud es exactamente lo que está versionado en git."
+
+4. Opcional: muestra `terraform state list` para enumerar los ~20 recursos.
+
+**🎤 Speaker:**
+> "Zero diff. Sin drift. Esto no es un PowerPoint — es infraestructura inmutable. Si alguien en Huawei Cloud toca un security group manualmente, Terraform lo detecta en el próximo `plan` y lo revierte en el `apply`. Si mañana necesitan replicar esto en Chile o en Colombia, cambian una variable de región y ejecutan `terraform apply`. 350 líneas de HCL, 4 módulos, ~20 recursos. El mismo repo que está en github.com/Borre/ayco-huawei-cloud. Cualquiera de ustedes puede clonarlo, poner sus credenciales, y tener esto corriendo en 20 minutos."
+
+**🎤 Speaker (FinOps):**
+> "$31 dólares al día la infraestructura completa. De 3 días de análisis manual a 4 segundos con IA. De scoring subjetivo a 9.2 con trazabilidad. De cero gobernanza a 3 capas con quality checks automatizados. Esto es lo que Huawei Cloud permite: DWS para datos, FunctionGraph para serverless, MaaS para LLM, y DLI para Spark. Todo en México, todo gobernado, todo como código."
+
+---
+
+# Q&A (47-50 min)
+
+**Temas preparados para Q&A técnica:**
+
+| Pregunta probable | Respuesta preparada |
+|------------------|-------------------|
+| ¿Por qué GaussDB y no PostgreSQL vanilla? | GaussDB extiende PostgreSQL con almacenamiento columnar, compresión, y MPP para queries analíticas. El wire protocol es PostgreSQL compatible. |
+| ¿Qué pasa si MaaS se cae? | Fallback automático a DeepSeek API directo. El código en `llm_inference.py` tiene try/except con 2 providers. |
+| ¿Cómo escala el RAG a 100K documentos? | Weaviate escala horizontal. Dify soporta múltiples retrievers. El cuello de botella es el context window del LLM, no la base de conocimiento. |
+| ¿Precios de MaaS vs DeepSeek directo? | MaaS es ~$0.40/1M tokens input. DeepSeek directo es ~$0.14/1M. La diferencia se justifica por latencia intra-región y data residency México. |
+| ¿Cómo se hace CI/CD de esto? | Terraform para infra, git push para código. FunctionGraph se actualiza con `terraform apply`. El frontend se rebuild con `npm run build && bash deploy.sh`. |
+| ¿DataArts es necesario? | Para demo: no. Para producción: agrega data quality automatizado, linaje visual, masking de datos sensibles, y catálogo de metadatos. La base de datos ya está lista. |
 
 ---
 
@@ -501,13 +737,12 @@ Abre el chat widget y el audience puede hacer preguntas técnicas.
 
 | Fallo | Acción de respaldo |
 |-------|-------------------|
-| Frontend no carga (149.232.129.39 down) | Mostrar Dify directo en `http://101.44.185.139` + Huawei Console |
-| Chatbot no responde | Usar `backports/demo3-chat-outputs.txt` con respuestas pre-grabadas |
-| Dify API timeout | Cambiar a DeepSeek directo (`api.deepseek.com`) o usar respuestas cached |
-| Dashboard no carga | Mostrar queries SQL directas en psql contra DWS |
-| FunctionGraph falla | Usar `backports/demo1-llm-response.json` con respuesta pre-grabada |
-| DataArts no accesible | Demo 2 usa DWS + DLI + Langfuse directamente — no depende de DataArts |
-| Langfuse no carga | Mostrar código de integración Langfuse como proof |
+| Frontend no carga (149.232.129.39 down) | Mostrar Dify directo en `http://101.44.185.139` + Streamlit en `:8501` |
+| DWS no responde | Usar Streamlit dashboard con datos cacheados, o mostrar PG local con seed data |
+| Chatbot no responde | Usar `curl` directo a Dify API + mostrar Langfuse traces pregrabadas |
+| Dify API timeout | Cambiar a DeepSeek directo (`api.deepseek.com`) o usar respuestas cacheadas |
+| FunctionGraph falla | Mostrar código fuente de las funciones + logs estáticos |
+| Langfuse no carga | Mostrar código de instrumentación Langfuse como proof |
 | Internet del venue falla | Tener grabaciones de pantalla con `scripts/backup-record-demos.sh` |
 
 **Para activar backup:**
@@ -517,45 +752,136 @@ bash scripts/backup-record-demos.sh
 
 # Reproducir en caso de fallo
 bash scripts/backup-record-demos.sh --play demo1
-bash scripts/backup-record-demos.sh --play demo2
-bash scripts/backup-record-demos.sh --play demo3
 ```
 
 ---
 
-## Appendix: Quick Reference — Comandos SSH
+## Appendix A: Comandos Técnicos Quick Reference
 
 ```bash
-# Conectar al Dify ECS
-ssh -i ~/.ssh/ayco-demo root@101.44.185.139
+# ─── DWS (GaussDB) ───
+# Conectar a DWS
+PGPASSWORD=AycoD3mo2026! psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db
 
-# Conectar al Web ECS (frontend)
-ssh -i ~/.ssh/ayco-demo root@149.232.129.39
+# Query de riesgo (la principal del demo)
+SELECT contract_number, vendor_name, risk_score, risk_level
+FROM public.risk_results ORDER BY risk_score DESC LIMIT 5;
 
-# Verificar Dify
-ssh -i ~/.ssh/ayco-demo root@101.44.185.139 "cd /opt/dify/docker && docker compose ps"
+# Schema inspection
+\d public.risk_results
 
-# Verificar frontend
-curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/
+# Quality check
+SELECT COUNT(*) FILTER (WHERE risk_score IS NULL) AS nulos,
+       COUNT(*) FILTER (WHERE risk_score BETWEEN 0 AND 10) AS en_rango
+FROM public.risk_results;
 
-# Verificar chatbot proxy
-curl -s -X POST http://149.232.129.39/api/dify/chat-messages \
+# ─── SSH a ECS ───
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139   # Dify
+ssh -i ~/.ssh/ayco-demo root@149.232.129.39   # Frontend
+
+# ─── Dify ───
+# API test (streaming)
+curl -N -X POST http://149.232.129.39/api/dify/chat-messages \
   -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" \
   -H "Content-Type: application/json" \
-  -d '{"query":"test","user":"healthcheck","response_mode":"blocking","inputs":{}}'
+  -d '{"query":"¿Contrato más riesgoso?","user":"demo","response_mode":"streaming","inputs":{}}'
 
-# Rebuild y redeploy frontend
+# API test (blocking)
+curl -s -X POST http://101.44.185.139/v1/chat-messages \
+  -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Contrato más riesgoso?","user":"demo","response_mode":"blocking","inputs":{}}'
+
+# Dify service status
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \
+  "cd /opt/ayco/dify/docker && docker compose ps"
+
+# Dify dataset check
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \
+  "docker exec docker-db_postgres-1 psql -U postgres -d dify \
+   -c \"SELECT a.name, d.name FROM apps a JOIN app_dataset_joins aj ON a.id=aj.app_id JOIN datasets d ON aj.dataset_id=d.id;\""
+
+# ─── Frontend ───
+# Redeploy
 cd /home/eduardo/dev/ayco-huawei-cloud/frontend
 npm run build && bash deploy.sh
 
-# Dify API keys (en PostgreSQL de Dify)
+# Health check
+curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/
+curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/risk-scoring/
+curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/contract-ai/
+
+# ─── Streamlit Dashboard ───
+# Health check
+curl -s http://101.44.185.139:8501/_stcore/health
+
+# Restart
 ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \
-  "docker exec docker-db_postgres-1 psql -U postgres -d dify \
-   -c \"SELECT a.name, t.token FROM api_tokens t JOIN apps a ON t.app_id = a.id WHERE t.type='app';\""
+  "kill -HUP \$(pgrep -f streamlit)"
+
+# ─── Terraform ───
+cd /home/eduardo/dev/ayco-huawei-cloud/terraform
+terraform output           # all outputs
+terraform output -json     # machine-readable
+terraform plan             # preview changes (should be zero-diff)
+terraform state list       # enumerate all tracked resources
+
+# ─── CTS (Cloud Trace Service) ───
+# Consultar eventos directamente via CLI (si disponible)
+# Acceso principal: Huawei Console > CTS > Trace List
+```
+
+---
+
+## Appendix B: Código de Función Serverless (llm_inference.py)
+
+Fragmento clave — la función que invoca MaaS y tracea a Langfuse:
+
+```python
+import json, os, uuid, urllib.request
+from datetime import datetime
+
+MAAS_ENDPOINT = "https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions"
+MAAS_MODEL = "deepseek-v4-flash"
+LANGFUSE_HOST = "https://us.cloud.langfuse.com"
+
+def handler(event, context):
+    """FunctionGraph entry point: contract JSON → risk assessment."""
+    contract = event.get("contract_data", event)
+    prompt = build_prompt(contract)
+
+    # 1. Call MaaS DeepSeek
+    response = call_maas(prompt)
+
+    # 2. Parse JSON response (with repair for truncated/invalid)
+    risk_report = parse_or_repair(response["content"])
+
+    # 3. Trace to Langfuse
+    trace_langfuse(contract, prompt, risk_report, response)
+
+    # 4. Return for DWS insertion
+    return risk_report
+
+def call_maas(prompt):
+    """Primary: Huawei MaaS. Fallback: DeepSeek API direct."""
+    req = urllib.request.Request(MAAS_ENDPOINT, method="POST")
+    req.add_header("Authorization", f"Bearer {os.environ['MAAS_API_KEY']}")
+    req.add_header("Content-Type", "application/json")
+    body = json.dumps({
+        "model": MAAS_MODEL,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 2000
+    }).encode()
+    with urllib.request.urlopen(req, data=body, timeout=30) as resp:
+        return json.loads(resp.read())
 ```
 
 ---
 
 **File:** `docs/demo-script.md`
-**Version:** v2.0 — Branded Frontend
-**Last updated:** May 5, 2026
+**Version:** v3.1 — EXPLAIN ANALYZE + MPP Window Functions + CTS Audit + Terraform Zero-Diff
+**Last updated:** May 7, 2026

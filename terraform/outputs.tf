@@ -41,7 +41,7 @@ output "dashboard_url" {
 
 output "langfuse_dashboard_url" {
   description = "Langfuse LLM observability dashboard"
-  value       = "https://cloud.langfuse.com"
+  value       = "https://us.cloud.langfuse.com"
 }
 
 output "vpc_id" {

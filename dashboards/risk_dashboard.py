@@ -31,13 +31,42 @@ st.markdown("""
     div[data-testid="stMetricDelta"] { color: #ff6b6b !important; }
     .stDataFrame { background: #1a1f2e; border-radius: 12px; }
     .css-1kyxreq { background: #1a1f2e; border-radius: 12px; padding: 1rem; }
+    .dify-button {
+        background-color: #00d4aa;
+        color: #0a0e17 !important;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    .dify-button:hover {
+        background-color: #00f2c3;
+        transform: scale(1.05);
+        transition: 0.2s;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ─── DWS Connection ────────────────────────────────────────
+# ─── Data & Helpers ────────────────────────────────────────
+STATE_COORDS = {
+    "CDMX": [19.4326, -99.1332],
+    "JAL": [20.6597, -103.3496],
+    "NLE": [25.6866, -100.3161],
+    "QRO": [20.5888, -100.3899],
+    "PUE": [19.0414, -98.2063],
+    "GTO": [21.0190, -101.2574],
+    "SON": [29.0730, -110.9559],
+    "CHIH": [28.6330, -106.0691],
+    "BC": [30.8406, -115.2838],
+    "TAMPS": [24.2669, -98.8363],
+}
+
 @st.cache_resource(ttl=300)
 def get_dws_connection():
-    """Connect to DWS using env vars (set in ECS user_data or .env)."""
+    """Connect to DWS using env vars."""
     return psycopg2.connect(
         host=os.getenv("DWS_ENDPOINT", "10.1.1.10"),
         port=int(os.getenv("DWS_PORT", "8000")),
@@ -49,7 +78,7 @@ def get_dws_connection():
 
 @st.cache_data(ttl=30)
 def run_query(query: str) -> pd.DataFrame:
-    """Execute a read-only query and return DataFrame."""
+    """Execute a read-only query."""
     conn = get_dws_connection()
     try:
         df = pd.read_sql_query(query, conn)
@@ -67,18 +96,15 @@ with col1:
         f"Last refresh: {datetime.now().strftime('%H:%M:%S CST')}"
     )
 with col3:
-    st.image(
-        "https://www.huaweicloud.com/favicon.ico",
-        width=40,
-    )
+    st.image("https://www.huaweicloud.com/favicon.ico", width=40)
     st.caption("Huawei Cloud")
 
-# ─── Sidebar / Auto-Refresh ──────────────────────────────────
+# ─── Sidebar ───────────────────────────────────────────────
 with st.sidebar:
     st.header("⚙️ Settings")
     auto_refresh = st.checkbox("Auto-refresh data (10s)", value=False)
-    if auto_refresh:
-        st.write("Live monitoring enabled.")
+    st.divider()
+    st.info("💡 Tip: Click 'Consultar AI' to open Dify with contract context.")
 
 # ─── KPI Row ──────────────────────────────────────────────
 kpi_query = """
@@ -100,8 +126,6 @@ if not kpi_df.empty:
     m3.metric("🚨 Critical", int(row["critical_count"]), delta=f"{int(row['high_risk_count'])} high-risk", delta_color="inverse")
     m4.metric("Total Exposure", f"${row['total_exposure_m']:.1f}M")
     m5.metric("Pipeline Status", "✅ Live")
-else:
-    st.warning("⚠️ No data in DWS yet. Run the ETL pipeline first.")
 
 # ─── Charts Row ────────────────────────────────────────────
 col_left, col_mid, col_right = st.columns([1, 1.2, 1.2])
@@ -114,109 +138,76 @@ with col_left:
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=avg_risk,
-            domain={'x': [0, 1], 'y': [0, 1]},
             gauge={
-                'axis': {'range': [None, 10], 'tickwidth': 1, 'tickcolor': "#475569"},
+                'axis': {'range': [None, 10]},
                 'bar': {'color': color},
-                'bgcolor': "rgba(0,0,0,0)",
-                'borderwidth': 0,
                 'steps': [
-                    {'range': [0, 4], 'color': 'rgba(0, 212, 170, 0.15)'},
-                    {'range': [4, 7], 'color': 'rgba(255, 215, 0, 0.15)'},
-                    {'range': [7, 10], 'color': 'rgba(255, 68, 68, 0.15)'}],
+                    {'range': [0, 4], 'color': 'rgba(0, 212, 170, 0.1)'},
+                    {'range': [4, 7], 'color': 'rgba(255, 215, 0, 0.1)'},
+                    {'range': [7, 10], 'color': 'rgba(255, 68, 68, 0.1)'}],
             }
         ))
-        fig_gauge.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-            font_color="#e8eaed", height=280, margin=dict(t=30, b=10, l=10, r=10)
-        )
+        fig_gauge.update_layout(paper_bgcolor="rgba(0,0,0,0)", font_color="#e8eaed", height=250, margin=dict(t=30, b=0))
         st.plotly_chart(fig_gauge, use_container_width=True)
 
 with col_mid:
     st.subheader("📊 Risk Distribution")
-    risk_dist_query = """
-        SELECT risk_level, COUNT(*) AS count, ROUND(AVG(risk_score), 1) AS avg_score
-        FROM risk_results GROUP BY risk_level ORDER BY avg_score DESC
-    """
-    risk_df = run_query(risk_dist_query)
+    risk_df = run_query("SELECT risk_level, COUNT(*) AS count FROM risk_results GROUP BY risk_level")
     if not risk_df.empty:
-        color_map = {"BAJO": "#00d4aa", "MEDIO": "#ffd700", "ALTO": "#ff8c00", "CRITICO": "#ff4444"}
-        fig = px.bar(
-            risk_df, x="risk_level", y="count", color="risk_level",
-            color_discrete_map=color_map, text="avg_score",
-            labels={"count": "Contracts", "risk_level": ""},
-        )
-        fig.update_traces(texttemplate="Avg: %{text}", textposition="outside")
-        fig.update_layout(
-            showlegend=False, plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)", font_color="#e8eaed",
-            margin=dict(t=10, b=10), height=280
-        )
+        fig = px.bar(risk_df, x="risk_level", y="count", color="risk_level",
+                     color_discrete_map={"BAJO": "#00d4aa", "MEDIO": "#ffd700", "ALTO": "#ff8c00", "CRITICO": "#ff4444"})
+        fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#e8eaed", height=250, margin=dict(t=10, b=10))
         st.plotly_chart(fig, use_container_width=True)
 
 with col_right:
-    st.subheader("💰 Vendor Exposure (Top 10)")
-    vendor_query = """
-        SELECT vendor_name, COUNT(*) AS contracts,
-               ROUND(SUM(monto_total)/1000000.0, 1) AS exposure_m,
-               ROUND(AVG(risk_score), 1) AS avg_risk
-        FROM risk_results GROUP BY vendor_name
-        ORDER BY exposure_m DESC LIMIT 10
-    """
-    vendor_df = run_query(vendor_query)
-    if not vendor_df.empty:
-        fig = px.bar(
-            vendor_df, x="exposure_m", y="vendor_name", color="avg_risk", orientation='h',
-            color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
-            labels={"exposure_m": "Exposure (M MXN)", "vendor_name": ""},
-        )
-        fig.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-            font_color="#e8eaed", coloraxis_showscale=False,
-            margin=dict(t=10, b=10, l=10, r=10), height=280
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    st.subheader("🗺️ Geospatial Risk")
+    map_df = run_query("SELECT state, AVG(risk_score) as avg_risk, COUNT(*) as count FROM risk_results GROUP BY state")
+    if not map_df.empty:
+        map_df["lat"] = map_df["state"].map(lambda x: STATE_COORDS.get(x, [19.43, -99.13])[0])
+        map_df["lon"] = map_df["state"].map(lambda x: STATE_COORDS.get(x, [19.43, -99.13])[1])
+        fig_map = px.scatter_mapbox(map_df, lat="lat", lon="lon", color="avg_risk", size="count",
+                                    color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
+                                    zoom=3, mapbox_style="carto-darkmatter", height=250)
+        fig_map.update_layout(margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
+        st.plotly_chart(fig_map, use_container_width=True)
 
-# ─── Bottom Row: Full Table ────────────────────────────────
-st.subheader("📋 Contract Risk Details")
-detail_query = """
-    SELECT contract_number, vendor_name,
-           '$' || TO_CHAR(monto_total, 'FM999,999,999') AS monto_total,
-           risk_score, risk_level,
-           alertas, llm_provider,
-           TO_CHAR(analyzed_at, 'YYYY-MM-DD HH24:MI') AS analyzed_at
-    FROM risk_results
-    ORDER BY risk_score DESC
-"""
-detail_df = run_query(detail_query)
+# ─── Detailed Table ───────────────────────────────────────
+st.subheader("📋 Contract Risk Intelligence Details")
+detail_df = run_query("""
+    SELECT contract_number, vendor_name, state, 
+           monto_total, risk_score, risk_level, llm_provider
+    FROM risk_results ORDER BY risk_score DESC
+""")
+
 if not detail_df.empty:
-    st.dataframe(
-        detail_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "risk_score": st.column_config.ProgressColumn(
-                "Risk Score", min_value=0, max_value=10, format="%.1f"
-            ),
-            "risk_level": st.column_config.TextColumn("Level"),
-        },
-    )
+    dify_ip = os.getenv("DIFY_PUBLIC_IP", "localhost")
+    
+    # Custom Table Header
+    h_cols = st.columns([1.5, 2, 0.8, 1.2, 0.8, 1, 1.5, 1.2])
+    cols_labels = ["Contract #", "Vendor", "State", "Amount", "Score", "Level", "Provider", "Action"]
+    for i, label in enumerate(cols_labels):
+        h_cols[i].markdown(f"**{label}**")
+    st.divider()
 
-# ─── Footer ────────────────────────────────────────────────
-st.divider()
-st.caption(
-    "AYCO Contract Risk Intelligence Dashboard | "
-    "Data: Huawei Cloud DWS | AI: DeepSeek v4 Flash via MaaS | "
-    "Observability: Langfuse | "
-    f"© {datetime.now().year} Grupo Salinas — AYCO"
-)
+    for _, r in detail_df.iterrows():
+        c = st.columns([1.5, 2, 0.8, 1.2, 0.8, 1, 1.5, 1.2])
+        c[0].write(r['contract_number'])
+        c[1].write(r['vendor_name'])
+        c[2].write(r['state'])
+        c[3].write(f"${r['monto_total']/1e6:.1f}M")
+        c[4].write(f"{r['risk_score']:.1f}")
+        
+        l_color = {"CRITICO": "#ff4444", "ALTO": "#ff8c00", "MEDIO": "#ffd700", "BAJO": "#00d4aa"}.get(r['risk_level'], "#fff")
+        c[5].markdown(f'<span style="color:{l_color}; font-weight:bold;">{r["risk_level"]}</span>', unsafe_allow_html=True)
+        c[6].write(r['llm_provider'])
+        
+        # Dify Link
+        q = f"Analiza el contrato {r['contract_number']} de {r['vendor_name']}. ¿Qué riesgos específicos encontraste?"
+        url = f"http://{dify_ip}/chat?query={q}"
+        c[7].markdown(f'<a href="{url}" target="_blank" class="dify-button">Consultar AI 🤖</a>', unsafe_allow_html=True)
 
-# ─── Auto-refresh (non-blocking — runs after full render) ──
-if "auto_refresh" in locals() and auto_refresh:
+# ─── Auto-refresh ───
+if auto_refresh:
     import time
     time.sleep(10)
     st.rerun()
-
-# ─── Run instructions:
-#   pip install streamlit psycopg2-binary pandas plotly
-#   DWS_ENDPOINT=10.x.x.x DWS_PASSWORD=xxx streamlit run dashboards/risk_dashboard.py --server.port 8501

@@ -146,7 +146,7 @@ def trace_llm_call(provider, model, user_message, response, latency_ms, contract
     """Send trace to Langfuse via REST API (no SDK needed — FunctionGraph compatible)."""
     public_key = os.environ.get("LANGFUSE_PUBLIC_KEY", "")
     secret_key = os.environ.get("LANGFUSE_SECRET_KEY", "")
-    host = os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com")
+    host = os.environ.get("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
 
     if not public_key or not secret_key:
         print("[Langfuse] Keys not configured — skipping trace")
@@ -170,10 +170,10 @@ def trace_llm_call(provider, model, user_message, response, latency_ms, contract
             {
                 "id": trace_id,
                 "type": "trace-create",
+                "timestamp": timestamp,
                 "body": {
                     "id": trace_id,
                     "name": "contract-risk-analysis",
-                    "timestamp": timestamp,
                     "metadata": {
                         "provider": provider,
                         "model": model,
@@ -185,6 +185,7 @@ def trace_llm_call(provider, model, user_message, response, latency_ms, contract
             {
                 "id": generation_id,
                 "type": "generation-create",
+                "timestamp": timestamp,
                 "body": {
                     "id": generation_id,
                     "traceId": trace_id,

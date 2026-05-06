@@ -12,7 +12,11 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
   <Header slot="header" />
 
   <!-- Page Hero -->
-  <section class="bg-gradient-to-br from-gs-navy to-gs-navy-light text-white py-12">
+  <section class="bg-gradient-to-br from-gs-navy to-gs-navy-light text-white py-12 relative overflow-hidden">
+    <div class="absolute top-4 right-4 flex items-center bg-risk-low/20 px-3 py-1 rounded-full border border-risk-low/30 backdrop-blur-sm">
+      <span class="w-2 h-2 bg-risk-low rounded-full animate-pulse mr-2"></span>
+      <span class="text-xs font-semibold text-risk-low uppercase tracking-wider">Live DWS Connection</span>
+    </div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center space-x-2 mb-4">
         <a href="/" class="text-gs-gray-300 hover:text-white text-sm">Inicio</a>
@@ -45,15 +49,15 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
   <!-- Risk Distribution + Gauge -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Risk Distribution Chart (placeholder for Grafana embed) -->
+      <!-- Risk Distribution Chart (Live Streamlit Embed) -->
       <div class="lg:col-span-2 card p-6">
-        <h3 class="text-lg font-bold text-gs-navy mb-4">Distribución de Riesgo por Estado</h3>
-        <div class="aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200">
-          <div class="text-center">
-            <p class="text-6xl mb-4">📊</p>
-            <p class="text-sm text-gs-gray-600">Dashboard Grafana embebido</p>
-            <p class="text-xs text-gs-gray-400 mt-1">vendor-exposure.json</p>
-          </div>
+        <h3 class="text-lg font-bold text-gs-navy mb-4">Análisis de Riesgo Geoespacial & Detalle</h3>
+        <div class="aspect-video bg-gs-gray-900 rounded-xl overflow-hidden border border-gs-gray-200 shadow-inner">
+          <iframe 
+            src="http://101.44.185.139:8501/?embed=true" 
+            class="w-full h-full border-none" 
+            title="AYCO Risk Dashboard"
+          ></iframe>
         </div>
       </div>
 
@@ -97,16 +101,16 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
               <th class="text-left px-6 py-3 font-semibold">Estado</th>
               <th class="text-left px-6 py-3 font-semibold">Score</th>
               <th class="text-left px-6 py-3 font-semibold">Exposición</th>
-              <th class="text-left px-6 py-3 font-semibold">Alertas</th>
+              <th class="text-left px-6 py-3 font-semibold">Acción</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gs-gray-100">
             {[
-              { name: 'Constructora y Desarrolladora del Golfo', state: 'Tabasco', score: 9.2, exposure: '$12.5M', alerts: 3 },
-              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.85M', alerts: 2 },
-              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', alerts: 2 },
-              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.5M', alerts: 1 },
-              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', alerts: 2 },
+              { name: 'Constructora y Desarrolladora del Golfo', state: 'Tabasco', score: 9.2, exposure: '$12.5M', id: 'AYCO-2026-0149' },
+              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.85M', id: 'AYCO-2026-0147' },
+              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', id: 'AYCO-2026-0148' },
+              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.5M', id: 'AYCO-2026-0150' },
+              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', id: 'AYCO-2026-0151' },
             ].map((v) => (
               <tr class="hover:bg-gs-gray-50 transition-colors">
                 <td class="px-6 py-4 font-medium text-gs-navy">{v.name}</td>
@@ -116,7 +120,13 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
                 </td>
                 <td class="px-6 py-4 font-semibold">{v.exposure}</td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-risk-high/10 text-risk-high text-xs font-bold">{v.alerts}</span>
+                  <a 
+                    href={`http://101.44.185.139/chat?query=Analiza el contrato ${v.id} de ${v.name}`} 
+                    target="_blank"
+                    class="inline-flex items-center px-3 py-1 bg-gs-navy text-white text-xs font-bold rounded hover:bg-gs-navy-light transition-all shadow-sm"
+                  >
+                    Consultar AI 🤖
+                  </a>
                 </td>
               </tr>
             ))}

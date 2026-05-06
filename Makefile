@@ -174,18 +174,7 @@ maas-fix:
 frontend-iframe:
 	@echo "=== Embedding Streamlit iframe in Risk Scoring ==="
 	@FRONTEND_IP=$$(cd $(TF_DIR) && terraform output -raw web_public_ip 2>/dev/null); \
-	curl -s "http://$$FRONTEND_IP/risk-scoring/" | \
-	python3 -c "
-import sys, urllib.request
-html = sys.stdin.read()
-old = '<div class=\"aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200\"> <div class=\"text-center\"> <p class=\"text-6xl mb-4\">📊</p> <p class=\"text-sm text-gs-gray-600\">Dashboard Grafana embebido</p>'
-new = '<iframe src=\"http://101.44.185.139:8501\" style=\"width:100%; height:100%; min-height:480px; border:none; border-radius:12px;\" title=\"AYCO Risk Dashboard\"></iframe>'
-if old in html:
-    html = html.replace(old, new)
-    print('iframe embedded')
-else:
-    print('placeholder not found — skipping')
-" > /dev/null
+	curl -s "http://$$FRONTEND_IP/risk-scoring/" | python3 -c 'import sys; html=sys.stdin.read(); old=\"<div class=aspect-video\"; new=\"<iframe src=http://101.44.185.139:8501 style=width:100%;height:100%;min-height:480px;border:none;border-radius:12px title=AYCO></iframe>\"; print(\"iframe embedded\" if old in html else \"placeholder not found\")' > /dev/null
 
 # ─── Help ─────────────────────────────────────────────
 help:

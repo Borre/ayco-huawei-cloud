@@ -125,7 +125,7 @@ The OCR → Parse → LLM pipeline uses MaaS as default. If MaaS fails, falls ba
 Every LLM call is traced automatically via Langfuse REST API (non-blocking, no SDK dependency):
 - **Traces:** Contract risk analysis lifecycle (trace ID, latency, contract number)
 - **Generations:** Model call details (input/output preview, estimated tokens, provider metadata)
-- **Dashboard:** https://cloud.langfuse.com → project ayco-demo → free tier
+- **Dashboard:** https://us.cloud.langfuse.com → project ayco-demo → free tier
 
 ## Directory Structure
 

@@ -25,7 +25,7 @@ if [ -z "${LANGFUSE_PUBLIC_KEY:-}" ] || [ -z "${LANGFUSE_SECRET_KEY:-}" ]; then
     echo "  ✗ Langfuse keys not found in .env"
     echo ""
     echo "  Para obtener tus keys (gratis):"
-    echo "    1. Ve a https://cloud.langfuse.com"
+    echo "    1. Ve a https://us.cloud.langfuse.com"
     echo "    2. Crea cuenta (Sign up with GitHub/Google)"
     echo "    3. Create Project → \"ayco-demo\""
     echo "    4. Project Settings → API Keys → Create API Key"
@@ -34,7 +34,7 @@ if [ -z "${LANGFUSE_PUBLIC_KEY:-}" ] || [ -z "${LANGFUSE_SECRET_KEY:-}" ]; then
     echo "  Después actualiza .env:"
     echo "    LANGFUSE_PUBLIC_KEY=pk-lf-..."
     echo "    LANGFUSE_SECRET_KEY=sk-lf-..."
-    echo "    LANGFUSE_HOST=https://cloud.langfuse.com"
+    echo "    LANGFUSE_HOST=https://us.cloud.langfuse.com"
     echo ""
     exit 1
 fi
@@ -42,7 +42,7 @@ echo "  ✓ Keys found"
 
 # ─── Step 2: Verify connectivity ────────────────────────
 echo "2/3  Testing Langfuse API connectivity..."
-LANGFUSE_HOST="${LANGFUSE_HOST:-https://cloud.langfuse.com}"
+LANGFUSE_HOST="${LANGFUSE_HOST:-https://us.cloud.langfuse.com}"
 
 HTTP_CODE=$(curl -s -o /tmp/langfuse-health.json -w "%{http_code}" \
     --max-time 10 \

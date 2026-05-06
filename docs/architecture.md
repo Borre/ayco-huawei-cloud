@@ -16,7 +16,9 @@
 *Full interactive version: `xdg-open diagrams/ayco-pipeline-detail.html`*
 
 **Key metrics shown in Demo 1:**
-- Risk score per contract (0-100) — 20 seed contracts (3 canonical + 17 synthetic)
+- Risk score per contract (0-10) — 20 seed contracts (3 canonical + 17 synthetic)
+- **Geospatial Risk Map:** Heatmap of vendor risk across Mexico states (CDMX, JAL, NLE, etc.)
+- **Actionable Intelligence:** Direct link from risk table to Dify Chatbot with contract context.
 - Risk level classification (BAJO/MEDIO/ALTO/CRITICO)
 - Alerts and recommendations from LLM
 - Aggregated risk by vendor, by level
@@ -56,9 +58,11 @@
 | CDM Cluster | cdm.large | DataArts Agent for batch movement | Yes (demo) |
 | FunctionGraph ×3 | serverless | OCR, parse, LLM | Pay-per-invocation |
 | OBS ×3 | standard | contracts-raw, contracts-text, contracts-results | Pay-per-GB |
+| **CTS (Cloud Trace Service)** | API audit trail | All DWS/FG/OBS calls audited |
 | KMS | standard | Encryption AES-256 | Pay-per-key |
 | Streamlit Dashboard | on ECS Dify (port 8501) | Risk visualization (Plotly) | Yes (demo) |
 | Langfuse Cloud | free tier | LLM observability | Free |
+| Terraform IaC | OSS | ~350 lines HCL · 4 modules · ~20 resources | Local |
 
 ## Security Architecture
 
@@ -70,5 +74,7 @@
 | Encryption | KMS AES-256 | OBS server-side, DWS at rest |
 | Secrets | 1Password → .env | Never committed to git |
 | Compliance | CNBV controls | AML, KYC, audit trail |
+| Audit | CTS Cloud Trace | Immutable API logs — all DWS/FG/OBS operations |
+| IaC | Terraform | Zero-diff plan, ~20 resources, git-sourced |
 
 *Full architecture details: [`docs/network-security.md`](network-security.md)*
