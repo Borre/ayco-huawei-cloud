@@ -139,6 +139,31 @@ def load_scatter_data():
         FROM risk_results
     """)
 
+@st.cache_data(ttl=300)
+def load_geo_data():
+    return run_query("""
+        SELECT state, COUNT(*) as contracts,
+               ROUND(AVG(risk_score)::numeric, 1) as avg_score,
+               ROUND(SUM(monto_total)/1e6::numeric, 1) as exposure_mxn_m,
+               SUM(CASE WHEN risk_level='CRITICO' THEN 1 ELSE 0 END) as criticos,
+               SUM(CASE WHEN risk_level='ALTO' THEN 1 ELSE 0 END) as altos
+        FROM risk_results
+        WHERE state IS NOT NULL
+        GROUP BY state
+    """)
+
+# Mexico state coordinates (centroids)
+MEX_STATE_COORDS = {
+    "CDMX": (19.4326, -99.1332), "JAL": (20.6597, -103.3496),
+    "NLE": (25.6866, -100.3161), "QRO": (20.5888, -100.3899),
+    "PUE": (19.0414, -98.2063), "GTO": (21.0190, -101.2574),
+    "SON": (29.0730, -110.9559), "CHIH": (28.6330, -106.0691),
+    "BC": (30.8406, -115.2838), "TAMPS": (24.2669, -98.8363),
+    "TAB": (17.9892, -92.9475), "OAX": (17.0732, -96.7266),
+    "QROO": (19.8761, -88.2669), "SLP": (22.1565, -100.9855),
+    "CHIS": (16.7570, -93.1188),
+}
+
 # ─── Color Constants ──────────────────────────────────────
 RISK_COLORS = {"BAJO": "#00d4aa", "MEDIO": "#ffd700", "ALTO": "#ff8c00", "CRITICO": "#ff4444"}
 RISK_ORDER = ["BAJO", "MEDIO", "ALTO", "CRITICO"]
@@ -257,6 +282,54 @@ with tab1:
                                      x=0.5, y=0.5, showarrow=False, font=dict(size=22, color=TEXT_COLOR))
             fig_donut.update_layout(height=350, margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor=CHART_BG, showlegend=False)
             st.plotly_chart(fig_donut, width='stretch', config={"displayModeBar": False})
+
+    # Geo map: Mexico risk by state
+    st.subheader("🗺️  Mapa de Riesgo por Estado — México")
+    geo_data = load_geo_data()
+    if not geo_data.empty:
+        geo_data["lat"] = geo_data["state"].map(lambda s: MEX_STATE_COORDS.get(s, (19.43, -99.13))[0])
+        geo_data["lon"] = geo_data["state"].map(lambda s: MEX_STATE_COORDS.get(s, (19.43, -99.13))[1])
+        geo_data["size"] = geo_data["exposure_mxn_m"].clip(lower=1)  # min marker size
+
+        fig_geo = px.scatter_geo(
+            geo_data, lat="lat", lon="lon",
+            size="size", color="avg_score",
+            color_continuous_scale=["#00d4aa", "#ffd700", "#ff8c00", "#ff4444"],
+            range_color=[1, 10],
+            size_max=40,
+            hover_name="state",
+            hover_data={
+                "contracts": True, "avg_score": ":.1f",
+                "exposure_mxn_m": ":.1f", "criticos": True, "altos": True,
+            },
+            projection="natural earth",
+            center={"lat": 23.5, "lon": -102},  # Center on Mexico
+        )
+        fig_geo.update_traces(
+            marker=dict(opacity=0.85, line=dict(width=1.5, color="#1e2a3a")),
+            hovertemplate=(
+                "<b>%{hovertext}</b><br>"
+                "Contratos: %{customdata[0]} · Score: %{customdata[1]:.1f}<br>"
+                "Exposición: $%{customdata[2]:.1f}M<br>"
+                "Críticos: %{customdata[3]} · Altos: %{customdata[4]}<extra></extra>"
+            ),
+        )
+        fig_geo.update_geos(
+            bgcolor="rgba(0,0,0,0)",
+            landcolor="#111827",
+            subunitcolor="#1e2a3a",
+            showcountries=True,
+            scope="north america",
+            showframe=False,
+            fitbounds="locations",
+        )
+        fig_geo.update_layout(
+            height=350,
+            margin=dict(t=0, b=0, l=0, r=0),
+            paper_bgcolor=CHART_BG,
+            coloraxis_showscale=False,
+        )
+        st.plotly_chart(fig_geo, width='stretch', config={"displayModeBar": False})
 
     # Bottom row: Risk score distribution histogram + scatter
     col_bl, col_br = st.columns([1, 1.3])
