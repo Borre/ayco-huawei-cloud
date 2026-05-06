@@ -1,4 +1,4 @@
-# AYCO Contract Risk Analysis — Demo Script (v3: Technical Depth)
+# AYCO Contract Risk Analysis — Demo Script (v3.2: Contracts + Dify + MPP)
 
 **Workshop:** Huawei Cloud LATAM × Grupo Salinas (AYCO)
 **Date:** May 8, 2026
@@ -18,9 +18,9 @@
 | Demo 1 — Risk Scoring | `http://149.232.129.39/risk-scoring/` | Dashboard + tabla + gauge |
 | Demo 2 — Data Governance | `http://149.232.129.39/data-governance/` | Pipeline ETL + API explorer |
 | Demo 3 — Contract AI | `http://149.232.129.39/contract-ai/` | Chatbot + uploader + contratos |
-| **Huawei Console > DWS** | Console SQL Editor | Queries en vivo — 3 capas ODS/DW/DM |
+| **Huawei Console > DWS** | Console SQL Editor | EXPLAIN ANALYZE MPP + queries 3 capas |
 | **Huawei Console > FunctionGraph** | Function logs | OCR pipeline trace en vivo |
-| **Dify Admin** | `http://101.44.185.139/admin` | Config interna: datasets, RAG, modelo |
+| **Dify Console** | `http://101.44.185.139/console` (eduardo@ayco-demo.com / AYCOcloud2026!) | Config interna: datasets, RAG, modelo |
 | **Langfuse** | `https://us.cloud.langfuse.com` → ayco-demo | Trazabilidad LLM |
 | **Huawei Cloud > CTS** | Console > Cloud Trace Service | Auditoría regulatoria en vivo |
 | **Streamlit Dashboard** | `http://101.44.185.139:8501` | Dashboard Python interactivo |
@@ -38,9 +38,10 @@
 - [ ] **Dify API:** `curl -s http://101.44.185.139/v1/` responds
 - [ ] **DWS:** `PGPASSWORD=... psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c "SELECT 1"` returns 1
 - [ ] **Streamlit:** `curl -s http://101.44.185.139:8501/_stcore/health` returns ok
-- [ ] Contract data seeded: 20 rows in `public.risk_results`
-- [ ] Run `python3 scripts/generate-contract-data.py` to refresh seed data
-- [ ] Upload 20 contract PDFs/TXTs to OBS bucket `ayco-contracts-raw`
+- [ ] Contract data seeded: 20 rows in `public.risk_results` + 2,300 vendors, 500 customers, 5,000 transactions in ODS/DW/DM
+- [ ] 9 contratos PDF listos en `data/contracts/` (3 originales + 6 nuevos con perfiles BAJO/MEDIO/ALTO/CRÍTICO)
+- [ ] Run `python3 scripts/generate-contracts-pdf.py` para regenerar si es necesario
+- [ ] Upload 3-4 contratos de demo a OBS bucket `ayco-contracts-raw` (suficientes para mostrar pipeline)
 
 ### Huawei Console (11 tabs pre-abiertas y pineadas)
 
@@ -48,7 +49,7 @@
 - [ ] **Tab 2:** Frontend Risk Scoring (`http://149.232.129.39/risk-scoring/`)
 - [ ] **Tab 3:** Frontend Data Governance (`http://149.232.129.39/data-governance/`)
 - [ ] **Tab 4:** Frontend Contract AI (`http://149.232.129.39/contract-ai/`)
-- [ ] **Tab 5:** Dify Admin (`http://101.44.185.139/admin`)
+- [ ] **Tab 5:** Dify Console (`http://101.44.185.139/console` — eduardo@ayco-demo.com / AYCOcloud2026!)
 - [ ] **Tab 6:** Streamlit Dashboard (`http://101.44.185.139:8501`)
 - [ ] **Tab 7:** Huawei Console > DWS > Cluster `ayco-dws` > SQL Editor
 - [ ] **Tab 8:** Huawei Console > DLI > SQL Editor
@@ -61,8 +62,9 @@
 - [ ] DeepSeek API key válida: `curl -H "Authorization: Bearer $DEEPS...KEY" https://api.deepseek.com/v1/models`
 - [ ] MaaS API key válida: `curl -H "Authorization: Bearer $MAAS_API_KEY" https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions`
 - [ ] Langfuse traces visibles en dashboard
-- [ ] Dify model provider DeepSeek muestra "Active"
-- [ ] Dify datasets conectados a AYCO Chat: ayco-contracts-kb + AYCO - Preguntas Frecuentes
+- [ ] Dify model provider DeepSeek muestra Active
+- [ ] Dify datasets: ayco-contracts-kb (21 docs) + FAQ (9 docs) conectados a AYCO Chat
+- [ ] Dify otros apps: AYCO Cobranza (agent-chat), AYCO Analyzer (workflow)
 - [ ] Terminal abierta con SSH configurado para ambos ECS
 
 ---
@@ -159,18 +161,29 @@ risk_results DDL:
 ## Dify RAG Configuration (AYCO Chat)
 
 ```
-App ID:     253ad7c8-1cd7-44ea-ad9b-0a18716e6e99
-Mode:       chat
-Model:      DeepSeek v4 Flash (via MaaS)
-Datasets:   2 conectados
+App ID:      253ad7c8-1cd7-44ea-ad9b-0a18716e6e99
+Mode:        chat
+Model:       DeepSeek v4 Flash (via MaaS HK plugin v0.0.4)
+Datasets:    2 conectados
   ├─ ayco-contracts-kb (21 docs, semantic_search, top_k=3)
   └─ AYCO - Preguntas Frecuentes (9 docs, semantic_search, top_k=3)
 
-Retrieval:  "high_quality" mode, semantic_search, NO reranking
-Streaming:  SSE (Server-Sent Events)
-Proxy:      nginx on 149.232.129.39 → proxy_pass 101.44.185.139:80/v1/
-            proxy_buffering off, proxy_read_timeout 300s
-            CORS headers via nginx, no API key on client (server-side proxy)
+Additional apps:
+  ├─ AYCO Cobranza (agent-chat): app-ZrM7Pal6G2b89drd1zLVssvM
+  └─ AYCO Analyzer (workflow): app-mGyFcdX7vT3CZDDsvttCX6iF
+
+Additional datasets:
+  ├─ AYCO - Planes de Pago y Reestructura (6 docs)
+  └─ AYCO - Políticas de Cobranza (6 docs)
+
+Retrieval:   "high_quality" mode, semantic_search, NO reranking
+Streaming:   SSE (Server-Sent Events)
+Proxy:       nginx on 149.232.129.39 → proxy_pass 101.44.185.139:80/v1/
+             proxy_buffering off, proxy_read_timeout 300s
+             CORS headers via nginx, no API key on client (server-side proxy)
+
+Login:       http://101.44.185.139/console
+             eduardo@ayco-demo.com / AYCOcloud2026!
 ```
 
 ---
@@ -231,18 +244,23 @@ FROM public.risk_results;
 
 5. Muestra el resultado en pantalla. Señala que los números del SQL coinciden exactamente con los del frontend.
 
-6. **Bonus técnico:** Muestra el EXPLAIN ANALYZE (no solo EXPLAIN — con tiempos reales):
+5. **Bonus técnico:** Muestra el EXPLAIN ANALYZE con JOIN real entre 3 tablas — la verdadera potencia MPP:
 ```sql
-EXPLAIN ANALYZE SELECT * FROM public.risk_results WHERE risk_level = 'CRITICO';
+EXPLAIN ANALYZE
+SELECT v.name, c.contract_name, r.risk_score, r.risk_level
+FROM ods.vendors v
+JOIN ods.contracts c ON v.vendor_id = c.vendor_id
+JOIN public.risk_results r ON c.contract_id = r.contract_id
+WHERE r.risk_level = 'CRITICO';
 ```
 Señala:
-   - `A-time: 6.149 ms` — tiempo real, no estimado
-   - `Data Node Scan` — GaussDB distribuyó la query a los datanodes
-   - `Peak Memory: 56KB` — huella mínima
-   - `Total runtime: 6.506 ms` — de parser a resultado final
+   - `Datanode executor run time: dn_6001_6002: 6ms | dn_6005_6006: 6ms` — 2 datanodes MPP en paralelo
+   - `Streaming(type: GATHER)` — el coordinator recolecta resultados distribuidos
+   - `Total runtime: 8.023 ms` — de parser a resultado, JOIN entre 3 tablas
+   - Compara con PostgreSQL vanilla: mismo query = sequential scan, sin distribución
 
 **🎤 Speaker:**
-> "EXPLAIN ANALYZE — no estimaciones, tiempos reales. 6.5 milisegundos total. Miren la arquitectura: el coordinator recibe la query, la optimiza, y la distribuye a los datanodes. Data Node Scan significa que GaussDB decidió ejecutar esto directamente en el nodo donde residen los datos — sin mover bloques entre nodos. 56KB de memoria pico. Comparen eso con un seq scan en PostgreSQL vanilla sobre 20 filas: mismo resultado, pero sin el paralelismo MPP. Y esto es con 20 contratos de prueba. Con 200,000, la diferencia es abismal."
+> "EXPLAIN ANALYZE — no estimaciones, tiempos reales. 8 milisegundos total para un JOIN entre 3 tablas: 2,300 vendors, 2,300 contracts, y 20 risk results. Miren la arquitectura: el coordinator recibe la query, la optimiza, y la distribuye a los datanodes. El costo de envío en datos es 0 — GaussDB ya sabe qué datos residen en qué datanode gracias a la distribución hash por vendor_id. Comparen eso con PostgreSQL vanilla: misma query, sequential scan sobre todas las tablas, sin paralelismo MPP. Y esto es con datos de prueba. Con 200,000 contratos, la diferencia es abismal — GaussDB agrega datanodes y la query escala lineal."
 
 ---
 
@@ -537,9 +555,9 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 
 **Qué hacer:**
 1. Señala el pipeline: `PDF Upload → OCR → DeepSeek MaaS → Score`
-2. **Cambia a Tab 5** (Dify Admin > AYCO Chat > Configuration).
+2. **Cambia a Tab 5** (Dify Console > AYCO Chat > Configuration).
 3. Muestra la configuración del modelo:
-   - **Model Provider:** DeepSeek (via MaaS)
+   - **Model Provider:** DeepSeek (via MaaS HK plugin v0.0.4)
    - **Model:** deepseek-v4-flash
    - **Context window:** 128K tokens
    - **Temperature:** 0.3
@@ -553,10 +571,13 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 
 ---
 
-## Paso 2: Contract Uploader + FunctionGraph Pipeline (3 min)
+## Paso 2: Contract Upload — Live Pipeline con Contratos Reales (3 min)
 
 **Qué hacer:**
-1. Vuelve al frontend. Arrastra un PDF a la zona de upload.
+1. Vuelve al frontend. Arrastra un PDF de los contratos de demo:
+   - Sugerencia 1: `contrato-bajo-riesgo-consultoria.pdf` ($850K, BAJO, garantía 15%) — muestra pipeline normal
+   - Sugerencia 2: `contrato-critico-datacenter.pdf` ($22.5M, CRÍTICO, empresa RFC 2024) — muestra alertas máximas
+   - Hay 9 contratos disponibles en `data/contracts/` con perfiles BAJO/MEDIO/ALTO/CRÍTICO
 2. Mientras la animación de procesamiento corre:
    - "Extrayendo texto con OCR..." (20%)
    - "Analizando cláusulas contractuales..." (45%)
@@ -569,15 +590,16 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
    [2026-05-08 10:23:16] OCR complete: 4,231 chars extracted
    [2026-05-08 10:23:17] Parse complete: structured JSON with 12 fields
    [2026-05-08 10:23:18] LLM inference: calling MaaS DeepSeek v4 Flash
-   [2026-05-08 10:23:21] LLM response: risk_score=7.4, risk_level=ALTO, tokens=423
+   [2026-05-08 10:23:21] LLM response: risk_score=9.2, risk_level=CRITICO, tokens=423
    [2026-05-08 10:23:21] Result saved to OBS + indexed in Dify
    [2026-05-08 10:23:21] Langfuse trace: a4f8c2e1-... → us.cloud.langfuse.com
    ```
 
 5. El resultado aparece en el frontend con RiskGauge y score.
+6. Si subiste el contrato crítico (0163), señala las alertas: "Empresa constituida en 2024", "Sin garantía", "$22.5M — 3x el promedio"
 
 **🎤 Speaker:**
-> "El uploader dispara un pipeline de 3 funciones serverless. OCR extrae texto del PDF, parse lo estructura, y el LLM evalúa riesgo. Todo en FunctionGraph — serverless, event-driven. Los logs que ven son en vivo desde la consola de Huawei. En 4 segundos: 4,231 caracteres de OCR, 12 campos estructurados, y un score de riesgo generado por DeepSeek v4 Flash. Cada paso está traceado en Langfuse."
+> "El uploader dispara un pipeline de 3 funciones serverless. OCR extrae texto del PDF, parse lo estructura, y el LLM evalúa riesgo. Todo en FunctionGraph — serverless, event-driven. Los logs que ven son en vivo desde la consola de Huawei. En 4 segundos: 4,231 caracteres de OCR, 12 campos estructurados, y un score de riesgo generado por DeepSeek v4 Flash. Miren las alertas del contrato crítico: empresa RFC 2024 — constituida hace menos de 2 años —, sin garantía, y un monto 3 veces superior al promedio. El LLM no solo da un número: explica por qué."
 
 ---
 
@@ -586,7 +608,7 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 **Qué hacer:**
 1. Vuelve al frontend. Envía una pregunta rápida: "¿Cuál es el contrato con mayor riesgo?"
 2. La respuesta se stremea en tiempo real (SSE).
-3. **Cambia a Tab 5** (Dify Admin > AYCO Chat > Logs). Muestra el log de la llamada:
+3. **Cambia a Tab 5** (Dify Console > AYCO Chat > Logs). Muestra el log de la llamada:
    - Query: "¿Cuál es el contrato con mayor riesgo?"
    - Retrieved documents: 3 chunks from ayco-contracts-kb
    - LLM response: ~200 tokens
@@ -617,23 +639,32 @@ curl -X POST http://149.232.129.39/api/dify/chat-messages \
 
 ---
 
-## Paso 4: Contratos Pre-analizados + Datos Consistentes (1 min)
+## Paso 4: Contratos Pre-analizados — 9 Perfiles de Riesgo (1 min)
 
 **Qué hacer:**
-1. Scroll hacia abajo. Muestra las 3 cards:
-   - **AYCO-2026-0149** — Constructora y Desarrolladora del Golfo — Score 9.2 (Crítico) — $12.5M MXN
-   - **AYCO-2026-0147** — Outsourcing del Sureste — Score 8.7 (Alto) — $3.85M MXN
-   - **AYCO-2026-0148** — Energía Solar del Golfo — Score 2.3 (Bajo) — $450K MXN
+1. Scroll hacia abajo. Muestra las cards de contratos — ahora 9 (3 originales + 6 nuevos):
 
-2. **Cambia a Tab 7** (DWS SQL Editor). Ejecuta:
+| Contrato | Proveedor | Monto | Score | Riesgo | Flag |
+|----------|-----------|-------|-------|--------|------|
+| AYCO-2026-0163 | Quantum DC Services | $22.5M | 9.2 | CRÍTICO | Empresa RFC 2024, sin garantía |
+| AYCO-2026-0149 | Constructora del Golfo | $12.5M | 9.2 | CRÍTICO | Arbitraje UNCITRAL |
+| AYCO-2026-0164 | Capital Humano CHIS | $9.6M | 8.7 | ALTO | Jurisd. Tapachula (CNBV-flagged) |
+| AYCO-2026-0162 | TechSolutions NLE | $7.8M | 8.5 | ALTO | Sin garantía, sector financiero |
+| AYCO-2026-0147 | Outsourcing del Sureste | $3.85M | 8.7 | ALTO | Sin garantía |
+| AYCO-2026-0165 | Equimed CDMX | $5.8M | 5.2 | MEDIO | Garantía solo 1er año |
+| AYCO-2026-0161 | Flotillas Potosinas | $4.2M | 4.8 | MEDIO | Garantía 5% (baja) |
+| AYCO-2026-0160 | Procesos Eficientes QRO | $850K | 2.1 | BAJO | Bien estructurado |
+| AYCO-2026-0148 | Energía Solar del Golfo | $450K | 2.3 | BAJO | — |
+
+2. Señala la variedad de casos: \"Desde $450K hasta $22.5M. Desde BAJO con garantía del 15% hasta CRÍTICO con empresa fantasma.\"
+3. **Cambia a Tab 7** (DWS SQL Editor). Ejecuta:
 ```sql
-SELECT contract_number, vendor_name, risk_score, risk_level
+SELECT contract_number, vendor_name, risk_score, risk_level, monto_total
 FROM public.risk_results
-WHERE contract_number IN ('AYCO-2026-0149','AYCO-2026-0147','AYCO-2026-0148')
 ORDER BY risk_score DESC;
 ```
 
-3. Muestra que los datos del frontend, DWS, Dify, y Langfuse coinciden exactamente.
+4. Muestra que los datos del frontend, DWS, Dify, y Langfuse coinciden exactamente.
 
 **🎤 Speaker:**
 > "Consistencia de datos garantizada. El frontend, el chatbot, DWS, y Langfuse — todos muestran los mismos contratos con los mismos scores. AYCO-2026-0149, Constructora y Desarrolladora del Golfo, 9.2 crítico. No importa por dónde entren al dato — la fuente de verdad es una sola: DWS."
@@ -758,14 +789,25 @@ bash scripts/backup-record-demos.sh --play demo1
 
 ## Appendix A: Comandos Técnicos Quick Reference
 
-```bash
+```sql
 # ─── DWS (GaussDB) ───
 # Conectar a DWS
 PGPASSWORD=AycoD3mo2026! psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db
 
 # Query de riesgo (la principal del demo)
-SELECT contract_number, vendor_name, risk_score, risk_level
-FROM public.risk_results ORDER BY risk_score DESC LIMIT 5;
+SELECT contract_number, vendor_name, risk_score, risk_level, monto_total
+FROM public.risk_results ORDER BY risk_score DESC;
+
+# EXPLAIN ANALYZE MPP con JOIN real (2 datanodes, ~8ms)
+EXPLAIN ANALYZE
+SELECT v.name, c.contract_name, r.risk_score, r.risk_level
+FROM ods.vendors v
+JOIN ods.contracts c ON v.vendor_id = c.vendor_id
+JOIN public.risk_results r ON c.contract_id = r.contract_id
+WHERE r.risk_level = 'CRITICO';
+
+# Distribución de riesgo
+SELECT risk_level, COUNT(*) FROM public.risk_results GROUP BY risk_level ORDER BY COUNT(*) DESC;
 
 # Schema inspection
 \d public.risk_results
@@ -779,7 +821,25 @@ FROM public.risk_results;
 ssh -i ~/.ssh/ayco-demo root@101.44.185.139   # Dify
 ssh -i ~/.ssh/ayco-demo root@149.232.129.39   # Frontend
 
+# ─── OBS — Upload de Contratos para Demo ───
+# Subir contrato individual
+obsutil cp data/contracts/contrato-critico-datacenter.pdf obs://ayco-contracts-raw/
+obsutil cp data/contracts/contrato-bajo-riesgo-consultoria.pdf obs://ayco-contracts-raw/
+
+# Subir batch de contratos nuevos
+for pdf in data/contracts/contrato-{bajo,medio,alto,critico}*.pdf; do
+  obsutil cp "$pdf" obs://ayco-contracts-raw/
+done
+
+# Verificar pipeline procesó
+obsutil ls obs://ayco-contracts-results/json/ | wc -l
+
 # ─── Dify ───
+# Console login: http://101.44.185.139/console (eduardo@ayco-demo.com / AYCOcloud2026!)
+# API Keys:
+#   AYCO Chat:     app-Y8MxfRygyUWOAfyTlo1MQSJx
+#   AYCO Cobranza: app-ZrM7Pal6G2b89drd1zLVssvM
+#   AYCO Analyzer: app-mGyFcdX7vT3CZDDsvttCX6iF
 # API test (streaming)
 curl -N -X POST http://149.232.129.39/api/dify/chat-messages \
   -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" \
@@ -883,5 +943,5 @@ def call_maas(prompt):
 ---
 
 **File:** `docs/demo-script.md`
-**Version:** v3.1 — EXPLAIN ANALYZE + MPP Window Functions + CTS Audit + Terraform Zero-Diff
+**Version:** v3.2 — Contracts + Dify + MPP EXPLAIN ANALYZE
 **Last updated:** May 7, 2026
