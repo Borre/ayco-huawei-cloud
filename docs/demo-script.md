@@ -143,15 +143,15 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 **Qué hacer:**
 1. Sigue haciendo scroll. Aparece la sección con 2 columnas:
    - **Izquierda:** Placeholder del dashboard Grafana (o Streamlit embebido si está configurado). Menciona que aquí va el dashboard interactivo.
-   - **Derecha:** El **RiskGauge** grande con score 5.8 (Riesgo Global). Se anima al entrar en viewport — el arco se llena de naranja.
+   - **Derecha:** El **RiskGauge** grande con score 5.1 (Riesgo Global). Se anima al entrar en viewport — el arco se llena de naranja.
 2. Debajo del gauge, muestra la distribución por nivel:
-   - Bajo (0-3): 847 proveedores (verde)
-   - Medio (3-5): 1,024 proveedores (amarillo)
-   - Alto (5-7): 389 proveedores (rojo)
-   - Crítico (7-10): 87 proveedores (marrón oscuro)
+   - Bajo (0-3): 6 contratos (verde)
+   - Medio (3-5): 3 contratos (amarillo)
+   - Alto (5-7): 10 contratos (rojo)
+   - Crítico (7-10): 1 contrato (marrón oscuro)
 
 **🎤 Speaker:**
-> "Este gauge muestra el riesgo promedio de toda la cartera de proveedores: 5.8 sobre 10. En rojo vemos 389 proveedores de alto riesgo y 87 críticos que requieren atención inmediata. Esto se actualiza en tiempo real conforme el pipeline procesa nuevos contratos."
+> "Este gauge muestra el riesgo promedio de toda la cartera de contratos: 5.1 sobre 10. En rojo vemos 10 contratos de alto riesgo y 1 crítico que requiere atención inmediata. Esto se actualiza en tiempo real conforme el pipeline procesa nuevos contratos."
 
 ---
 
@@ -428,14 +428,14 @@ Este es el **demo principal** — el que más tiempo tiene y el que debe impresi
 **Qué hacer:**
 1. Scroll hacia abajo en la página de Contract AI.
 2. Aparecen 3 cards con los contratos de demo ya analizados:
-   - **AYCO-2026-0147** — Constructora Delta MX — Score 8.7 (Alto Riesgo) — $3.85M MXN
-   - **AYCO-2026-0148** — Servicios Logísticos SA — Score 2.3 (Bajo Riesgo) — $450K MXN
-   - **AYCO-2026-0149** — TechGlobal Corp — Score 9.2 (Crítico) — $12.5M MXN
+   - **AYCO-2026-0149** — Constructora y Desarrolladora del Golfo — Score 9.2 (Crítico) — $12.5M MXN
+   - **AYCO-2026-0147** — Outsourcing del Sureste — Score 8.7 (Alto Riesgo) — $3.85M MXN
+   - **AYCO-2026-0148** — Energía Solar del Golfo — Score 2.3 (Bajo Riesgo) — $450K MXN
 3. Cada card tiene su propio RiskGauge pequeño y lista de factores de riesgo.
 4. Señala los factores: penalización, garantía, arbitraje, jurisdicción.
 
 **🎤 Speaker:**
-> "Estos son los 3 contratos canónicos de demo. El crítico tiene score 9.2 — penalización del 40%, sin límite de responsabilidad, arbitraje UNCITRAL. El bajo riesgo tiene penalización del 5% con garantía del 20% y arbitraje ICC. El modelo los distingue perfectamente."
+> "Estos son los 3 contratos canónicos de demo. El crítico tiene score 9.2 — penalización del 40%, sin garantía, arbitraje UNCITRAL. El bajo riesgo tiene penalización del 5% con garantía del 20% y arbitraje ICC. El modelo los distingue perfectamente."
 
 ---
 
