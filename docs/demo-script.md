@@ -128,13 +128,13 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 1. Haz scroll hacia abajo para revelar los 4 MetricCards.
 2. Los números se animan al entrar en viewport (IntersectionObserver).
 3. Señala cada uno:
-   - **2,347 Proveedores Activos** (+5.2% este mes)
-   - **5,128 Transacciones Analizadas** (+18% vs mes anterior)
-   - **47 Alertas CNBV Activas** (12 críticas) — este tiene color rojo
-   - **$2.1B MXN Exposición Total** (-3.4% reducción)
+   - **16 Proveedores Activos** (datos reales DWS)
+   - **20 Contratos Analizados** (pipeline completo)
+   - **1 Crítico, 10 Alto, 3 Medio, 6 Bajo** — distribución de riesgo
+   - **$133M MXN Exposición Total** (datos reales DWS)
 
 **🎤 Speaker:**
-> "Estos son los KPIs en tiempo real conectados a nuestro data warehouse en DWS. 2,300 proveedores analizados, 5,000 transacciones procesadas, y 47 alertas activas de la CNBV. La exposición total es de 2,100 millones de pesos."
+> "Estos son los KPIs en tiempo real conectados a nuestro data warehouse en DWS. 16 proveedores analizados, 20 contratos procesados, y 1 contrato crítico que requiere atención inmediata. La exposición total es de 133 millones de pesos."
 
 ---
 
@@ -165,14 +165,14 @@ El demo arranca en la **Landing** (`http://149.232.129.39/`).
 **Datos de la tabla:**
 | Proveedor | Estado | Score | Exposición | Alertas |
 |-----------|--------|-------|------------|---------|
-| Constructora Delta MX | Nuevo León | 8.7 (crítico) | $385M | 3 |
-| Servicios Integrales SA | Jalisco | 8.2 (alto) | $290M | 2 |
-| TechSupply Corp | CDMX | 7.9 (alto) | $210M | 4 |
-| Logística Nacional | Estado de México | 7.5 (alto) | $175M | 1 |
-| Materiales del Bajío | Guanajuato | 7.1 (alto) | $140M | 2 |
+| Constructora y Desarrolladora del Golfo | Tabasco | 9.2 (crítico) | $12.5M | 3 |
+| Outsourcing del Sureste | Tabasco | 8.7 (alto) | $3.85M | 2 |
+| Energía Solar del Golfo | Tabasco | 7.3 (alto) | $11.2M | 2 |
+| Tecnologías Avanzadas del Norte | Nuevo León | 7.2 (alto) | $9.5M | 1 |
+| Desarrollo Inmobiliario del Sur | Oaxaca | 7.2 (alto) | $7.5M | 2 |
 
 **🎤 Speaker:**
-> "Aquí vemos los 5 proveedores más riesgosos. Constructora Delta en Nuevo León tiene un score de 8.7 con 3 alertas activas y una exposición de 385 millones de pesos. Si hacen click en cualquier fila, pueden ver el detalle del contrato."
+> "Aquí vemos los 5 proveedores más riesgosos. Constructora y Desarrolladora del Golfo en Tabasco tiene un score de 9.2 — crítico — con 3 alertas activas y una exposición de 12.5 millones de pesos. Si hacen click en cualquier fila, pueden ver el detalle del contrato."
 
 ---
 

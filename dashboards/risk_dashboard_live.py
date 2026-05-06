@@ -8,6 +8,17 @@ import plotly.graph_objects as go
 from datetime import datetime
 import psycopg2
 import os
+from pathlib import Path
+
+# Load .env file if present
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ.setdefault(key.strip(), value.strip())
 
 st.set_page_config(page_title="AYCO Risk Intelligence", page_icon="🛡️", layout="wide")
 
@@ -331,11 +342,12 @@ with tab5:
     # DM layer
     st.markdown("### 📈 Capa DM — Vistas Analíticas")
     with st.spinner("Consultando DM..."):
-        dm_city = query_dws("SELECT * FROM dm.city_risk ORDER BY avg_risk DESC LIMIT 10")
+        dm_city = query_dws("SELECT city, vendor_count, high_risk_count FROM dm.city_risk ORDER BY high_risk_count DESC LIMIT 10")
     if not dm_city.empty:
-        fig_city = px.bar(dm_city, x="city", y="avg_risk", color="avg_risk",
+        fig_city = px.bar(dm_city, x="city", y="high_risk_count",
+                          color="high_risk_count",
                           color_continuous_scale=["#00d4aa", "#ffd700", "#ff4444"],
-                          title="Risk Promedio por Ciudad (dm.city_risk)")
+                          title="Proveedores de Alto Riesgo por Ciudad (dm.city_risk)")
         fig_city.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#e8eaed")
         st.plotly_chart(fig_city, use_container_width=True)
 

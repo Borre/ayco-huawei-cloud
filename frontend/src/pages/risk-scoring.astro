@@ -35,10 +35,10 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
   <!-- KPIs -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
-      <MetricCard value="2,347" label="Proveedores Activos" trend="+5.2%" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' />
-      <MetricCard value="5,128" label="Transacciones Analizadas" trend="+18% vs mes anterior" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>' />
-      <MetricCard value="47" label="Alertas CNBV Activas" trend="12 críticas" trendUp={false} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>' />
-      <MetricCard value="$2.1B" label="Exposición Total MXN" trend="-3.4% reducción" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
+      <MetricCard value="16" label="Proveedores Activos" trend="datos reales DWS" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' />
+      <MetricCard value="20" label="Contratos Analizados" trend="pipeline completo" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>' />
+      <MetricCard value="1 Crítico" label="Alertas de Riesgo" trend="10 alto, 3 medio, 6 bajo" trendUp={false} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>' />
+      <MetricCard value="$133M" label="Exposición Total MXN" trend="datos reales DWS" trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
     </div>
   </section>
 
@@ -60,23 +60,23 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
       <!-- Average Risk Gauge -->
       <div class="card p-6 flex flex-col items-center justify-center">
         <h3 class="text-lg font-bold text-gs-navy mb-6">Riesgo Promedio</h3>
-        <RiskGauge score={5.8} label="Global" size="lg" />
+        <RiskGauge score={5.1} label="Global" size="lg" />
         <div class="mt-6 w-full space-y-2">
           <div class="flex items-center justify-between text-sm">
             <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-low mr-2"/>Bajo (0-3)</span>
-            <span class="font-semibold">847 proveedores</span>
+            <span class="font-semibold">6 contratos</span>
           </div>
           <div class="flex items-center justify-between text-sm">
             <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-medium mr-2"/>Medio (3-5)</span>
-            <span class="font-semibold">1,024 proveedores</span>
+            <span class="font-semibold">3 contratos</span>
           </div>
           <div class="flex items-center justify-between text-sm">
             <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-high mr-2"/>Alto (5-7)</span>
-            <span class="font-semibold">389 proveedores</span>
+            <span class="font-semibold">10 contratos</span>
           </div>
           <div class="flex items-center justify-between text-sm">
             <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-risk-critical mr-2"/>Crítico (7-10)</span>
-            <span class="font-semibold">87 proveedores</span>
+            <span class="font-semibold">1 contrato</span>
           </div>
         </div>
       </div>
@@ -102,11 +102,11 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
           </thead>
           <tbody class="divide-y divide-gs-gray-100">
             {[
-              { name: 'Constructora Delta MX', state: 'Nuevo León', score: 8.7, exposure: '$385M', alerts: 3 },
-              { name: 'Servicios Integrales SA', state: 'Jalisco', score: 8.2, exposure: '$290M', alerts: 2 },
-              { name: 'TechSupply Corp', state: 'CDMX', score: 7.9, exposure: '$210M', alerts: 4 },
-              { name: 'Logística Nacional', state: 'Estado de México', score: 7.5, exposure: '$175M', alerts: 1 },
-              { name: 'Materiales del Bajío', state: 'Guanajuato', score: 7.1, exposure: '$140M', alerts: 2 },
+              { name: 'Constructora y Desarrolladora del Golfo', state: 'Tabasco', score: 9.2, exposure: '$12.5M', alerts: 3 },
+              { name: 'Outsourcing del Sureste', state: 'Tabasco', score: 8.7, exposure: '$3.85M', alerts: 2 },
+              { name: 'Energía Solar del Golfo', state: 'Tabasco', score: 7.3, exposure: '$11.2M', alerts: 2 },
+              { name: 'Tecnologías Avanzadas del Norte', state: 'Nuevo León', score: 7.2, exposure: '$9.5M', alerts: 1 },
+              { name: 'Desarrollo Inmobiliario del Sur', state: 'Oaxaca', score: 7.2, exposure: '$7.5M', alerts: 2 },
             ].map((v) => (
               <tr class="hover:bg-gs-gray-50 transition-colors">
                 <td class="px-6 py-4 font-medium text-gs-navy">{v.name}</td>

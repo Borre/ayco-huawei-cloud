@@ -52,3 +52,4 @@ tea_debug.log
 # Backups
 *.bak
 terraform/terraform.tfstate.*.backup
+__pycache__/
