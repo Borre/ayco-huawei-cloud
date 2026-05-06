@@ -5,14 +5,6 @@ import Footer from '../components/Footer.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import PipelineDiagram from '../components/PipelineDiagram.astro';
 
-const apiEndpoints = [
-  { method: 'GET', path: '/api/v1/vendors', desc: 'Lista de proveedores con scores', status: '200 OK', latency: '45ms' },
-  { method: 'GET', path: '/api/v1/vendors/{id}/risk', desc: 'Detalle de riesgo por proveedor', status: '200 OK', latency: '32ms' },
-  { method: 'GET', path: '/api/v1/transactions', desc: 'Transacciones con anomalías CNBV', status: '200 OK', latency: '58ms' },
-  { method: 'POST', path: '/api/v1/analyze', desc: 'Análisis on-demand de contrato', status: '201 Created', latency: '4.2s' },
-  { method: 'GET', path: '/api/v1/alerts', desc: 'Alertas activas de compliance', status: '200 OK', latency: '28ms' },
-];
-
 const etlSteps = [
   { name: 'Extract', desc: 'Lectura de datos crudos desde OBS (CSV, JSON, PDFs)', status: 'complete', icon: '📥' },
   { name: 'Transform', desc: 'Limpieza, normalización CNBV, deduplicación', status: 'complete', icon: '🔄' },
@@ -22,7 +14,7 @@ const etlSteps = [
 ];
 ---
 
-<BaseLayout title="Data Governance" description="Pipeline ETL con DataArts Studio y DataService API — Gobernanza de datos">
+<BaseLayout title="Data Governance" description="Arquitectura en capas ODS → DW → DM con DWS y DLI — Gobernanza de datos">
   <Header slot="header" />
 
   <!-- Page Hero -->
@@ -34,14 +26,14 @@ const etlSteps = [
         <span class="text-sm text-emerald-200">Demo 2</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2">Data Governance</h1>
-      <p class="text-lg text-emerald-100">Pipeline ETL con DataArts Studio y DataService API para datos gobernados.</p>
+      <p class="text-lg text-emerald-100">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
     </div>
   </section>
 
   <!-- Pipeline -->
   <section class="bg-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline ETL — DataArts Factory</h2>
+      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Arquitectura en Capas — ODS → DW → DM</h2>
       <PipelineDiagram variant="governance" />
     </div>
   </section>
@@ -83,39 +75,91 @@ const etlSteps = [
     </div>
   </section>
 
-  <!-- DataService API Explorer -->
+  <!-- DWS Layered Architecture -->
   <section class="bg-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="section-title mb-2">DataService API</h2>
-      <p class="section-subtitle mb-8">Endpoints REST publicados desde DataArts Studio para acceso programático a los datos gobernados.</p>
+      <h2 class="section-title mb-2">DWS — Arquitectura en Capas</h2>
+      <p class="section-subtitle mb-8">Los datos 'maduran' de crudos (ODS) a analíticos (DM). Cada capa agrega validación y transformación.</p>
 
-      <div class="card overflow-hidden">
-        <div class="p-4 border-b border-gs-gray-100 flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse-soft"/>
-            <span class="text-sm font-semibold text-gs-navy">API en vivo</span>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
+        <!-- ODS -->
+        <div class="card p-6 border-l-4 border-amber-500">
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="text-2xl">📥</span>
+            <h3 class="text-lg font-bold text-gs-navy">ODS — Datos Crudos</h3>
           </div>
-          <code class="text-xs text-gs-gray-600 bg-gs-gray-100 px-3 py-1 rounded-lg">
-            https://dataarts.la-north-2.myhuaweicloud.com/api/v1
-          </code>
-        </div>
-        <div class="divide-y divide-gs-gray-100">
-          {apiEndpoints.map((ep) => (
-            <div class="p-4 flex items-center space-x-4 hover:bg-gs-gray-50 transition-colors">
-              <span class={`text-xs font-bold px-2.5 py-1 rounded-md flex-shrink-0 ${
-                ep.method === 'GET' ? 'bg-emerald-100 text-emerald-700' : 'bg-gs-blue/10 text-gs-blue'
-              }`}>
-                {ep.method}
-              </span>
-              <code class="text-sm font-mono text-gs-navy flex-shrink-0">{ep.path}</code>
-              <span class="text-sm text-gs-gray-600 flex-1 hidden md:block">{ep.desc}</span>
-              <div class="flex items-center space-x-3 flex-shrink-0">
-                <span class="text-xs text-emerald-600 font-semibold">{ep.status}</span>
-                <span class="text-xs text-gs-gray-400">{ep.latency}</span>
-              </div>
+          <p class="text-sm text-gs-gray-600 mb-4">Ingesta directa desde fuentes. Sin transformación. Auditoría de origen.</p>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">vendors</span>
+              <span class="font-mono text-gs-navy">2,300 registros</span>
             </div>
-          ))}
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">customers</span>
+              <span class="font-mono text-gs-navy">500 registros</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">transactions</span>
+              <span class="font-mono text-gs-navy">5,000 registros</span>
+            </div>
+          </div>
         </div>
+
+        <!-- DW -->
+        <div class="card p-6 border-l-4 border-yellow-500">
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="text-2xl">🔄</span>
+            <h3 class="text-lg font-bold text-gs-navy">DW — Esquema Estrella</h3>
+          </div>
+          <p class="text-sm text-gs-gray-600 mb-4">Limpieza, deduplicación, normalización. Dimensiones + hechos.</p>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">dim_vendor</span>
+              <span class="font-mono text-gs-navy">2,300 registros</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">dim_customer</span>
+              <span class="font-mono text-gs-navy">500 registros</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">fact_transaction</span>
+              <span class="font-mono text-gs-navy">5,000 registros</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DM -->
+        <div class="card p-6 border-l-4 border-emerald-500">
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="text-2xl">📈</span>
+            <h3 class="text-lg font-bold text-gs-navy">DM — Vistas Analíticas</h3>
+          </div>
+          <p class="text-sm text-gs-gray-600 mb-4">Agregaciones pre-calculadas para dashboards y reportes ejecutivos.</p>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">vendor_risk_summary</span>
+              <span class="font-mono text-gs-navy">15 proveedores</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">city_risk</span>
+              <span class="font-mono text-gs-navy">32 estados</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gs-gray-500">anomaly_summary</span>
+              <span class="font-mono text-gs-navy">patrones CNBV</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA to Streamlit -->
+      <div class="mt-8 text-center">
+        <a href="http://101.44.185.139:8501" target="_blank" rel="noopener"
+           class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-semibold">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Abrir Dashboard Interactivo →
+        </a>
+        <p class="text-xs text-gs-gray-400 mt-2">Streamlit con queries en vivo a DWS — Data Quality + Governance tabs</p>
       </div>
     </div>
   </section>

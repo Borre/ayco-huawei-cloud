@@ -138,30 +138,59 @@ const contracts = [
     </div>
   </section>
 
-  <!-- LLM Observability -->
+  <!-- LLM Observability — Langfuse -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <h2 class="section-title mb-2">Observabilidad LLM</h2>
-    <p class="section-subtitle mb-8">Trazas en tiempo real de cada llamada al modelo via Langfuse.</p>
+    <p class="section-subtitle mb-8">Cada llamada al modelo se traza en Langfuse: modelo, prompt, latencia, tokens, coste.</p>
 
     <div class="card p-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {[
-          { label: 'Traces Hoy', value: '127' },
-          { label: 'Latencia Media', value: '3.8s' },
-          { label: 'Tokens Totales', value: '45.2K' },
-          { label: 'Tasa de Éxito', value: '99.1%' },
-        ].map((m) => (
-          <div class="text-center">
-            <p class="metric-value text-2xl">{m.value}</p>
-            <p class="metric-label">{m.label}</p>
-          </div>
-        ))}
-      </div>
-      <div class="mt-6 aspect-video bg-gs-gray-50 rounded-xl flex items-center justify-center border border-gs-gray-200">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
         <div class="text-center">
-          <p class="text-4xl mb-2">📈</p>
-          <p class="text-sm text-gs-gray-600">Langfuse Dashboard embebido</p>
-          <p class="text-xs text-gs-gray-400 mt-1">cloud.langfuse.com → project ayco-demo</p>
+          <p class="metric-value text-2xl" id="langfuse-traces">—</p>
+          <p class="metric-label">Traces Hoy</p>
+        </div>
+        <div class="text-center">
+          <p class="metric-value text-2xl" id="langfuse-latency">—</p>
+          <p class="metric-label">Latencia Media</p>
+        </div>
+        <div class="text-center">
+          <p class="metric-value text-2xl" id="langfuse-tokens">—</p>
+          <p class="metric-label">Tokens Totales</p>
+        </div>
+        <div class="text-center">
+          <p class="metric-value text-2xl" id="langfuse-cost">—</p>
+          <p class="metric-label">Coste Estimado</p>
+        </div>
+      </div>
+
+      <div class="bg-gs-gray-50 rounded-xl p-8 text-center border border-gs-gray-200">
+        <p class="text-4xl mb-3">🔍</p>
+        <p class="text-sm text-gs-gray-600 mb-4">
+          Langfuse registra cada interacción del chatbot: qué modelo se usó, qué prompt se envió,
+          cuántos tokens consumió, y cuánto tardó. Esto es <strong>auditoría de IA</strong> en tiempo real.
+        </p>
+        <a href="https://cloud.langfuse.com/project/clz3g3r910007jxqg2kjh5a5e/traces"
+           target="_blank" rel="noopener"
+           class="inline-flex items-center px-6 py-3 bg-gs-navy text-white rounded-xl hover:bg-gs-blue transition-colors font-semibold">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Abrir Langfuse Dashboard →
+        </a>
+        <p class="text-xs text-gs-gray-400 mt-3">cloud.langfuse.com → Proyecto AYCO Demo</p>
+      </div>
+
+      <!-- What Langfuse shows -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+          <p class="text-sm font-semibold text-gs-navy mb-1">📋 Trace Completo</p>
+          <p class="text-xs text-gs-gray-500">Cada pregunta del chatbot genera un trace con input, output, modelo usado y score de relevancia.</p>
+        </div>
+        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+          <p class="text-sm font-semibold text-gs-navy mb-1">⚡ Latencia y Coste</p>
+          <p class="text-xs text-gs-gray-500">Tiempo de respuesta por modelo, tokens consumidos, coste estimado por query.</p>
+        </div>
+        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+          <p class="text-sm font-semibold text-gs-navy mb-1">🛡️ Auditoría de IA</p>
+          <p class="text-xs text-gs-gray-500">Historial completo de cada decisión del LLM. Trazabilidad para cumplimiento regulatorio.</p>
         </div>
       </div>
     </div>
