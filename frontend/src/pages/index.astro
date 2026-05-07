@@ -208,6 +208,22 @@ const demoCards = [
           if (t) t.textContent = trend;
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback demo values when API is unavailable
+        const fallbacks = {
+          'home-kpi-vendors': { val: '2,300', trend: 'Demo · Datos de ejemplo' },
+          'home-kpi-minutes': { val: '20', trend: 'Demo · Pipeline DWS' },
+          'home-kpi-cost': { val: '$31', trend: 'USD/día (demo)' },
+          'home-kpi-reduction': { val: '99.6%', trend: 'De 3 días a 4 min' },
+        };
+        for (const [id, fb] of Object.entries(fallbacks)) {
+          const el = document.getElementById(id);
+          if (!el) continue;
+          const v = el.querySelector('.text-2xl, .text-3xl, [class*="font-bold"]');
+          const t = el.querySelector('.text-xs, [class*="text-gs-gray"]');
+          if (v && v.textContent === '—') v.textContent = fb.val;
+          if (t && t.textContent === 'Cargando...') t.textContent = fb.trend;
+        }
+      });
   </script>
 </BaseLayout>
