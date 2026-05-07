@@ -18,18 +18,34 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-gs-blue text-gs-navy font-bold rounded-xl
+    @apply inline-flex items-center justify-center px-6 py-3 bg-gs-blue text-gs-navy font-bold rounded-lg
            hover:bg-gs-blue-light transition-all duration-300 shadow-[0_0_20px_rgba(0,212,170,0.3)] 
            hover:shadow-[0_0_30px_rgba(0,212,170,0.5)] hover:-translate-y-0.5
            focus:outline-none focus:ring-2 focus:ring-gs-blue;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-gs-gold text-gs-gold font-bold rounded-xl
+    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-gs-gold text-gs-gold font-bold rounded-lg
            hover:bg-gs-gold hover:text-gs-navy transition-all duration-300;
   }
   .card {
-    @apply bg-gs-navy-light/50 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden
-           hover:border-gs-blue/30 transition-all duration-500 shadow-2xl;
+    @apply bg-gs-navy-light/70 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden
+           hover:border-gs-blue/30 transition-all duration-300 shadow-xl;
+  }
+  .card-light {
+    @apply bg-white rounded-lg border border-gs-gray-200 overflow-hidden shadow-sm
+           hover:border-gs-blue/30 hover:shadow-md transition-all duration-300;
+  }
+  .surface-light {
+    @apply bg-gs-gray-50 text-gs-navy;
+  }
+  .surface-white {
+    @apply bg-white text-gs-navy;
+  }
+  .surface-dark {
+    @apply bg-gs-navy text-white;
+  }
+  .surface-band {
+    @apply border-y border-gs-gray-200;
   }
   .card-interactive {
     @apply card cursor-pointer hover:bg-gs-navy-light/80 hover:-translate-y-1;
@@ -82,8 +98,8 @@ header {
   animation: chatBubblePulse 2s ease-in-out 3s 2;
 }
 .chat-window {
-  @apply absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px] h-[600px] bg-gs-navy-light/95 backdrop-blur-2xl
-         rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 flex flex-col overflow-hidden
+  @apply absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px] h-[min(600px,calc(100dvh-7rem))] bg-gs-navy-light/95 backdrop-blur-2xl
+         rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 flex flex-col overflow-hidden
          origin-bottom-right;
 }
 .chat-messages {
@@ -194,4 +210,63 @@ header {
 .risk-map-popup .leaflet-popup-content {
   margin: 12px 16px;
   font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Surface-aware component defaults */
+.surface-light .section-title,
+.surface-white .section-title {
+  color: #0a0e17;
+}
+.surface-light .section-subtitle,
+.surface-white .section-subtitle {
+  color: #4b5563;
+}
+.surface-light .card,
+.surface-white .card {
+  background-color: #ffffff;
+  border-color: #dee2e6;
+  box-shadow: 0 1px 2px rgba(10, 14, 23, 0.06);
+  backdrop-filter: none;
+}
+.surface-light .card:hover,
+.surface-white .card:hover {
+  border-color: rgba(0, 212, 170, 0.3);
+  box-shadow: 0 6px 18px rgba(10, 14, 23, 0.08);
+}
+.surface-light .card-interactive,
+.surface-white .card-interactive {
+  background-color: #ffffff;
+}
+.surface-light .metric-label,
+.surface-white .metric-label {
+  color: #7c8595;
+  opacity: 1;
+}
+.surface-light .text-white,
+.surface-white .text-white {
+  color: #0a0e17 !important;
+}
+.surface-light .text-gs-gray-300,
+.surface-white .text-gs-gray-300 {
+  color: #7c8595 !important;
+}
+.surface-light .text-gs-gray-600,
+.surface-white .text-gs-gray-600 {
+  color: #4b5563 !important;
+}
+.surface-light .border-white\/10,
+.surface-white .border-white\/10,
+.surface-light .border-white\/5,
+.surface-white .border-white\/5 {
+  border-color: #e9ecef !important;
+}
+.surface-light .bg-white\/5,
+.surface-white .bg-white\/5 {
+  background-color: #f8f9fa !important;
+}
+.surface-light .bg-gs-navy.text-white,
+.surface-white .bg-gs-navy.text-white,
+.surface-light .bg-emerald-600.text-white,
+.surface-white .bg-emerald-600.text-white {
+  color: #ffffff !important;
 }

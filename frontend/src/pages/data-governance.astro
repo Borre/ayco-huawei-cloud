@@ -23,12 +23,12 @@ const etlSteps = [
   <section class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center space-x-2 mb-4">
-        <a href="/" class="text-emerald-800 hover:text-emerald-900 text-sm">Inicio</a>
+        <a href="/" class="text-white/80 hover:text-white text-sm">Inicio</a>
         <span class="text-emerald-400">/</span>
-        <span class="text-sm text-emerald-800">Demo 2</span>
+        <span class="text-sm text-white/80">Demo 2</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2">Data Governance</h1>
-      <p class="text-lg text-emerald-900 mb-3">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
+      <p class="text-lg text-white/90 mb-3">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-900">
         📐 Arquitectura de Referencia — Datos en vivo en DWS Console y Langfuse
       </span>
@@ -36,7 +36,7 @@ const etlSteps = [
   </section>
 
   <!-- Pipeline -->
-  <section class="bg-white border-b border-gs-gray-100">
+  <section class="surface-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Arquitectura en Capas — ODS → DW → DM</h2>
       <PipelineDiagram variant="governance" />
@@ -44,7 +44,8 @@ const etlSteps = [
   </section>
 
   <!-- ETL Steps -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <section class="surface-light py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <h2 class="section-title mb-8">Etapas del Pipeline</h2>
     <div class="space-y-4 stagger-children">
       {etlSteps.map((step, i) => (
@@ -78,10 +79,11 @@ const etlSteps = [
         </div>
       ))}
     </div>
+    </div>
   </section>
 
   <!-- DWS Layered Architecture -->
-  <section class="bg-white py-10">
+  <section class="surface-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 class="section-title mb-2 !text-gs-navy">DWS — Arquitectura en Capas</h2>
       <p class="section-subtitle mb-8">Los datos 'maduran' de crudos (ODS) a analíticos (DM). Cada capa agrega validación y transformación.</p>
@@ -170,7 +172,8 @@ const etlSteps = [
   </section>
 
   <!-- Data Quality Metrics -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <section class="surface-light py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <h2 class="section-title mb-2">Métricas de Calidad de Datos</h2>
     <p class="text-xs text-amber-600 mb-6 flex items-center">
       <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -191,6 +194,7 @@ const etlSteps = [
           </div>
         </div>
       ))}
+    </div>
     </div>
   </section>
 

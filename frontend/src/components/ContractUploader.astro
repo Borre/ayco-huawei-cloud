@@ -253,7 +253,10 @@
     if (badge) {
       const levelLabel = level === 'CRITICO' ? 'Crítico' : level === 'ALTO' ? 'Alto' : level === 'MEDIO' ? 'Medio' : level === 'BAJO' ? 'Bajo' : level;
       const isReal = !isError && score !== null;
-      badge.innerHTML = `<span class="badge-risk-${level.toLowerCase()}">Riesgo ${levelLabel}</span>
+      const badgeClass = ['BAJO', 'MEDIO', 'ALTO', 'CRITICO'].includes(level)
+        ? `badge-risk-${level.toLowerCase()}`
+        : 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gs-gray-100 text-gs-gray-600 border border-gs-gray-200';
+      badge.innerHTML = `<span class="${badgeClass}">Riesgo ${levelLabel}</span>
         <span class="ml-2 text-xs ${isReal ? 'text-green-600' : 'text-gray-400'}">${isReal ? '● Pipeline real' : '● Sin resultado'}</span>`;
     }
 

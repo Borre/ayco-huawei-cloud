@@ -28,7 +28,9 @@ st.markdown("""
     * { font-family: 'Inter', sans-serif; }
     .main { background-color: #0a0e17; }
     .stApp { background: #0a0e17; }
+    .block-container { padding-top: 1.4rem; padding-bottom: 2rem; max-width: 1280px; }
     h1, h2, h3, h4, .metric-label, p, span, div { color: #e8eaed; }
+    h2, h3 { letter-spacing: -0.01em; }
     div[data-testid="stMetricValue"] { color: #00d4aa !important; font-size: 2rem !important; font-weight: 700 !important; }
     div[data-testid="stMetricDelta"] { font-size: 0.85rem !important; }
     div[data-testid="stMetricLabel"] { font-size: 0.8rem !important; color: #8b95a5 !important; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -44,12 +46,19 @@ st.markdown("""
     div[data-testid="stVerticalBlock"] > div[style*="flex"] { gap: 0.5rem; }
     .kpi-card {
         background: linear-gradient(135deg, #0f1420 0%, #1a1f2e 100%);
-        border: 1px solid #1e2a3a; border-radius: 16px; padding: 1.25rem;
+        border: 1px solid #1e2a3a; border-radius: 8px; padding: 1rem 1.1rem;
+        min-height: 118px;
+    }
+    .kpi-card .kpi-label { color: #8b95a5; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .kpi-card .kpi-value { color: #e8eaed; font-size: 1.8rem; line-height: 1.15; font-weight: 800; margin-top: 0.35rem; }
+    .kpi-card .kpi-note { color: #8b95a5; font-size: 0.78rem; margin-top: 0.45rem; }
+    .section-note {
+        color: #8b95a5; font-size: 0.82rem; margin-top: -0.35rem; margin-bottom: 0.75rem;
     }
     .kpi-critical { border-left: 3px solid #ff4444; }
     .kpi-warning { border-left: 3px solid #ff8c00; }
     .kpi-ok { border-left: 3px solid #00d4aa; }
-    .plot-container { border-radius: 12px; overflow: hidden; }
+    .plot-container { border-radius: 8px; overflow: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -83,39 +92,57 @@ def run_query(query: str, use_cache: bool = True) -> pd.DataFrame:
 @st.cache_data(ttl=60)
 def load_kpi_data():
     return run_query("""
+        WITH normalized AS (
+            SELECT *, REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_norm
+            FROM risk_results
+        )
         SELECT 
             COUNT(*) as total,
             COUNT(DISTINCT vendor_name) as vendors,
-            SUM(CASE WHEN risk_level='CRITICO' THEN 1 ELSE 0 END) as criticos,
-            SUM(CASE WHEN risk_level='ALTO' THEN 1 ELSE 0 END) as altos,
+            SUM(CASE WHEN risk_norm='CRITICO' THEN 1 ELSE 0 END) as criticos,
+            SUM(CASE WHEN risk_norm='ALTO' THEN 1 ELSE 0 END) as altos,
             SUM(CASE WHEN garantia_pct=0 THEN 1 ELSE 0 END) as sin_garantia,
             ROUND(AVG(risk_score)::numeric, 1) as avg_score,
             ROUND(SUM(monto_total)::numeric, 0) as exposure,
             ROUND(AVG(plazo_dias)::numeric, 0) as avg_plazo,
-            ROUND((SUM(CASE WHEN risk_level IN ('CRITICO','ALTO') THEN monto_total ELSE 0 END) 
+            ROUND((SUM(CASE WHEN risk_norm IN ('CRITICO','ALTO') THEN monto_total ELSE 0 END) 
                    / NULLIF(SUM(monto_total),0) * 100)::numeric, 1) as pct_exposure_risk
-        FROM risk_results
+        FROM normalized
     """)
 
 @st.cache_data(ttl=60)
 def load_risk_distribution():
     return run_query("""
-        SELECT risk_level, COUNT(*) as count, 
+        WITH normalized AS (
+            SELECT *, REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_norm
+            FROM risk_results
+        )
+        SELECT risk_norm as risk_level, COUNT(*) as count, 
                ROUND(AVG(risk_score)::numeric, 1) as avg_score,
                ROUND(SUM(monto_total)/1e6::numeric, 1) as exposure_mxn_m
-        FROM risk_results 
-        GROUP BY risk_level 
+        FROM normalized 
+        GROUP BY risk_norm 
         ORDER BY MIN(risk_score)
     """)
 
 @st.cache_data(ttl=60)
 def load_vendor_data():
     return run_query("""
+        WITH normalized AS (
+            SELECT *, REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_norm
+            FROM risk_results
+        )
         SELECT vendor_name, COUNT(*) as contracts,
                ROUND(AVG(risk_score)::numeric, 1) as avg_score,
                ROUND(SUM(monto_total)/1e6::numeric, 1) as total_mxn_m,
-               MAX(risk_level) as max_risk_level
-        FROM risk_results 
+               CASE MAX(CASE risk_norm WHEN 'CRITICO' THEN 4 WHEN 'ALTO' THEN 3 WHEN 'MEDIO' THEN 2 WHEN 'BAJO' THEN 1 ELSE 0 END)
+                   WHEN 4 THEN 'CRITICO'
+                   WHEN 3 THEN 'ALTO'
+                   WHEN 2 THEN 'MEDIO'
+                   WHEN 1 THEN 'BAJO'
+                   ELSE 'SIN_DATO'
+               END as max_risk_level
+        FROM normalized 
         GROUP BY vendor_name 
         ORDER BY total_mxn_m DESC
         LIMIT 15
@@ -124,7 +151,8 @@ def load_vendor_data():
 @st.cache_data(ttl=60)
 def load_contract_detail():
     return run_query("""
-        SELECT contract_number, vendor_name, risk_score, risk_level,
+        SELECT contract_number, vendor_name, risk_score,
+               REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_level,
                monto_total/1e6 as mxn_m, plazo_dias, garantia_pct,
                alertas, recomendaciones, analyzed_at
         FROM risk_results 
@@ -134,7 +162,8 @@ def load_contract_detail():
 @st.cache_data(ttl=60)
 def load_scatter_data():
     return run_query("""
-        SELECT contract_number, vendor_name, risk_score, risk_level,
+        SELECT contract_number, vendor_name, risk_score,
+               REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_level,
                monto_total/1e6 as mxn_m, plazo_dias, garantia_pct
         FROM risk_results
     """)
@@ -142,12 +171,16 @@ def load_scatter_data():
 @st.cache_data(ttl=300)
 def load_geo_data():
     return run_query("""
+        WITH normalized AS (
+            SELECT *, REPLACE(UPPER(COALESCE(risk_level, 'SIN_DATO')), 'Í', 'I') AS risk_norm
+            FROM risk_results
+        )
         SELECT state, COUNT(*) as contracts,
                ROUND(AVG(risk_score)::numeric, 1) as avg_score,
                ROUND(SUM(monto_total)/1e6::numeric, 1) as exposure_mxn_m,
-               SUM(CASE WHEN risk_level='CRITICO' THEN 1 ELSE 0 END) as criticos,
-               SUM(CASE WHEN risk_level='ALTO' THEN 1 ELSE 0 END) as altos
-        FROM risk_results
+               SUM(CASE WHEN risk_norm='CRITICO' THEN 1 ELSE 0 END) as criticos,
+               SUM(CASE WHEN risk_norm='ALTO' THEN 1 ELSE 0 END) as altos
+        FROM normalized
         WHERE state IS NOT NULL
         GROUP BY state
     """)
@@ -171,6 +204,29 @@ CHART_BG = "rgba(0,0,0,0)"
 PLOT_BG = "rgba(0,0,0,0)"
 GRID_COLOR = "#1e2a3a"
 TEXT_COLOR = "#e8eaed"
+
+def format_mxn(value: float) -> str:
+    if value is None:
+        return "N/A"
+    value = float(value)
+    if abs(value) >= 1e9:
+        return f"${value / 1e9:.2f}B"
+    if abs(value) >= 1e6:
+        return f"${value / 1e6:.0f}M"
+    return f"${value:,.0f}"
+
+def kpi_card(label: str, value: str, note: str = "", state: str = "ok"):
+    state_class = {"critical": "kpi-critical", "warning": "kpi-warning", "ok": "kpi-ok"}.get(state, "kpi-ok")
+    st.markdown(
+        f"""
+        <div class="kpi-card {state_class}">
+            <div class="kpi-label">{label}</div>
+            <div class="kpi-value">{value}</div>
+            <div class="kpi-note">{note}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def chart_layout(fig, height=400):
     fig.update_layout(
@@ -214,15 +270,18 @@ with col2:
 kpi = load_kpi_data()
 if not kpi.empty:
     r = kpi.iloc[0]
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Contratos", int(r["total"]))
-    c2.metric("Exposición", f"${r['exposure']/1e9:.2f}B", delta=f"${r['exposure']/1e6:.0f}M MXN")
-    c3.metric("Score Promedio", f"{r['avg_score']}/10")
-    c4, c5, c6 = st.columns(3)
-    c4.metric("Críticos + Altos", f"{int(r['criticos'])+int(r['altos'])}/{int(r['total'])}",
-              delta=f"{r['pct_exposure_risk']}% exposición en riesgo", delta_color="inverse")
-    c5.metric("Sin Garantía", int(r["sin_garantia"]))
-    c6.metric("Vendors", int(r["vendors"]), delta=f"Plazo prom. {int(r['avg_plazo'])}d")
+    total = int(r["total"] or 0)
+    high_count = int(r["criticos"] or 0) + int(r["altos"] or 0)
+    pct_risk = float(r["pct_exposure_risk"] or 0)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        kpi_card("Exposición Total", format_mxn(r["exposure"]), "MXN en contratos analizados", "ok")
+    with c2:
+        kpi_card("Exposición en Riesgo", f"{pct_risk:.1f}%", f"{high_count}/{total} contratos alto o crítico", "critical" if pct_risk >= 30 else "warning")
+    with c3:
+        kpi_card("Score Promedio", f"{float(r['avg_score'] or 0):.1f}/10", f"Plazo prom. {int(r['avg_plazo'] or 0)} días", "warning")
+    with c4:
+        kpi_card("Sin Garantía", f"{int(r['sin_garantia'] or 0)}", f"{int(r['vendors'] or 0)} vendors únicos", "critical" if int(r["sin_garantia"] or 0) else "ok")
 else:
     st.warning("⚠️ No se pudo cargar datos de KPIs. Verifica la conexión DWS y que existan datos en `risk_results`.")
 
@@ -245,6 +304,7 @@ with tab1:
     with col_left:
         # Treemap: exposición por vendor coloreado por riesgo
         st.subheader("💰 Exposición por Vendor — Treemap")
+        st.markdown('<div class="section-note">Concentración de exposición; el color indica score promedio.</div>', unsafe_allow_html=True)
         vdata = load_vendor_data()
         if not vdata.empty:
             fig_tree = px.treemap(
@@ -268,6 +328,7 @@ with tab1:
     with col_right:
         # Donut + horizontal bars
         st.subheader("🎯 Distribución de Riesgo")
+        st.markdown('<div class="section-note">Composición del portafolio por nivel normalizado de riesgo.</div>', unsafe_allow_html=True)
         dist = load_risk_distribution()
         if not dist.empty:
             # Donut chart
@@ -281,13 +342,15 @@ with tab1:
                 customdata=dist[["avg_score", "exposure_mxn_m"]],
                 sort=False,
             ))
-            fig_donut.add_annotation(text=f"<b>{int(kpi.iloc[0]['total'])}</b><br><span style='font-size:11px'>contratos</span>",
+            total_contracts = int(kpi.iloc[0]["total"]) if not kpi.empty else int(dist["count"].sum())
+            fig_donut.add_annotation(text=f"<b>{total_contracts}</b><br><span style='font-size:11px'>contratos</span>",
                                      x=0.5, y=0.5, showarrow=False, font=dict(size=22, color=TEXT_COLOR))
             fig_donut.update_layout(height=350, margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor=CHART_BG, showlegend=False)
             st.plotly_chart(fig_donut, width='stretch', config={"displayModeBar": False})
 
     # Geo map: Mexico risk by state
     st.subheader("🗺️  Mapa de Riesgo por Estado — México")
+    st.markdown('<div class="section-note">Vista territorial de exposición y contratos de mayor severidad.</div>', unsafe_allow_html=True)
     geo_data = load_geo_data()
     if not geo_data.empty:
         geo_data["lat"] = geo_data["state"].map(lambda s: MEX_STATE_COORDS.get(s, (19.43, -99.13))[0])
@@ -333,47 +396,6 @@ with tab1:
             coloraxis_showscale=False,
         )
         st.plotly_chart(fig_geo, width='stretch', config={"displayModeBar": False})
-
-    # Bottom row: Risk score distribution histogram + scatter
-    col_bl, col_br = st.columns([1, 1.3])
-    with col_bl:
-        st.subheader("📈 Distribución de Risk Scores")
-        scatter_data = load_scatter_data()
-        if not scatter_data.empty:
-            fig_hist = px.histogram(
-                scatter_data, x="risk_score", nbins=12,
-                color_discrete_sequence=["#00d4aa"],
-                opacity=0.8,
-            )
-            fig_hist.update_traces(
-                hovertemplate="Score: %{x:.1f}<br>Contratos: %{y}<extra></extra>",
-                marker_line=dict(color="#00d4aa", width=1),
-            )
-            chart_layout(fig_hist, height=320)
-            fig_hist.update_xaxes(title="Risk Score", tickvals=[1,2,3,4,5,6,7,8,9,10])
-            fig_hist.update_yaxes(title="Contratos")
-            st.plotly_chart(fig_hist, width='stretch', config={"displayModeBar": False})
-
-    with col_br:
-        st.subheader("🎯 Monto vs Riesgo — Bubble Chart")
-        if not scatter_data.empty:
-            fig_bubble = px.scatter(
-                scatter_data, x="mxn_m", y="risk_score",
-                size="plazo_dias", color="risk_level",
-                color_discrete_map=RISK_COLORS,
-                category_orders={"risk_level": RISK_ORDER},
-                hover_name="vendor_name",
-                hover_data={"contract_number": True, "garantia_pct": ":.1f", "plazo_dias": True},
-                size_max=55,
-            )
-            fig_bubble.update_traces(
-                marker=dict(opacity=0.85, line=dict(width=1, color="#1e2a3a")),
-                hovertemplate="<b>%{hovertext}</b><br>%{customdata[0]}<br>Monto: $%{x:.1f}M · Score: %{y:.1f}<br>Plazo: %{customdata[2]}d · Garantía: %{customdata[1]:.1f}%<extra></extra>",
-            )
-            chart_layout(fig_bubble, height=320)
-            fig_bubble.update_xaxes(title="Monto (M MXN)", gridcolor=GRID_COLOR)
-            fig_bubble.update_yaxes(title="Risk Score", gridcolor=GRID_COLOR, range=[0, 10.5])
-            st.plotly_chart(fig_bubble, width='stretch', config={"displayModeBar": False})
 
 # ═══════════════════════════════════════════════
 #  TAB 2: CONTRATOS
@@ -574,6 +596,45 @@ with tab4:
     # Aggregate risk factors across all contracts
     risk_dist = load_risk_distribution()
     scatter_data = load_scatter_data()
+
+    col_bl, col_br = st.columns([1, 1.3])
+    with col_bl:
+        st.subheader("📈 Distribución de Risk Scores")
+        if not scatter_data.empty:
+            fig_hist = px.histogram(
+                scatter_data, x="risk_score", nbins=12,
+                color_discrete_sequence=["#00d4aa"],
+                opacity=0.8,
+            )
+            fig_hist.update_traces(
+                hovertemplate="Score: %{x:.1f}<br>Contratos: %{y}<extra></extra>",
+                marker_line=dict(color="#00d4aa", width=1),
+            )
+            chart_layout(fig_hist, height=320)
+            fig_hist.update_xaxes(title="Risk Score", tickvals=[1,2,3,4,5,6,7,8,9,10])
+            fig_hist.update_yaxes(title="Contratos")
+            st.plotly_chart(fig_hist, width='stretch', config={"displayModeBar": False})
+
+    with col_br:
+        st.subheader("🎯 Monto vs Riesgo — Bubble Chart")
+        if not scatter_data.empty:
+            fig_bubble = px.scatter(
+                scatter_data, x="mxn_m", y="risk_score",
+                size="plazo_dias", color="risk_level",
+                color_discrete_map=RISK_COLORS,
+                category_orders={"risk_level": RISK_ORDER},
+                hover_name="vendor_name",
+                hover_data={"contract_number": True, "garantia_pct": ":.1f", "plazo_dias": True},
+                size_max=55,
+            )
+            fig_bubble.update_traces(
+                marker=dict(opacity=0.85, line=dict(width=1, color="#1e2a3a")),
+                hovertemplate="<b>%{hovertext}</b><br>%{customdata[0]}<br>Monto: $%{x:.1f}M · Score: %{y:.1f}<br>Plazo: %{customdata[2]}d · Garantía: %{customdata[1]:.1f}%<extra></extra>",
+            )
+            chart_layout(fig_bubble, height=320)
+            fig_bubble.update_xaxes(title="Monto (M MXN)", gridcolor=GRID_COLOR)
+            fig_bubble.update_yaxes(title="Risk Score", gridcolor=GRID_COLOR, range=[0, 10.5])
+            st.plotly_chart(fig_bubble, width='stretch', config={"displayModeBar": False})
 
     if not risk_dist.empty:
         # Radar chart: risk distribution by level (count + exposure)

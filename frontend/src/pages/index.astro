@@ -82,7 +82,7 @@ const demoCards = [
   </section>
 
   <!-- KPI Bar (LIVE from DWS API) -->
-  <section class="bg-white border-b border-gs-gray-100">
+  <section class="surface-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children" id="home-kpi-grid">
         <div id="home-kpi-vendors"><MetricCard value="—" label="Proveedores Analizados" trend="Cargando..." trendUp={true} icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' /></div>
@@ -138,7 +138,7 @@ const demoCards = [
   </section>
 
   <!-- Architecture Overview -->
-  <section class="bg-white py-16">
+  <section class="surface-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12" data-animate>
         <h2 class="section-title !text-gs-navy">Arquitectura en Huawei Cloud</h2>
@@ -162,7 +162,7 @@ const demoCards = [
           { name: 'CTS', desc: 'Audit Trail', icon: '🛡️' },
           { name: 'Terraform', desc: 'IaC Zero-Diff', icon: '🏗️' },
         ].map((svc) => (
-          <div class="card p-4 text-center hover:-translate-y-1 transition-transform">
+          <div class="card-light p-4 text-center hover:-translate-y-1 transition-transform">
             <div class="text-3xl mb-2">{svc.icon}</div>
             <p class="text-sm font-bold text-gs-navy">{svc.name}</p>
             <p class="text-xs text-gs-gray-600">{svc.desc}</p>

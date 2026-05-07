@@ -27,17 +27,17 @@ const contracts = [
   <section class="bg-gradient-to-br from-amber-700 to-amber-500 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center space-x-2 mb-4">
-        <a href="/" class="text-amber-800 hover:text-amber-900 text-sm">Inicio</a>
+        <a href="/" class="text-white/80 hover:text-white text-sm">Inicio</a>
         <span class="text-amber-400">/</span>
-        <span class="text-sm text-amber-800">Demo 3</span>
+        <span class="text-sm text-white/80">Demo 3</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2 text-white">Contract AI</h1>
-      <p class="text-lg text-amber-900">Análisis inteligente de contratos con OCR, DeepSeek v4 Flash y chatbot RAG.</p>
+      <p class="text-lg text-white/90">Análisis inteligente de contratos con OCR, DeepSeek v4 Flash y chatbot RAG.</p>
     </div>
   </section>
 
   <!-- Pipeline -->
-  <section class="bg-white border-b border-gs-gray-100">
+  <section class="surface-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Pipeline de Análisis</h2>
       <PipelineDiagram variant="contract" />
@@ -45,7 +45,8 @@ const contracts = [
   </section>
 
   <!-- Main Content: Uploader + Contracts -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <section class="surface-light py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Upload Zone -->
       <div>
@@ -77,7 +78,7 @@ const contracts = [
             </div>
           </div>
 
-          <div class="bg-gs-gray-50 rounded-xl p-4 mb-4">
+          <div class="bg-gs-gray-50 rounded-lg p-4 mb-4 border border-gs-gray-200">
             <p class="text-sm text-gs-gray-600 italic">
               "Puedo analizar contratos, identificar cláusulas de riesgo, comparar términos entre proveedores y generar resúmenes ejecutivos. Prueba con las preguntas de abajo."
             </p>
@@ -101,10 +102,11 @@ const contracts = [
         </div>
       </div>
     </div>
+    </div>
   </section>
 
   <!-- Pre-analyzed Contracts -->
-  <section class="bg-white py-10">
+  <section class="surface-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 class="section-title mb-2 !text-gs-navy">Contratos Pre-analizados</h2>
       <p class="section-subtitle mb-8">Resultados del pipeline OCR + DeepSeek v4 Flash para los contratos de demostración.</p>
@@ -145,7 +147,8 @@ const contracts = [
   </section>
 
   <!-- LLM Observability — Langfuse -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <section class="surface-light py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <h2 class="section-title mb-2">Observabilidad LLM</h2>
     <p class="section-subtitle mb-8">Cada llamada al modelo se traza en Langfuse: modelo, prompt, latencia, tokens, coste.</p>
 
@@ -169,7 +172,7 @@ const contracts = [
         </div>
       </div>
 
-      <div class="bg-gs-gray-50 rounded-xl p-8 text-center border border-gs-gray-200">
+      <div class="bg-gs-gray-50 rounded-lg p-8 text-center border border-gs-gray-200">
         <p class="text-4xl mb-3">🔍</p>
         <p class="text-sm text-gs-gray-600 mb-4">
           Langfuse registra cada interacción del chatbot: qué modelo se usó, qué prompt se envió,
@@ -186,19 +189,20 @@ const contracts = [
 
       <!-- What Langfuse shows -->
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+        <div class="bg-white border border-gs-gray-200 rounded-lg p-4">
           <p class="text-sm font-semibold text-gs-navy mb-1">📋 Trace Completo</p>
           <p class="text-xs text-gs-gray-500">Cada pregunta del chatbot genera un trace con input, output, modelo usado y score de relevancia.</p>
         </div>
-        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+        <div class="bg-white border border-gs-gray-200 rounded-lg p-4">
           <p class="text-sm font-semibold text-gs-navy mb-1">⚡ Latencia y Coste</p>
           <p class="text-xs text-gs-gray-500">Tiempo de respuesta por modelo, tokens consumidos, coste estimado por query.</p>
         </div>
-        <div class="bg-white border border-gs-gray-200 rounded-xl p-4">
+        <div class="bg-white border border-gs-gray-200 rounded-lg p-4">
           <p class="text-sm font-semibold text-gs-navy mb-1">🛡️ Auditoría de IA</p>
           <p class="text-xs text-gs-gray-500">Historial completo de cada decisión del LLM. Trazabilidad para cumplimiento regulatorio.</p>
         </div>
       </div>
+    </div>
     </div>
   </section>
 
