@@ -27,19 +27,19 @@ const contracts = [
   <section class="bg-gradient-to-br from-amber-700 to-amber-500 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center space-x-2 mb-4">
-        <a href="/" class="text-amber-200 hover:text-white text-sm">Inicio</a>
+        <a href="/" class="text-amber-800 hover:text-amber-900 text-sm">Inicio</a>
         <span class="text-amber-400">/</span>
-        <span class="text-sm text-amber-200">Demo 3</span>
+        <span class="text-sm text-amber-800">Demo 3</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-bold mb-2">Contract AI</h1>
-      <p class="text-lg text-amber-100">Análisis inteligente de contratos con OCR, DeepSeek v4 Flash y chatbot RAG.</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gs-navy">Contract AI</h1>
+      <p class="text-lg text-amber-900">Análisis inteligente de contratos con OCR, DeepSeek v4 Flash y chatbot RAG.</p>
     </div>
   </section>
 
   <!-- Pipeline -->
   <section class="bg-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Pipeline de Análisis</h2>
+      <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Pipeline de Análisis</h2>
       <PipelineDiagram variant="contract" />
     </div>
   </section>
@@ -50,7 +50,7 @@ const contracts = [
       <!-- Upload Zone -->
       <div>
         <h2 class="section-title mb-4">Subir Contrato</h2>
-        <p class="text-sm text-gs-gray-600 mb-6">
+        <p class="text-sm text-gray-700 mb-6">
           Arrastra un PDF o haz clic para analizar. El pipeline OCR + IA extraerá cláusulas, evaluará riesgos y generará un score en segundos.
         </p>
         <ContractUploader />
@@ -59,7 +59,7 @@ const contracts = [
       <!-- Chatbot CTA -->
       <div>
         <h2 class="section-title mb-4">Consultar con IA</h2>
-        <p class="text-sm text-gs-gray-600 mb-6">
+        <p class="text-sm text-gray-700 mb-6">
           Usa el chatbot RAG para hacer preguntas sobre contratos, cláusulas, proveedores y riesgos. Powered by DeepSeek v4 Flash.
         </p>
 
@@ -69,7 +69,7 @@ const contracts = [
               <span class="text-sm text-gs-gold font-bold">A</span>
             </div>
             <div>
-              <p class="font-semibold text-gs-navy">AYCO — Asistente de Contratos</p>
+              <p class="font-semibold text-white">AYCO — Asistente de Contratos</p>
               <p class="text-xs text-emerald-600 flex items-center">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse-soft"/>
                 En línea · DeepSeek v4 Flash
@@ -115,14 +115,14 @@ const contracts = [
             <div class="flex items-start justify-between mb-4">
               <div>
                 <p class="text-xs text-gs-gray-400 font-mono">{c.id}</p>
-                <h3 class="text-lg font-bold text-gs-navy">{c.name}</h3>
+                <h3 class="text-lg font-bold text-white">{c.name}</h3>
               </div>
               <RiskGauge score={c.risk} size="sm" animated={false} />
             </div>
 
             <div class="flex items-center justify-between mb-4">
               <span class="text-sm text-gs-gray-600">Monto</span>
-              <span class="text-sm font-bold text-gs-navy">{c.amount}</span>
+              <span class="text-sm font-bold text-white">{c.amount}</span>
             </div>
 
             <div class="border-t border-gs-gray-100 pt-4">

@@ -23,12 +23,12 @@ const etlSteps = [
   <section class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center space-x-2 mb-4">
-        <a href="/" class="text-emerald-200 hover:text-white text-sm">Inicio</a>
+        <a href="/" class="text-emerald-800 hover:text-emerald-900 text-sm">Inicio</a>
         <span class="text-emerald-400">/</span>
-        <span class="text-sm text-emerald-200">Demo 2</span>
+        <span class="text-sm text-emerald-800">Demo 2</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2">Data Governance</h1>
-      <p class="text-lg text-emerald-100 mb-3">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
+      <p class="text-lg text-emerald-900 mb-3">Arquitectura en capas ODS → DW → DM con DWS, DLI Spark y Langfuse.</p>
       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200 text-amber-900">
         📐 Arquitectura de Referencia — Datos en vivo en DWS Console y Langfuse
       </span>
@@ -38,7 +38,7 @@ const etlSteps = [
   <!-- Pipeline -->
   <section class="bg-white border-b border-gs-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 class="text-sm font-semibold text-gs-gray-600 uppercase tracking-wider mb-4">Arquitectura en Capas — ODS → DW → DM</h2>
+      <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Arquitectura en Capas — ODS → DW → DM</h2>
       <PipelineDiagram variant="governance" />
     </div>
   </section>
@@ -55,7 +55,7 @@ const etlSteps = [
           <div class="flex-1">
             <div class="flex items-center space-x-3">
               <span class="text-xs font-bold text-gs-gray-400">PASO {i + 1}</span>
-              <h3 class="text-lg font-bold text-gs-navy">{step.name}</h3>
+              <h3 class="text-lg font-bold text-white">{step.name}</h3>
               <span class={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                 step.status === 'complete'
                   ? 'bg-emerald-100 text-emerald-700'
@@ -64,7 +64,7 @@ const etlSteps = [
                 {step.status === 'complete' ? 'Completado' : 'Activo'}
               </span>
             </div>
-            <p class="text-sm text-gs-gray-600 mt-1">{step.desc}</p>
+            <p class="text-sm text-gs-gray-300 mt-1">{step.desc}</p>
           </div>
           <div class="hidden md:flex items-center">
             {step.status === 'complete' ? (
@@ -91,21 +91,21 @@ const etlSteps = [
         <div class="card p-6 border-l-4 border-amber-500">
           <div class="flex items-center space-x-2 mb-3">
             <span class="text-2xl">📥</span>
-            <h3 class="text-lg font-bold text-gs-navy">ODS — Datos Crudos</h3>
+            <h3 class="text-lg font-bold text-white">ODS — Datos Crudos</h3>
           </div>
-          <p class="text-sm text-gs-gray-600 mb-4">Ingesta directa desde fuentes. Sin transformación. Auditoría de origen.</p>
+          <p class="text-sm text-gs-gray-300 mb-4">Ingesta directa desde fuentes. Sin transformación. Auditoría de origen.</p>
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">vendors</span>
-              <span class="font-mono text-gs-navy">2,300 registros</span>
+              <span class="text-gs-gray-300">vendors</span>
+              <span class="font-mono text-white">2,300 registros</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">customers</span>
-              <span class="font-mono text-gs-navy">500 registros</span>
+              <span class="text-gs-gray-300">customers</span>
+              <span class="font-mono text-white">500 registros</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">transactions</span>
-              <span class="font-mono text-gs-navy">5,000 registros</span>
+              <span class="text-gs-gray-300">transactions</span>
+              <span class="font-mono text-white">5,000 registros</span>
             </div>
           </div>
         </div>
@@ -114,21 +114,21 @@ const etlSteps = [
         <div class="card p-6 border-l-4 border-yellow-500">
           <div class="flex items-center space-x-2 mb-3">
             <span class="text-2xl">🔄</span>
-            <h3 class="text-lg font-bold text-gs-navy">DW — Esquema Estrella</h3>
+            <h3 class="text-lg font-bold text-white">DW — Esquema Estrella</h3>
           </div>
-          <p class="text-sm text-gs-gray-600 mb-4">Limpieza, deduplicación, normalización. Dimensiones + hechos.</p>
+          <p class="text-sm text-gs-gray-300 mb-4">Limpieza, deduplicación, normalización. Dimensiones + hechos.</p>
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">dim_vendor</span>
-              <span class="font-mono text-gs-navy">2,300 registros</span>
+              <span class="text-gs-gray-300">dim_vendor</span>
+              <span class="font-mono text-white">2,300 registros</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">dim_customer</span>
-              <span class="font-mono text-gs-navy">500 registros</span>
+              <span class="text-gs-gray-300">dim_customer</span>
+              <span class="font-mono text-white">500 registros</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">fact_transaction</span>
-              <span class="font-mono text-gs-navy">5,000 registros</span>
+              <span class="text-gs-gray-300">fact_transaction</span>
+              <span class="font-mono text-white">5,000 registros</span>
             </div>
           </div>
         </div>
@@ -137,21 +137,21 @@ const etlSteps = [
         <div class="card p-6 border-l-4 border-emerald-500">
           <div class="flex items-center space-x-2 mb-3">
             <span class="text-2xl">📈</span>
-            <h3 class="text-lg font-bold text-gs-navy">DM — Vistas Analíticas</h3>
+            <h3 class="text-lg font-bold text-white">DM — Vistas Analíticas</h3>
           </div>
-          <p class="text-sm text-gs-gray-600 mb-4">Agregaciones pre-calculadas para dashboards y reportes ejecutivos.</p>
+          <p class="text-sm text-gs-gray-300 mb-4">Agregaciones pre-calculadas para dashboards y reportes ejecutivos.</p>
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">vendor_risk_summary</span>
-              <span class="font-mono text-gs-navy">15 proveedores</span>
+              <span class="text-gs-gray-300">vendor_risk_summary</span>
+              <span class="font-mono text-white">15 proveedores</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">city_risk</span>
-              <span class="font-mono text-gs-navy">32 estados</span>
+              <span class="text-gs-gray-300">city_risk</span>
+              <span class="font-mono text-white">32 estados</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gs-gray-500">anomaly_summary</span>
-              <span class="font-mono text-gs-navy">patrones CNBV</span>
+              <span class="text-gs-gray-300">anomaly_summary</span>
+              <span class="font-mono text-white">patrones CNBV</span>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@ const etlSteps = [
         <div class="card p-6">
           <p class="metric-label mb-1">{m.label}</p>
           <p class="metric-value">{m.value}</p>
-          <p class="text-sm text-gs-gray-600 mt-1">{m.desc}</p>
+          <p class="text-sm text-gs-gray-300 mt-1">{m.desc}</p>
           <div class="mt-4 h-2 bg-gs-gray-100 rounded-full overflow-hidden">
             <div class={`h-full ${m.color} rounded-full`} style={`width: ${m.value.includes('%') ? m.value : '85%'}`}/>
           </div>
