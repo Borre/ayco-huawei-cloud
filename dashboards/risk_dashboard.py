@@ -223,6 +223,8 @@ if not kpi.empty:
               delta=f"{r['pct_exposure_risk']}% exposición en riesgo", delta_color="inverse")
     c5.metric("Sin Garantía", int(r["sin_garantia"]))
     c6.metric("Vendors", int(r["vendors"]), delta=f"Plazo prom. {int(r['avg_plazo'])}d")
+else:
+    st.warning("⚠️ No se pudo cargar datos de KPIs. Verifica la conexión DWS y que existan datos en `risk_results`.")
 
 # ═══════════════════════════════════════════════════════════
 #  TABS
@@ -380,30 +382,31 @@ with tab2:
     contracts = load_contract_detail()
     if not contracts.empty:
         # Filters
-        filt_col1, filt_col2, filt_col3, filt_col4 = st.columns([2, 1.5, 1, 1])
+        filt_col1, filt_col2, filt_col3 = st.columns([2, 1.5, 1])
         with filt_col1:
             search = st.text_input("🔍 Buscar vendor o contrato", placeholder="Ej: Constructora...", key="search_contracts")
         with filt_col2:
             risk_filter = st.multiselect("Nivel de Riesgo", options=RISK_ORDER, default=RISK_ORDER, key="risk_filter_contracts")
         with filt_col3:
             score_min = st.slider("Score Mínimo", 0.0, 10.0, 0.0, 0.5, key="score_min")
-        with filt_col4:
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown(csv_download_link(contracts, "ayco_contracts.csv", "⬇ CSV"), unsafe_allow_html=True)
 
         # Apply filters
         filtered = contracts.copy()
         if search:
-            mask = filtered["vendor_name"].str.contains(search, case=False, na=False)
-            mask |= filtered["contract_number"].str.contains(search, case=False, na=False)
+            mask = filtered["vendor_name"].str.contains(search, case=False, na=False, regex=False)
+            mask |= filtered["contract_number"].str.contains(search, case=False, na=False, regex=False)
             filtered = filtered[mask]
         if risk_filter:
             filtered = filtered[filtered["risk_level"].isin(risk_filter)]
         if score_min > 0:
             filtered = filtered[filtered["risk_score"] >= score_min]
 
-        # Summary line
-        st.caption(f"Mostrando {len(filtered)} de {len(contracts)} contratos")
+        # Summary line + filtered CSV export
+        sum_col1, sum_col2 = st.columns([4, 1])
+        with sum_col1:
+            st.caption(f"Mostrando {len(filtered)} de {len(contracts)} contratos")
+        with sum_col2:
+            st.markdown(csv_download_link(filtered, "ayco_contracts.csv", "⬇ CSV filtrado"), unsafe_allow_html=True)
 
         # Color-coded dataframe
         def color_risk(val):
@@ -485,9 +488,9 @@ with tab2:
                     </div>
                     """
                     st.markdown(metrics_html, unsafe_allow_html=True)
+    else:
+        st.warning("⚠️ No hay datos de contratos disponibles. Verifica la conexión DWS y que la tabla `risk_results` contenga registros.")
 
-# ═══════════════════════════════════════════════
-#  TAB 3: VENDORS
 # ═══════════════════════════════════════════════
 with tab3:
     vendors = load_vendor_data()
@@ -559,6 +562,8 @@ with tab3:
             hide_index=True,
             height=38 * len(display_v) + 38,
         )
+    else:
+        st.warning("⚠️ No hay datos de vendors disponibles. Verifica la conexión DWS y que la tabla `risk_results` contenga registros.")
 
 # ═══════════════════════════════════════════════
 #  TAB 4: ANÁLISIS PROFUNDO

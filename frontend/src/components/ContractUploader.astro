@@ -222,8 +222,8 @@
     const container = document.getElementById('result-gauge-container');
     if (container) {
       const displayScore = score !== null ? score : 0;
-      const color = isError ? '#6B7280' : displayScore <= 3 ? '#22C55E' : displayScore <= 5 ? '#F59E0B' : displayScore <= 7 ? '#EF4444' : '#7C2D12';
-      const label = isError ? level : displayScore <= 3 ? 'Bajo' : displayScore <= 5 ? 'Medio' : displayScore <= 7 ? 'Alto' : 'Crítico';
+      const color = isError ? '#6B7280' : displayScore < 4 ? '#00d4aa' : displayScore < 6 ? '#ffd700' : displayScore < 8 ? '#ff8c00' : '#ff4444';
+      const label = isError ? level : displayScore < 4 ? 'Bajo' : displayScore < 6 ? 'Medio' : displayScore < 8 ? 'Alto' : 'Crítico';
 
       container.innerHTML = `
         <div class="relative" style="width: 100px; height: 100px">

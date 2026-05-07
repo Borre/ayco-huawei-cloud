@@ -10,6 +10,7 @@ st.set_page_config(page_title="AYCO Risk Intelligence", page_icon="🛡️", lay
 # ── Mock Data Generator ──
 @st.cache_data(ttl=9999)
 def generate_mock_data():
+    random.seed(42)  # Reproducible demo data
     vendors = ["Constructora del Sur", "TechSoluciones MX", "Transportes Monterrey",
                "Grupo Alimenticio del Bajío", "Desarrollos Urbanos Norte", "Seguridad Privada Azteca",
                "Limpieza Industrial León", "Consultoría Estratégica CDMX", "Muebles y Oficinas del Centro",

@@ -1,3 +1,21 @@
+resource "huaweicloud_vpc_eip" "dws" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "ayco-dws-eip-bw"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+  tags = {
+    project     = "ayco"
+    environment = "demo"
+    managed_by  = "terraform"
+    role        = "dws-public-ip"
+  }
+}
+
 resource "huaweicloud_dws_cluster" "ayco" {
   name              = "ayco-dws"
   node_type         = "dwsx3.4U16G.4DPU"
@@ -12,7 +30,8 @@ resource "huaweicloud_dws_cluster" "ayco" {
   availability_zone = "la-north-2a"
 
   public_ip {
-    public_bind_type = "auto_assign"
+    public_bind_type = "bind_existing"
+    eip_id           = huaweicloud_vpc_eip.dws.id
   }
 
   tags = {

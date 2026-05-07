@@ -2,6 +2,11 @@
 -- Seed DWS schema + sample queries para AYCO demo
 -- Ejecutar: PGPASSWORD=*** psql -h $DWS_ENDPOINT -U ayco_admin -d ayco_db -f seed-dws.sql
 
+-- ─── Schemas ────────────────────────────────────────
+CREATE SCHEMA IF NOT EXISTS ods;
+CREATE SCHEMA IF NOT EXISTS dw;
+CREATE SCHEMA IF NOT EXISTS dm;
+
 -- ─── ODS: Tablas raw ────────────────────────────────
 CREATE TABLE IF NOT EXISTS ods.vendors (
     vendor_id           VARCHAR(10) PRIMARY KEY,

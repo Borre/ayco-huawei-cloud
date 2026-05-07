@@ -3,6 +3,11 @@ output "dws_endpoint" {
   value       = length(huaweicloud_dws_cluster.ayco.public_endpoints) > 0 ? huaweicloud_dws_cluster.ayco.public_endpoints[0].public_connect_info : ""
 }
 
+output "dws_public_ip" {
+  description = "DWS managed EIP address"
+  value       = huaweicloud_vpc_eip.dws.address
+}
+
 output "dws_private_ip" {
   description = "DWS private IP"
   value       = length(huaweicloud_dws_cluster.ayco.private_ip) > 0 ? huaweicloud_dws_cluster.ayco.private_ip[0] : ""

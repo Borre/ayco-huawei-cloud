@@ -13,6 +13,11 @@ output "dws_endpoint" {
   value       = module.data_platform.dws_endpoint
 }
 
+output "dws_public_ip" {
+  description = "DWS managed EIP address"
+  value       = module.data_platform.dws_public_ip
+}
+
 output "ecs_ips" {
   description = "All ECS public IPs"
   value       = module.compute.all_public_ips
