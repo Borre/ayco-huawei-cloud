@@ -24,8 +24,8 @@ def generate_mock_data():
     data = []
     for i, vendor in enumerate(vendors, 1):
         risk = random.choices(risk_levels, weights=weights, k=1)[0]
-        score = {"Bajo": random.randint(10,30), "Medio": random.randint(31,55), 
-                 "Alto": random.randint(56,80), "Crítico": random.randint(81,100)}[risk]
+        score = {"Bajo": round(random.uniform(1.0, 3.9), 1), "Medio": round(random.uniform(4.0, 5.9), 1),
+                 "Alto": round(random.uniform(6.0, 7.9), 1), "Crítico": round(random.uniform(8.0, 10.0), 1)}[risk]
         data.append({
             "id": f"AYC-CONT-{i:04d}",
             "vendor": vendor,
@@ -64,8 +64,8 @@ with col2:
 # ── KPI Row ──
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Contratos Activos", len(df[df["status"] == "Activo"]))
-k2.metric("Avg Risk Score", f"{df['risk_score'].mean():.1f}", 
-          delta=f"{df[df['risk_level'].isin(['Alto','Crítico'])]['risk_score'].mean():.0f} avg críticos",
+k2.metric("Avg Risk Score", f"{df['risk_score'].mean():.1f}/10",
+          delta=f"{df[df['risk_level'].isin(['Alto','Crítico'])]['risk_score'].mean():.1f} avg críticos",
           delta_color="inverse")
 k3.metric("Monto Total", f"${df['monto'].sum()/1e6:.1f}M MXN")
 k4.metric("Alertas Críticas", len(df[df["risk_level"] == "Crítico"]), 
@@ -104,7 +104,7 @@ with tab3:
                  use_container_width=True, hide_index=True,
                  column_config={
                      "monto": st.column_config.NumberColumn("Monto MXN", format="$%d"),
-                     "risk_score": st.column_config.ProgressColumn("Risk Score", min_value=0, max_value=100, format="%d"),
+                      "risk_score": st.column_config.NumberColumn("Risk Score", min_value=0, max_value=10, format="%.1f"),
                      "dias_restantes": st.column_config.NumberColumn("Días Restantes", format="%d"),
                  })
 

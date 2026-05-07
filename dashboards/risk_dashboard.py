@@ -214,10 +214,11 @@ with col2:
 kpi = load_kpi_data()
 if not kpi.empty:
     r = kpi.iloc[0]
-    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1, c2, c3 = st.columns(3)
     c1.metric("Contratos", int(r["total"]))
     c2.metric("Exposición", f"${r['exposure']/1e9:.2f}B", delta=f"${r['exposure']/1e6:.0f}M MXN")
     c3.metric("Score Promedio", f"{r['avg_score']}/10")
+    c4, c5, c6 = st.columns(3)
     c4.metric("Críticos + Altos", f"{int(r['criticos'])+int(r['altos'])}/{int(r['total'])}",
               delta=f"{r['pct_exposure_risk']}% exposición en riesgo", delta_color="inverse")
     c5.metric("Sin Garantía", int(r["sin_garantia"]))

@@ -51,7 +51,7 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
   <section class="py-12 bg-gs-navy-light/30 border-y border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 class="text-xs font-black text-gs-gray-600 uppercase tracking-[0.3em] mb-8 text-center">Data Pipeline Architecture</h2>
-      <PipelineDiagram variant="risk" />
+      <PipelineDiagram variant="risk" dark />
     </div>
   </section>
 
@@ -454,7 +454,7 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
           '</td>' +
           '<td class="px-8 py-6 font-black text-white">' + fmtMXN(c.monto_total || 0) + '</td>' +
           '<td class="px-8 py-6 text-right">' +
-            '<a href="http://149.232.129.39/api/chat?query=Analiza el contrato ' + escapeHtml(c.contract_number || '') + '"' +
+             '<a href="/api/chat?query=Analiza el contrato ' + escapeHtml(c.contract_number || '') + '"' +
               ' target="_blank" class="btn-primary py-2 px-4 text-xs">' +
               'Deep Analysis AI' +
             '</a>' +

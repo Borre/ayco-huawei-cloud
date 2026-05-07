@@ -21,23 +21,23 @@ const progress = (score / 10) * circumference;
 const offset = circumference - progress;
 
 function getColor(sc: number): string {
-  if (sc <= 3) return '#22C55E';
-  if (sc <= 5) return '#F59E0B';
-  if (sc <= 7) return '#EF4444';
-  return '#7C2D12';
+  if (sc < 4) return '#00d4aa';
+  if (sc < 6) return '#ffd700';
+  if (sc < 8) return '#ff8c00';
+  return '#ff4444';
 }
 
 function getLabel(sc: number): string {
-  if (sc <= 3) return 'Bajo';
-  if (sc <= 5) return 'Medio';
-  if (sc <= 7) return 'Alto';
+  if (sc < 4) return 'Bajo';
+  if (sc < 6) return 'Medio';
+  if (sc < 8) return 'Alto';
   return 'Crítico';
 }
 
 function getBadgeClass(sc: number): string {
-  if (sc <= 3) return 'badge-risk-low';
-  if (sc <= 5) return 'badge-risk-medium';
-  if (sc <= 7) return 'badge-risk-high';
+  if (sc < 4) return 'badge-risk-low';
+  if (sc < 6) return 'badge-risk-medium';
+  if (sc < 8) return 'badge-risk-high';
   return 'badge-risk-critical';
 }
 
@@ -54,7 +54,7 @@ const riskLabel = getLabel(score);
         cy={s.w / 2}
         r={radius}
         fill="none"
-        stroke="#E9ECEF"
+        stroke="#1e2a3a"
         stroke-width={s.stroke}
         stroke-linecap="round"
       />
