@@ -17,7 +17,7 @@ import urllib.parse
 import urllib.request
 
 
-OCR_ENDPOINT = os.environ.get("OCR_ENDPOINT", "ocr.la-north-2.myhuaweicloud.com")
+OCR_ENDPOINT = os.environ.get("OCR_ENDPOINT", "ocr.ap-southeast-1.myhuaweicloud.com")
 OCR_PATH = "/v2/{project_id}/ocr/general-text"
 
 
@@ -148,17 +148,19 @@ def download_from_obs(bucket, key, context):
 
 
 def call_ocr_api(pdf_data, key, context):
+    # First try direct text extraction from PDF (faster, works for text-based PDFs)
+    text = fallback_pdftotext(pdf_data, key)
+    if text and len(text) > 100:
+        print(f"[PDF Extract] Got {len(text)} chars from text-based PDF")
+        return text
+
+    # Fallback: try Huawei Cloud OCR (cross-region to ap-southeast-1)
     ak, sk = _credentials(context)
     project_id = _context_get(context, "project_id") or os.environ.get("HUAWEI_PROJECT_ID", "")
-
     if not ak or not sk or not project_id:
-        print("[OCR] Missing credentials, falling back to pdftotext")
-        return fallback_pdftotext(pdf_data, key)
+        raise RuntimeError(f"No credentials for OCR and PDF has no extractable text")
 
-    # Log what we're doing
-    ocr_endpoint = OCR_ENDPOINT
-    print(f"[OCR] Calling {ocr_endpoint} (project={project_id[:8]}...) for {key} ({len(pdf_data)} bytes)")
-
+    print(f"[OCR] Calling OCR API for {key} ({len(pdf_data)} bytes)")
     all_text = []
     for page in range(1, 21):
         try:
@@ -171,15 +173,14 @@ def call_ocr_api(pdf_data, key, context):
             if "AIS.0005" in error or "page" in error.lower():
                 break
             print(f"[OCR] Page {page} failed: {type(exc).__name__}: {exc}")
-            return fallback_pdftotext(pdf_data, key)
+            break
 
     if all_text:
-        full_text = "\n\n".join(all_text)
-        print(f"[OCR] Huawei Cloud OCR extracted {len(full_text)} chars from {len(all_text)} pages")
-        return full_text
+        text = "\n\n".join(all_text)
+        print(f"[OCR] Extracted {len(text)} chars from {len(all_text)} pages")
+        return text
 
-    print("[OCR] No OCR text extracted; falling back to pdftotext")
-    return fallback_pdftotext(pdf_data, key)
+    raise RuntimeError(f"Could not extract text from PDF ({len(pdf_data)} bytes)")
 
 
 def _call_ocr_single_page(pdf_data, page_number, ak, sk, project_id):
@@ -295,38 +296,37 @@ def fallback_pdftotext(pdf_data, key):
     except Exception as exc:
         print(f"[PyPDF2] Failed: {exc}")
 
-    # Fallback: try PyPDF2 then raw extraction with zlib decompression
+    # Fallback: try raw extraction with zlib decompression
     try:
-        import io, re, zlib
+        import re, zlib
         raw = pdf_data
         texts = []
-        # Method 1: Try zlib decompress for FlateDecode streams
         for match in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", raw, re.DOTALL):
             try:
                 decompressed = zlib.decompress(match.group(1))
-                decoded = decompressed.decode("latin-1", errors="ignore")
-                # Extract text between BT and ET
-                for bt_block in re.findall(r"BT(.*?)ET", decoded, re.DOTALL):
-                    for tm in re.findall(r"\(([^)]*)\)", bt_block):
-                        if tm.strip() and len(tm) > 1:
-                            texts.append(tm)
+                for enc in ["latin-1", "utf-8", "utf-16-le", "utf-16-be"]:
+                    try:
+                        decoded = decompressed.decode(enc, errors="replace")
+                        if any(c.isalpha() for c in decoded[:300]):
+                            break
+                    except Exception:
+                        continue
+                # Extract all parenthesized text from the decoded stream
+                found = re.findall(r"\(([^)]+)\)", decoded)
+                texts.extend(t for t in found if len(t.strip()) > 2 and any(c.isalpha() for c in t))
             except Exception:
                 pass
-        # Method 2: Plain text in PDF (uncompressed)
+        # Method 2: Try uncompressed text
         if not texts:
-            decoded = raw.decode("latin-1", errors="ignore")
-            for bt_block in re.findall(r"BT(.*?)ET", decoded, re.DOTALL):
-                for tm in re.findall(r"\(([^)]*)\)", bt_block):
-                    if tm.strip() and len(tm) > 1:
-                        texts.append(tm)
+            decoded = raw.decode("latin-1", errors="replace")
+            texts = [t for t in re.findall(r"\(([^)]+)\)", decoded) if len(t.strip()) > 2 and any(c.isalpha() for c in t)]
         if texts:
             text = "\n".join(texts)
-            print(f"[Raw PDF+zlib] Extracted {len(text)} chars from {key}")
             return text
     except Exception as exc:
-        print(f"[Raw PDF] Failed: {exc}")
+        raise RuntimeError(f"PDF extract failed [{type(exc).__name__}: {exc}]. PDF={len(pdf_data)}B") from exc
 
-    raise RuntimeError(f"Cannot extract text from PDF ({len(pdf_data)} bytes). Install pdftotext or PyPDF2.")
+    return None  # No text found
 
 
 def upload_to_obs(bucket, key, data, context):

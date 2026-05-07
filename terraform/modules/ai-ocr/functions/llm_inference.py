@@ -42,9 +42,13 @@ Responde SOLO en JSON válido."""
 
 
 def handler(event, context):
-    """FunctionGraph entry point."""
+    """FunctionGraph entry point. Handles message arrays from parse chain."""
     try:
-        contract_data = event.get("contract_data", event)
+        messages = event.get("messages", [])
+        if messages:
+            contract_data = messages[0].get("contract_data", messages[0])
+        else:
+            contract_data = event.get("contract_data", event)
 
         user_msg = f"""Contrato a analizar:
 - Número: {contract_data.get('contract_number', 'N/A')}

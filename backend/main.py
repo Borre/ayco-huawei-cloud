@@ -55,6 +55,12 @@ _obs_client = None
 
 def _get_obs():
     global _obs_client
+    try:
+        if _obs_client is not None:
+            # Quick health check — if closed, create new
+            _obs_client.listBuckets()
+    except Exception:
+        _obs_client = None
     if _obs_client is None:
         from obs import ObsClient
         _obs_client = ObsClient(
@@ -113,7 +119,6 @@ async def upload_contract(file: UploadFile = File(...)):
                 status_code=502,
                 detail=f"Error subiendo a OBS: HTTP {resp.status}",
             )
-        obs.close()
     except ImportError:
         raise HTTPException(
             status_code=500,
@@ -125,13 +130,201 @@ async def upload_contract(file: UploadFile = File(...)):
             detail=f"Error de conexión a OBS: {str(e)}",
         )
 
+    # Launch FunctionGraph pipeline in background (OBS triggers are unreliable)
+    import threading
+    threading.Thread(
+        target=_run_pipeline,
+        args=(obs_key, contract_number),
+        daemon=True,
+    ).start()
+
     return {
         "job_id": contract_number,
         "filename": file.filename,
         "obs_key": obs_key,
         "status": "uploaded",
-        "message": "PDF subido a OBS. Pipeline FunctionGraph disparado.",
+        "message": "PDF subido. Pipeline en progreso (~10s).",
     }
+
+
+# ─── Pipeline Runner (background) ──────────────────────
+FG_REGION = "la-north-2"
+FG_PROJECT_ID = "fbb6435c497c41bda90a0cc5240573e0"
+FG_OCR_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-ocr-trigger"
+FG_PARSE_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-parse-contract"
+FG_LLM_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-llm-inference"
+
+
+def _invoke_fg(function_urn: str, payload: dict, timeout: int = 90) -> dict | None:
+    """Invoke a FunctionGraph function synchronously and return parsed body."""
+    try:
+        from huaweicloudsdkcore.auth.credentials import BasicCredentials
+        from huaweicloudsdkfunctiongraph.v2 import FunctionGraphClient, InvokeFunctionRequest
+        from huaweicloudsdkfunctiongraph.v2.region.functiongraph_region import FunctionGraphRegion
+
+        client = FunctionGraphClient.new_builder() \
+            .with_credentials(BasicCredentials(OBS_ACCESS_KEY, OBS_SECRET_KEY)) \
+            .with_region(FunctionGraphRegion.value_of(FG_REGION)) \
+            .build()
+
+        req = InvokeFunctionRequest(function_urn=function_urn, body=json.dumps(payload))
+        resp = client.invoke_function(req)
+        raw = resp.raw_content
+        if isinstance(raw, bytes):
+            raw = raw.decode("utf-8")
+        inner = json.loads(raw)
+        body = json.loads(inner.get("body", "[]"))
+        return body
+    except Exception as e:
+        print(f"[FG] Error invoking {function_urn.split(':')[-1]}: {e}")
+        return None
+
+
+def _run_pipeline(obs_key: str, contract_number: str):
+    """Full FunctionGraph pipeline: OCR → Parse → LLM → write to OBS + DWS."""
+    try:
+        # Step 1: OCR
+        event = {"Records": [{"obs": {"bucket": {"name": OBS_RAW_BUCKET}, "object": {"key": obs_key}}}]}
+        ocr_body = _invoke_fg(FG_OCR_URN, event)
+        if not ocr_body:
+            return _write_error(contract_number, "OCR function failed")
+        parse_payload = None
+        for item in ocr_body:
+            if isinstance(item, dict) and item.get("status") == "ok":
+                parse_payload = item.get("parse_payload")
+                break
+        if not parse_payload:
+            return _write_error(contract_number, "OCR: no parse_payload")
+
+        # Step 2: Parse
+        parse_body = _invoke_fg(FG_PARSE_URN, {"messages": [parse_payload]})
+        if not parse_body:
+            return _write_error(contract_number, "Parse function failed")
+        llm_payload = None
+        for item in parse_body:
+            if isinstance(item, dict) and item.get("status") == "ok":
+                llm_payload = item.get("llm_payload")
+                break
+        if not llm_payload:
+            return _write_error(contract_number, "Parse: no llm_payload")
+
+        # Step 3: LLM
+        llm_body = _invoke_fg(FG_LLM_URN, {"messages": [llm_payload]})
+        if not llm_body:
+            return _write_error(contract_number, "LLM function failed")
+
+        # llm_body might be a dict directly or a list
+        result = llm_body if isinstance(llm_body, dict) else llm_body[0] if isinstance(llm_body, list) and llm_body else {}
+        if not result or not isinstance(result, dict):
+            return _write_error(contract_number, "LLM: no result")
+
+        # Add contract metadata
+        result["contract_number"] = contract_number
+        result["obs_key"] = obs_key
+        result["pipeline_timestamp"] = datetime.now(timezone.utc).isoformat()
+        # Merge contract_data from parse payload so DWS insert has vendor/monto/etc.
+        if "contract_data" in llm_payload:
+            result["contract_data"] = llm_payload["contract_data"]
+
+        # Write to OBS results bucket
+        obs = _get_obs()
+        result_json = json.dumps(result, ensure_ascii=False, indent=2)
+        obs.putContent(OBS_RESULTS_BUCKET, f"risk_{contract_number}.json", result_json)
+
+        # Insert into DWS
+        _insert_dws(result, contract_number)
+
+        print(f"[Pipeline] {contract_number}: {result.get('RISK_LEVEL', result.get('risk_level', '?'))}")
+
+    except Exception as e:
+        import sys
+        print(f"[Pipeline] {contract_number}: fatal — {e}", file=sys.stderr, flush=True)
+        _write_error(contract_number, str(e))
+
+
+def _write_error(contract_number: str, error_msg: str):
+    """Write error result to OBS so status polling doesn't hang forever."""
+    try:
+        obs = _get_obs()
+        error_result = {
+            "contract_number": contract_number,
+            "status": "error",
+            "error": error_msg,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        obs.putContent(OBS_RESULTS_BUCKET, f"risk_{contract_number}.json",
+                       json.dumps(error_result, ensure_ascii=False))
+    except Exception:
+        pass
+
+
+def _insert_dws(result: dict, contract_number: str):
+    """Insert pipeline result into DWS risk_results (or update existing)."""
+    try:
+        conn = _get_dws_conn()
+        conn.autocommit = True
+        # LLM returns RISK_LEVEL, RISK_SCORE, ALERTAS, RECOMENDACIONES, RESUMEN at top level
+        # Contract data (vendor, monto, etc.) is in contract_data sub-object
+        cd = result.get("contract_data", {})
+        risk_level = (result.get("RISK_LEVEL") or result.get("risk_level", "PENDIENTE")).upper()
+        # Normalize: DWS constraint only allows BAJO/MEDIO/ALTO/CRITICO (no accents)
+        risk_level = risk_level.replace("Í", "I").replace("É", "E").replace("Á", "A").replace("Ó", "O").replace("Ú", "U")
+        risk_level = risk_level.replace("CRÍTICO", "CRITICO").replace("CRÍTIC", "CRITICO")
+        risk_score = result.get("RISK_SCORE") or result.get("risk_score", 0)
+        # Parse monto_total from contract_data — may be string with commas
+        monto_raw = cd.get("monto_total", 0) if cd else 0
+        if isinstance(monto_raw, str):
+            monto_raw = monto_raw.replace(",", "").replace("$", "").strip()
+        monto = float(monto_raw) if monto_raw else 0
+        plazo = int(cd.get("plazo_dias", 0)) if cd else 0
+        penalizacion = float(cd.get("penalizacion_pct", 0)) if cd else 0
+        garantia = float(cd.get("garantia_pct", 0)) if cd else 0
+        vendor = cd.get("vendor_name") or cd.get("contratista", "") if cd else ""
+        alertas = result.get("ALERTAS") or result.get("alertas", "")
+        if isinstance(alertas, list):
+            alertas = " | ".join(alertas)
+        recs = result.get("RECOMENDACIONES") or result.get("recomendaciones", "")
+        if isinstance(recs, list):
+            recs = " | ".join(recs)
+        resumen = result.get("RESUMEN") or result.get("resumen", "")
+
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO risk_results
+                    (contract_number, vendor_name, monto_total, plazo_dias,
+                     penalizacion_pct, garantia_pct, risk_score, risk_level,
+                     alertas, recomendaciones, resumen, llm_provider)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (contract_number) DO UPDATE SET
+                    vendor_name = EXCLUDED.vendor_name,
+                    monto_total = EXCLUDED.monto_total,
+                    plazo_dias = EXCLUDED.plazo_dias,
+                    penalizacion_pct = EXCLUDED.penalizacion_pct,
+                    garantia_pct = EXCLUDED.garantia_pct,
+                    risk_score = EXCLUDED.risk_score,
+                    risk_level = EXCLUDED.risk_level,
+                    alertas = EXCLUDED.alertas,
+                    recomendaciones = EXCLUDED.recomendaciones,
+                    resumen = EXCLUDED.resumen,
+                    llm_provider = EXCLUDED.llm_provider
+            """, (
+                contract_number,
+                vendor,
+                monto,
+                plazo,
+                penalizacion,
+                garantia,
+                float(risk_score) if risk_score else 0,
+                risk_level,
+                str(alertas),
+                str(recs),
+                str(resumen),
+                result.get("llm_provider", "maas-deepseek-v4-flash"),
+            ))
+        conn.close()
+    except Exception as e:
+        import sys
+        print(f"[DWS] Insert error for {contract_number}: {e}", file=sys.stderr, flush=True)
 
 
 # ─── Status (poll OBS for results) ─────────────────────
@@ -142,9 +335,8 @@ def get_status(job_id: str):
 
     try:
         obs = _get_obs()
-        resp = obs.getObject(OBS_RESULTS_BUCKET, result_key)
+        resp = obs.getObject(OBS_RESULTS_BUCKET, result_key, loadStreamInMemory=True)
         if resp.status >= 300:
-            obs.close()
             return {"job_id": job_id, "status": "processing",
                     "message": "Pipeline en progreso. El análisis toma ~5-8 segundos."}
 
@@ -154,18 +346,17 @@ def get_status(job_id: str):
         else:
             result = json.loads(content)
 
-        obs.close()
 
         return {
             "job_id": job_id,
             "status": "completed",
             "result": {
                 "contract_number": result.get("contract_number", job_id),
-                "risk_score": result.get("risk_score"),
-                "risk_level": result.get("risk_level"),
-                "alertas": result.get("alertas", []),
-                "recomendaciones": result.get("recomendaciones", []),
-                "resumen": result.get("resumen", ""),
+                "risk_score": result.get("RISK_SCORE") or result.get("risk_score"),
+                "risk_level": result.get("RISK_LEVEL") or result.get("risk_level"),
+                "alertas": result.get("ALERTAS") or result.get("alertas", []),
+                "recomendaciones": result.get("RECOMENDACIONES") or result.get("recomendaciones", []),
+                "resumen": result.get("RESUMEN") or result.get("resumen", ""),
                 "llm_provider": result.get("llm_provider", "unknown"),
             },
         }
