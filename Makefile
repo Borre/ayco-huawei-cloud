@@ -157,6 +157,15 @@ dashboard-status:
 	@echo "=== Dashboard Health ==="
 	@curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\n" http://101.44.185.139/dashboard/ || echo "Streamlit: DOWN"
 
+# ─── API Backend ─────────────────────────────────────
+deploy-api:
+	@echo "=== Deploying API Backend ==="
+	bash $(SCRIPTS)/deploy-api.sh
+
+api-status:
+	@echo "=== API Health ==="
+	@curl -s http://149.232.129.39/api/health | python3 -m json.tool 2>/dev/null || echo "API: DOWN"
+
 # ─── Agent Tools ────────────────────────────────────
 agent-tools:
 	@echo "=== Deploying Agent Tools Mock Server ==="

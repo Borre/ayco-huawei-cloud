@@ -267,7 +267,7 @@ const etlSteps = [
     if (count === null || count === undefined) return;
     const spans = document.querySelectorAll('.card .flex.justify-between .font-mono');
     for (const span of spans) {
-      if (span.parentElement?.querySelector('.text-gs-gray-500')?.textContent?.trim() === name) {
+      if (span.parentElement?.querySelector('.text-gs-gray-300')?.textContent?.trim() === name) {
         span.textContent = `${count.toLocaleString()} registros`;
       }
     }

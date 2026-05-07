@@ -1,8 +1,8 @@
 ---
-// ChatWidget: connects to Dify API with SSE streaming
-// Positioned fixed bottom-right on all pages
-// States: closed (bubble only), open (full window)
-// Features: minimize button, notification badge, smooth animations
+  // ChatWidget: connects to Dify API with SSE streaming
+  // Positioned fixed bottom-right on all pages
+  // States: closed (bubble only), open (full window), maximized (full screen)
+  // Features: minimize button, maximize button, notification badge, smooth animations
 ---
 
 <!-- Chat Toggle Button -->
@@ -31,12 +31,18 @@
         <p class="text-xs text-gs-gray-300" id="chat-status">En línea</p>
       </div>
       <div class="ml-auto flex items-center space-x-1">
-        <button id="chat-minimize" class="p-2 text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Minimizar">
+        <button type="button" id="chat-cobranza-toggle" class="px-2 py-1 text-xs rounded-lg transition-colors bg-gs-gray-700 text-gs-gray-300 hover:text-white" title="Cambiar a modo Cobranza">💰 Cobranza</button>
+        <button type="button" id="chat-maximize" class="p-2 text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Maximizar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+        </button>
+        <button type="button" id="chat-minimize" class="p-2 text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Minimizar">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
           </svg>
         </button>
-        <button id="chat-clear" class="p-2 text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Nueva conversación">
+        <button type="button" id="chat-clear" class="p-2 text-gs-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Nueva conversación">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
@@ -58,15 +64,16 @@
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="px-4 pb-2 flex flex-wrap gap-1.5" id="quick-actions">
-      <button class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Analiza el contrato AYCO-2026-0147">
+    <!-- Quick Actions with scroll -->
+    <div class="px-4 pb-2 overflow-x-auto" id="quick-actions-container">
+      <div class="flex flex-wrap gap-1.5" id="quick-actions">
+      <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Analiza el contrato AYCO-2026-0147">
         Analizar contrato alto riesgo
       </button>
-      <button class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="¿Cuáles son los proveedores con mayor riesgo?">
+      <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="¿Cuáles son los proveedores con mayor riesgo?">
         Top proveedores riesgo
       </button>
-      <button class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Resumen ejecutivo de la exposición actual">
+      <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Resumen ejecutivo de la exposición actual">
         Resumen ejecutivo
       </button>
     </div>
@@ -78,7 +85,7 @@
           type="text"
           id="chat-input"
           placeholder="Escribe tu pregunta..."
-          class="flex-1 px-4 py-2.5 text-sm border border-gs-gray-200 rounded-xl focus:outline-none focus:border-gs-blue focus:ring-1 focus:ring-gs-blue/30 transition-colors"
+          class="flex-1 px-4 py-2.5 text-sm text-gs-gray-900 border border-gs-gray-200 rounded-xl focus:outline-none focus:border-gs-blue focus:ring-1 focus:ring-gs-blue/30 transition-colors bg-white"
           autocomplete="off"
         />
         <button type="submit" id="chat-send" class="w-10 h-10 bg-gs-blue text-white rounded-xl hover:bg-gs-blue-light transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
@@ -94,10 +101,14 @@
 <script>
   const DIFY_BASE = '/api/dify';
   const DIFY_KEY = import.meta.env.PUBLIC_DIFY_API_KEY || 'app-xxxxxxxxxxxxxxxx';
+  const COBRANZA_KEY = 'app-ZrM7Pal6G2b89drd1zLVssvM';
 
   let conversationId = '';
   let isStreaming = false;
   let chatOpen = false;
+  let cobranzaMode = false;
+  let isMaximized = false;  // Track maximized state
+  let streamingMessageEl = null;  // Track the current streaming message element
 
   const widget = document.getElementById('chat-widget');
   const toggle = document.getElementById('chat-toggle');
@@ -108,8 +119,11 @@
   const sendBtn = document.getElementById('chat-send');
   const clearBtn = document.getElementById('chat-clear');
   const minimizeBtn = document.getElementById('chat-minimize');
+  const maximizeBtn = document.getElementById('chat-maximize');
   const iconOpen = document.getElementById('chat-icon-open');
   const iconClose = document.getElementById('chat-icon-close');
+  const iconMaximize = maximizeBtn?.querySelector('svg');
+  const iconMinimize = minimizeBtn?.querySelector('svg');
   const statusEl = document.getElementById('chat-status');
   const quickActions = document.getElementById('quick-actions');
   const badge = document.getElementById('chat-badge');
@@ -145,12 +159,67 @@
     closeChat();
   });
 
-  // Notification badge appears after 3 seconds
+  // Maximize button - use capture phase to intercept before any parent listeners
+  maximizeBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    
+    console.log('[Maximize] Click intercepted');
+    
+    // Ensure chat is open first
+    if (!chatOpen) {
+      console.log('[Maximize] Chat was closed, opening...');
+      openChat();
+      return;
+    }
+    
+    isMaximized = !isMaximized;
+    
+    // Apply inline styles for maximized state using setProperty for !important
+    if (window_) {
+      if (isMaximized) {
+        window_.style.setProperty('position', 'fixed', 'important');
+        window_.style.setProperty('top', '1rem', 'important');
+        window_.style.setProperty('left', '1rem', 'important');
+        window_.style.setProperty('right', '1rem', 'important');
+        window_.style.setProperty('bottom', '1rem', 'important');
+        window_.style.setProperty('width', 'calc(100vw - 2rem)', 'important');
+        window_.style.setProperty('height', 'calc(100vh - 2rem)', 'important');
+        window_.style.setProperty('max-width', 'none', 'important');
+        window_.style.setProperty('max-height', 'none', 'important');
+        window_.style.setProperty('z-index', '9999', 'important');
+      } else {
+        // Restore to normal size
+        window_.style.removeProperty('position');
+        window_.style.removeProperty('top');
+        window_.style.removeProperty('left');
+        window_.style.removeProperty('right');
+        window_.style.removeProperty('bottom');
+        window_.style.removeProperty('width');
+        window_.style.removeProperty('height');
+        window_.style.removeProperty('max-width');
+        window_.style.removeProperty('max-height');
+        window_.style.removeProperty('z-index');
+      }
+    }
+    
+    console.log('[Maximize] Toggled:', isMaximized, 'chatOpen:', chatOpen);
+    
+    // Toggle icon
+    if (isMaximized) {
+      iconMaximize?.classList.add('text-gs-gold');
+    } else {
+      iconMaximize?.classList.remove('text-gs-gold');
+    }
+  }, true);
+
+  // Notification badge — only show if user hasn't opened chat after 10s
   setTimeout(() => {
     if (!chatOpen && badge) {
       badge.classList.remove('hidden');
     }
-  }, 3000);
+  }, 10000);  // Changed from 3000 to 10000ms
 
   // Subtle pulse on bubble when closed
   widget?.classList.add('chat-pulse');
@@ -158,53 +227,147 @@
   clearBtn?.addEventListener('click', () => {
     conversationId = '';
     if (messages) {
+      const greeting = cobranzaMode 
+        ? 'Hola, soy el asistente de cobranza de AYCO, parte de Grupo Salinas. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?'
+        : 'Hola, soy el asistente de análisis de contratos de AYCO. Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?';
       messages.innerHTML = `
         <div class="flex items-start space-x-2 animate-fade-in">
           <div class="w-7 h-7 rounded-full bg-gs-navy flex items-center justify-center flex-shrink-0">
             <span class="text-xs text-gs-gold font-bold">A</span>
           </div>
           <div class="bg-gs-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%]">
-            <p class="text-sm text-gs-gray-900">Conversación reiniciada. ¿En qué te puedo ayudar?</p>
+            <p class="text-sm text-gs-gray-900">${greeting}</p>
           </div>
         </div>
       `;
     }
   });
 
+  // Initial quick actions binding
   quickActions?.querySelectorAll('.quick-action').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const query = btn.getAttribute('data-query');
+      console.log('[QuickAction] Clicked:', query);
       if (query && input) {
         input.value = query;
-        form?.dispatchEvent(new Event('submit'));
+        console.log('[QuickAction] Submitting form...');
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        form?.dispatchEvent(submitEvent);
+        input?.focus();
       }
     });
   });
 
+  // Cobranza mode toggle
+  const cobranzaToggle = document.getElementById('chat-cobranza-toggle');
+  const headerTitle = document.querySelector('#chat-window .text-sm.font-semibold');
+  const headerIconSvg = document.querySelector('#chat-window .w-8.h-8.rounded-full svg');
+
+  function setCobranzaMode(active) {
+    cobranzaMode = active;
+    conversationId = ''; // reset conversation on mode switch
+    
+    if (cobranzaToggle) {
+      if (active) {
+        cobranzaToggle.textContent = '📋 Contratos';
+        cobranzaToggle.className = 'px-2 py-1 text-xs rounded-lg transition-colors bg-gs-gold/20 text-gs-gold hover:bg-gs-gold/30';
+      } else {
+        cobranzaToggle.textContent = '💰 Cobranza';
+        cobranzaToggle.className = 'px-2 py-1 text-xs rounded-lg transition-colors bg-gs-gray-700 text-gs-gray-300 hover:text-white';
+      }
+    }
+    
+    if (headerTitle) {
+      headerTitle.textContent = active ? 'AYCO — Cobranza' : 'AYCO — Asistente de Contratos';
+    }
+    
+        // Update quick actions
+    if (quickActions) {
+      if (active) {
+        quickActions.innerHTML = `
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-gold/10 text-gs-gold rounded-full hover:bg-gs-gold/20 transition-colors whitespace-nowrap" data-query="Tengo un atraso en mi pago, ¿qué opciones tengo?">Atraso de pago</button>
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-gold/10 text-gs-gold rounded-full hover:bg-gs-gold/20 transition-colors whitespace-nowrap" data-query="Quiero reestructurar mi deuda, ¿cómo funciona?">Reestructurar deuda</button>
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-gold/10 text-gs-gold rounded-full hover:bg-gs-gold/20 transition-colors whitespace-nowrap" data-query="¿Qué pasa si no pago a tiempo mi crédito?">Consecuencias no pago</button>
+        `;
+      } else {
+        quickActions.innerHTML = `
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="Analiza el contrato AYCO-2026-0147">Analizar contrato alto riesgo</button>
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="¿Cuáles son los proveedores con mayor riesgo?">Top proveedores riesgo</button>
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="Resumen ejecutivo de la exposición actual">Resumen ejecutivo</button>
+        `;
+      }
+      // Re-bind quick actions
+      quickActions.querySelectorAll('.quick-action').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();  // Prevent form submission
+          e.stopPropagation();  // Stop event bubbling
+          const query = btn.getAttribute('data-query');
+          if (query && input) {
+            input.value = query;
+            form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            input?.focus();
+          }
+        });
+      });
+    }
+    
+    // Update greeting and clear button
+    if (active) {
+      updateGreeting('Hola, soy el asistente de cobranza de AYCO, parte de Grupo Salinas. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?');
+    } else {
+      updateGreeting('Hola, soy el asistente de análisis de contratos de AYCO. Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?');
+    }
+  }
+
+  function updateGreeting(text) {
+    if (messages) {
+      const firstMsg = messages.querySelector('.flex');
+      if (firstMsg) {
+        const p = firstMsg.querySelector('p');
+        if (p) p.textContent = text;
+      }
+    }
+  }
+
+  cobranzaToggle?.addEventListener('click', () => {
+    setCobranzaMode(!cobranzaMode);
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log('[Form Submit] Event triggered');
     const query = (input as HTMLInputElement)?.value?.trim();
-    if (!query || isStreaming) return;
+    console.log('[Form Submit] Query:', query);
+    if (!query || isStreaming) {
+      console.log('[Form Submit] Aborted - no query or already streaming');
+      return;
+    }
 
     appendMessage(query, 'user');
     (input as HTMLInputElement).value = '';
     isStreaming = true;
     sendBtn?.setAttribute('disabled', 'true');
-    if (statusEl) statusEl.textContent = 'Escribiendo...';
+    if (statusEl) statusEl.textContent = 'Pensando...';
+
+    // Clear input and re-focus for next question
+    setTimeout(() => input?.focus(), 100);
 
     const assistantDiv = appendMessage('', 'assistant', true);
+    console.log('[Form Submit] Calling Dify API...');
 
     try {
       const response = await fetch(`${DIFY_BASE}/chat-messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DIFY_KEY}`,
+          'Authorization': `Bearer ${cobranzaMode ? COBRANZA_KEY : DIFY_KEY}`,
         },
         body: JSON.stringify({
           inputs: {},
           query,
-          response_mode: 'streaming',
+          response_mode: 'blocking',  // Changed from 'streaming' for faster perceived response
           conversation_id: conversationId,
           user: 'demo-workshop',
         }),
@@ -214,52 +377,50 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let fullAnswer = '';
+      const data = await response.json();
+      const answer = data.answer || 'Sin respuesta.';
+      conversationId = data.conversation_id || conversationId;
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.event === 'agent_message' || data.event === 'message') {
-                fullAnswer += data.answer || '';
-                if (assistantDiv) {
-                  const p = assistantDiv.querySelector('p');
-                  if (p) p.textContent = fullAnswer;
-                }
-              }
-              if (data.conversation_id) {
-                conversationId = data.conversation_id;
-              }
-            } catch {}
-          }
-        }
+      // Replace loading with actual response
+      if (assistantDiv) {
+        assistantDiv.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-gs-navy flex items-center justify-center flex-shrink-0">
+            <span class="text-xs text-gs-gold font-bold">A</span>
+          </div>
+          <div class="bg-gs-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%]">
+            <p class="text-sm text-gs-gray-900">${answer}</p>
+          </div>
+        `;
+        assistantDiv.querySelector('p')?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }
-
-      assistantDiv?.querySelector('p')?.classList.remove('streaming-cursor');
 
     } catch (err) {
+      console.error('[Chat] Error:', err);
+      const errorMessage = err.message.includes('401') 
+        ? 'Error de autenticación. Verifica la API key.'
+        : err.message.includes('404')
+        ? 'Servicio no disponible.'
+        : err.message.includes('502') || err.message.includes('503')
+        ? 'Servidor temporalmente ocupado. Intenta en 30s.'
+        : 'Error al conectar: ' + err.message;
+        
       if (assistantDiv) {
         const p = assistantDiv.querySelector('p');
-        if (p) p.textContent = 'Error al conectar con el servicio. Intenta de nuevo.';
-        p?.classList.add('text-risk-high');
+        if (p) {
+          p.textContent = errorMessage;
+          p.classList.add('text-risk-high');
+        }
       }
+      if (statusEl) statusEl.textContent = 'Error de conexión';
     } finally {
       isStreaming = false;
       sendBtn?.removeAttribute('disabled');
       if (statusEl) statusEl.textContent = 'En línea';
+      streamingMessageEl = null;
       messages?.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+      
+      // Re-focus input for next question
+      setTimeout(() => input?.focus(), 50);
     }
   });
 
@@ -275,13 +436,28 @@
           </div>
         </div>
       `;
+    } else if (streaming) {
+      // Loading state with animated dots
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-gs-navy flex items-center justify-center flex-shrink-0">
+          <span class="text-xs text-gs-gold font-bold">A</span>
+        </div>
+        <div class="bg-gs-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%]">
+          <div class="flex items-center space-x-1">
+            <div class="w-2 h-2 bg-gs-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+            <div class="w-2 h-2 bg-gs-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+            <div class="w-2 h-2 bg-gs-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+          </div>
+        </div>
+      `;
+      streamingMessageEl = div;
     } else {
       div.innerHTML = `
         <div class="w-7 h-7 rounded-full bg-gs-navy flex items-center justify-center flex-shrink-0">
           <span class="text-xs text-gs-gold font-bold">A</span>
         </div>
         <div class="bg-gs-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%]">
-          <p class="text-sm text-gs-gray-900 ${streaming ? 'streaming-cursor' : ''}">${text || '...'}</p>
+          <p class="text-sm text-gs-gray-900">${text || '...'}</p>
         </div>
       `;
     }
@@ -296,4 +472,42 @@
     div.textContent = str;
     return div.innerHTML;
   }
+
+  // Add maximized window styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .chat-window-maximized {
+      width: calc(100vw - 2rem) !important;
+      height: calc(100vh - 2rem) !important;
+      max-width: calc(100vw - 2rem) !important;
+      max-height: calc(100vh - 2rem) !important;
+      bottom: 1rem !important;
+      right: 1rem !important;
+      left: 1rem !important;
+      top: 1rem !important;
+    }
+    
+    @media (min-width: 768px) {
+      .chat-window-maximized {
+        width: 80vw !important;
+        height: 80vh !important;
+        max-width: 80vw !important;
+        max-height: 80vh !important;
+        left: 10vw !important;
+        top: 10vh !important;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .chat-window-maximized {
+        width: 60vw !important;
+        height: 70vh !important;
+        max-width: 60vw !important;
+        max-height: 70vh !important;
+        left: 20vw !important;
+        top: 15vh !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
 </script>

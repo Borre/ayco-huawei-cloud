@@ -35,6 +35,12 @@ make frontend          # Build Astro static site → frontend/dist/
 make frontend-dev      # Dev server with hot reload
 make frontend-deploy   # Build + SCP to web ECS
 
+# Backend API
+make deploy-api        # Deploy FastAPI backend → web ECS
+make api-status        # Health check API backend
+
+# Dashboard
+
 # Direct Terraform (from repo root)
 cd terraform && terraform init
 cd terraform && terraform output -raw dify_public_ip
@@ -119,7 +125,7 @@ The root module (`terraform/main.tf`) wires outputs between modules. Each module
 - **Dify Chat API Proxy** — endpoint `/api/chat?query=...` en el FastAPI del ECS web (149.232.129.39:8001). Llama Dify `/v1/chat-messages` con API key `app-Y8MxfRygyUWOAfyTlo1MQSJx`.
 - **Risk score threshold logic is duplicated** across `RiskGauge.astro`, `ContractUploader.astro`, and page files.
 - **`stagger-children` CSS only handles 4 children** — 5th+ child won't animate.
-- **ContractUploader is fully mocked** — `handleFile()` uses `setTimeout` + `Math.random()`, no real API.
+- **ContractUploader connects to real `/api/upload`** — POSTs PDF, polls `/api/status/{job_id}` for 30s. Real OCR pipeline.
 
 ## Credentials & Secrets
 

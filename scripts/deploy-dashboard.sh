@@ -5,7 +5,7 @@ set -euo pipefail
 
 ECS_IP="101.44.185.139"
 SSH_KEY="${SSH_KEY_PATH:-~/.ssh/ayco-demo}"
-DASHBOARD_SRC="dashboards/risk_dashboard_demo.py"
+DASHBOARD_SRC="dashboards/risk_dashboard.py"
 DASHBOARD_DST="/opt/dashboards/risk_dashboard.py"
 SERVICE_NAME="streamlit-dashboard"
 

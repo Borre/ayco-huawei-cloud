@@ -11,8 +11,8 @@ resource "huaweicloud_fgs_function" "ocr_trigger" {
   runtime     = "Python3.10"
   code_type   = "inline"
   func_code   = filebase64("${path.module}/functions/ocr_trigger.py")
-  memory_size = 256
-  timeout     = 30
+  memory_size = 512
+  timeout     = 120
   agency      = var.agency
   description = "Triggers OCR on contract PDF upload to OBS"
 

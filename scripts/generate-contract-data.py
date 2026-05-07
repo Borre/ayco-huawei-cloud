@@ -523,8 +523,8 @@ for r in risk_results:
 
 sql_lines.extend([
     "",
-    "-- Refresh materialized views",
-    "REFRESH MATERIALIZED VIEW dm.contract_vendor_risk_summary;",
+    "-- Verify views (regular VIEWs, no MATERIALIZED refresh needed)",
+    "SELECT 'contract_vendor_risk_summary' AS view_name, COUNT(*)::text AS rows FROM dm.contract_vendor_risk_summary;",
 ])
 
 with open(DATA_DIR / "seed_risk_results.sql", "w", encoding="utf-8") as f:

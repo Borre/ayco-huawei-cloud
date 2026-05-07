@@ -326,16 +326,23 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
     }
 
     async function loadLiveData() {
+      console.log('[Dashboard] Starting data load...');
       try {
         var [kpisRes, breakdownRes, contractsRes] = await Promise.all([
           fetch(API + '/dashboard/kpis'),
           fetch(API + '/risk/breakdown'),
           fetch(API + '/dws/contracts?limit=20'),
         ]);
+        
+        console.log('[Dashboard] Responses:', kpisRes.status, breakdownRes.status, contractsRes.status);
 
         var kpis = kpisRes.ok ? (await kpisRes.json()).kpis : null;
         var breakdown = breakdownRes.ok ? await breakdownRes.json() : null;
         var contracts = contractsRes.ok ? (await contractsRes.json()).contracts : null;
+        
+        console.log('[Dashboard] KPIs:', kpis);
+        console.log('[Dashboard] Breakdown:', breakdown);
+        console.log('[Dashboard] Contracts:', contracts ? contracts.length : 0, 'items');
 
         if (kpis) updateKPIs(kpis);
         if (breakdown) updateBreakdown(breakdown);
@@ -348,9 +355,10 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
         var label = document.getElementById('live-label');
         if (dot && label && kpis) {
           dot.className.baseVal = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2';
-          label.textContent = 'Live \u00b7 DWS Connected';
+          label.textContent = 'Live \\u00b7 DWS Connected';
         }
       } catch (e) {
+        console.error('[Dashboard] Error:', e);
         console.warn('DWS fetch falló, usando datos estáticos:', e.message);
         document.getElementById('map-loading')?.classList.add('hidden');
         document.getElementById('map-error')?.classList.remove('hidden');
@@ -393,12 +401,24 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
     }
 
     function setMetricValue(id, value, trend) {
+      console.log('[setMetricValue] Setting ' + id + ' = ' + value);
       var el = document.getElementById(id);
-      if (!el) return;
-      var valueEl = el.querySelector('.text-2xl, .text-3xl, [class*="font-bold"]');
-      var trendEl = el.querySelector('.text-xs, [class*="text-gs-gray"]');
-      if (valueEl) valueEl.textContent = value;
-      if (trendEl) trendEl.textContent = trend;
+      if (!el) {
+        console.error('[setMetricValue] Element not found: ' + id);
+        return;
+      }
+      var valueEl = el.querySelector('.metric-value, .text-2xl, .text-3xl');
+      var trendEl = el.querySelector('.text-xs, .text-sm, [class*="text-gs-gray"]');
+      console.log('[setMetricValue] Found element:', el.tagName, 'valueEl:', valueEl ? valueEl.tagName : null, 'trendEl:', trendEl ? trendEl.tagName : null);
+      if (valueEl) {
+        valueEl.textContent = value;
+        console.log('[setMetricValue] Set value to: ' + value);
+      } else {
+        console.error('[setMetricValue] valueEl not found in ' + id);
+      }
+      if (trendEl) {
+        trendEl.textContent = trend;
+      }
     }
 
     function updateBreakdown(data) {
@@ -454,13 +474,23 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
           '</td>' +
           '<td class="px-8 py-6 font-black text-white">' + fmtMXN(c.monto_total || 0) + '</td>' +
           '<td class="px-8 py-6 text-right">' +
-             '<a href="/api/chat?query=Analiza el contrato ' + escapeHtml(c.contract_number || '') + '"' +
-              ' target="_blank" class="btn-primary py-2 px-4 text-xs">' +
+             '<button onclick="return false;" data-contract="' + escapeHtml(c.contract_number || '') + '" class="btn-ai-analysis py-2 px-4 text-xs">' +
               'Deep Analysis AI' +
-            '</a>' +
+            '</button>' +
           '</td>' +
         '</tr>';
       }).join('');
+      
+      // Bind click handlers after DOM update
+      setTimeout(function() {
+        document.querySelectorAll('.btn-ai-analysis').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const contractNumber = this.getAttribute('data-contract');
+            openChatWithQuery('Analiza el contrato ' + contractNumber);
+          });
+        });
+      }, 50);
     }
 
     function escapeHtml(str) {
@@ -468,6 +498,64 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
       div.textContent = str;
       return div.innerHTML;
     }
+    
+    window.openChatWithQuery = function(query) {
+      var chatWindow = document.getElementById('chat-window');
+      var chatToggle = document.getElementById('chat-toggle');
+      var chatMessages = document.getElementById('chat-messages');
+      var chatInput = document.getElementById('chat-input');
+      
+      // Open chat if closed
+      if (chatWindow && chatWindow.classList.contains('chat-window-closed') && chatToggle) {
+        chatToggle.click();
+      }
+      
+      // Add user message to chat
+      if (chatMessages) {
+        var userMsg = '<div class="chat-message user mb-4"><div class="chat-bubble-user max-w-[85%]">' + 
+          escapeHtml(query) + '</div></div>';
+        chatMessages.innerHTML += userMsg;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      
+      // Show loading
+      if (chatMessages) {
+        chatMessages.innerHTML += '<div id="chat-loading" class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%] text-gs-gray-400">Pensando...</div></div>';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      
+      // Call API
+      fetch('/api/dify/chat-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inputs: {}, query: query, response_mode: 'blocking', user: 'web-user' })
+      })
+      .then(res => res.json())
+      .then(data => {
+        // Remove loading
+        var loading = document.getElementById('chat-loading');
+        if (loading) loading.remove();
+        
+        // Add bot response
+        if (chatMessages && data.answer) {
+          var botMsg = '<div class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%]">' + 
+            data.answer.replace(/\n/g, '<br>') + '</div></div>';
+          chatMessages.innerHTML += botMsg;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      })
+      .catch(err => {
+        console.error('Chat error:', err);
+        var loading = document.getElementById('chat-loading');
+        if (loading) loading.remove();
+        if (chatMessages) {
+          chatMessages.innerHTML += '<div class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%] text-red-400">Error conectando a Dify</div></div>';
+        }
+      });
+      
+      // Clear input
+      if (chatInput) chatInput.value = '';
+    };
 
     initMap();
     loadLiveData();

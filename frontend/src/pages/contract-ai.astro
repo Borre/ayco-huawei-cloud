@@ -85,13 +85,13 @@ const contracts = [
           </div>
 
           <div class="space-y-2">
-            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Analiza el contrato AYCO-2026-0147 y dime los principales riesgos">
+            <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Analiza el contrato AYCO-2026-0147 y dime los principales riesgos">
               <span class="text-gs-blue mr-2">→</span> Analiza el contrato AYCO-2026-0147 y dime los principales riesgos
             </button>
-            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Compara las cláusulas de penalización entre los 3 contratos de demo">
+            <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Compara las cláusulas de penalización entre los 3 contratos de demo">
               <span class="text-gs-blue mr-2">→</span> Compara las cláusulas de penalización entre los 3 contratos
             </button>
-            <button class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="¿Qué proveedores tienen exposición superior a $500M MXN?">
+            <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="¿Qué proveedores tienen exposición superior a $500M MXN?">
               <span class="text-gs-blue mr-2">→</span> ¿Qué proveedores tienen exposición superior a $500M MXN?
             </button>
           </div>
@@ -212,9 +212,10 @@ const contracts = [
   <!-- Script to wire quick-chat buttons to the global chat widget -->
   <script>
     document.querySelectorAll('.quick-chat').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const query = btn.getAttribute('data-query');
-        // Open chat widget
         const chatWindow = document.getElementById('chat-window');
         const chatToggle = document.getElementById('chat-toggle');
         const chatInput = document.getElementById('chat-input') as HTMLInputElement;
@@ -227,7 +228,7 @@ const contracts = [
         setTimeout(() => {
           if (chatInput && chatForm) {
             chatInput.value = query || '';
-            chatForm.dispatchEvent(new Event('submit'));
+            chatForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
           }
         }, 300);
       });
