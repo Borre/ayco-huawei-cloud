@@ -16,7 +16,9 @@ export default {
           'gray-100': '#E9ECEF',
           'gray-200': '#DEE2E6',
           'gray-300': '#CED4DA',
-          'gray-600': '#6C757D',
+          'gray-400': '#9DA4B0',
+          'gray-500': '#7C8595',
+          'gray-600': '#9DA4B0', // Bumped from #6C757D for WCAG AA contrast on dark bg
           'gray-900': '#212529',
         },
         risk: {
