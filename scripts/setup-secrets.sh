@@ -58,7 +58,7 @@ secret_key = "$SK"
 project_id = "${HUAWEI_PROJECT_ID:-fbb6435c497c41bda90a0cc5240573e0}"
 
 keypair_name       = "${SSH_KEYPAIR_NAME:-hermes-agent}"
-presenter_ip       = "${PRESENTER_IP:-0.0.0.0/0}"
+presenter_ip       = "${PRESENTER_IP:-REEMPLAZAR_ANTES_DEPLOY/32}"
 dws_admin_password = "$DWS_PASS"
 maas_api_key       = "$MAAS"
 deepseek_api_key   = "$DEEPSEEK"

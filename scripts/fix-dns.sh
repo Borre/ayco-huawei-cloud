@@ -1,6 +1,9 @@
 #!/bin/bash
-# scripts/fix-dns.sh — Arregla DNS en todos los ECS
-# Huawei Cloud Ubuntu images: systemd-resolved roto, cloud-init falla sin esto
+# scripts/fix-dns.sh — Verifica resolución DNS en todos los ECS
+# Ya NO sobreescribe resolv.conf con 8.8.8.8/1.1.1.1.
+# El subnet ya tiene primary_dns=100.125.1.250 (Huawei Cloud DNS interno)
+# que resuelve MaaS, OBS, DWS endpoints sin problemas.
+# Si hay issues, revisar systemd-resolved en lugar de sobrescribir.
 
 set -euo pipefail
 
@@ -13,14 +16,17 @@ if [ -z "$ECS_IPS" ]; then
 fi
 
 for ip in $ECS_IPS; do
-  echo "=== Fixing DNS on $ip ==="
+  echo "=== Verificando DNS en $ip ==="
   ssh -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no -o ConnectTimeout=5 root@"$ip" "
-    echo 'nameserver 8.8.8.8' > /etc/resolv.conf
-    echo 'nameserver 1.1.1.1' >> /etc/resolv.conf
-    if nslookup google.com > /dev/null 2>&1; then
-      echo '  OK DNS working'
+    echo '  resolv.conf actual:'
+    cat /etc/resolv.conf
+    echo ''
+    if nslookup api-ap-southeast-1.modelarts-maas.com > /dev/null 2>&1; then
+      echo '  OK MaaS endpoint resuelve'
     else
-      echo '  FAIL DNS still broken' >&2
+      echo '  FAIL: MaaS endpoint NO resuelve'
+      echo '  Intentar: systemctl stop systemd-resolved && systemctl disable systemd-resolved'
+      echo '  Luego verificar que subnet DNS en la VPC tenga 100.125.1.250 como primary'
     fi
   " 2>/dev/null || echo "  (unreachable — may not be provisioned yet)"
 done

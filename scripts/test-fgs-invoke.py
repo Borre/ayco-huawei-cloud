@@ -10,8 +10,8 @@ from urllib.error import HTTPError
 import os
 
 # Config
-AK = os.environ.get("HUAWEI_ACCESS_KEY", "4DXDDBDYHYP5FLEHREH2")
-SK = os.environ.get("HUAWEI_SECRET_KEY", "9D6XPzf...SfY6")  # Replace with actual
+AK = os.environ.get("HUAWEI_ACCESS_KEY", "")  # ¡SEGURIDAD! Forzar desde env var — sin fallback
+SK = os.environ.get("HUAWEI_SECRET_KEY", "")  # ¡SEGURIDAD! Forzar desde env var — sin fallback
 FGS_PROJECT_ID = "fbb6435c497c41bda90a0cc5240573e0"
 FGS_FUNCTION_NAME = "ayco-ocr-trigger"
 FGS_PUBLIC_URL = "https://functiongraph.la-north-2.myhuaweicloud.com"

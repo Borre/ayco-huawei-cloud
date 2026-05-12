@@ -46,15 +46,15 @@ OBS_RESULTS_BUCKET = os.environ.get("OBS_RESULTS_BUCKET", "ayco-contracts-result
 OBS_ACCESS_KEY = os.environ.get("HUAWEI_ACCESS_KEY", "")
 OBS_SECRET_KEY = os.environ.get("HUAWEI_SECRET_KEY", "")
 
-DWS_HOST = os.environ.get("DWS_HOST", "46.250.161.25")
+DWS_HOST = os.environ.get("DWS_HOST", "")  # ¡FORZADO! Sin fallback
 DWS_PORT = int(os.environ.get("DWS_PORT", "8000"))
 DWS_DB = os.environ.get("DWS_DB", "ayco_db")
 DWS_USER = os.environ.get("DWS_USER", "ayco_admin")
 DWS_PASSWORD = os.environ.get("DWS_PASSWORD", "")
 
 # Langfuse credentials (hardcoded workaround for Huawei Cloud env var masking)
-LANGFUSE_PUBLIC_KEY = os.environ.get("LANGFUSE_PUBLIC_KEY", "pk-lf-aa0203b4-8a54-42f0-9782-56bd77139fc3")
-LANGFUSE_SECRET_KEY = "sk-lf-6073716a-f319-4137-8c3f-d7c0b7d0549e"  # Hardcoded — env var gets masked by Huawei Cloud
+LANGFUSE_PUBLIC_KEY = os.environ.get("LANGFUSE_PUBLIC_KEY", "")
+LANGFUSE_SECRET_KEY = os.environ.get("LANGFUSE_SECRET_KEY", "")
 LANGFUSE_HOST = os.environ.get("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
 
 app = FastAPI(title="AYCO API", version="1.1.0")
@@ -66,14 +66,19 @@ def debug_test():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://149.232.129.39",
+        "https://ayco-demo.borregrado.com",
+        "http://localhost:4321",
+        "http://localhost:3000",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Dify Chat Proxy config
-DIFY_BASE_URL = os.environ.get("DIFY_BASE_URL", "http://101.44.185.139")
-DIFY_API_KEY = os.environ.get("DIFY_API_KEY", "app-Y8MxfRygyUWOAfyTlo1MQSJx")
+DIFY_BASE_URL = os.environ.get("DIFY_BASE_URL", "")  # ¡SEGURIDAD! Sin fallback — configurar en env
+DIFY_API_KEY = os.environ.get("DIFY_API_KEY", "")  # ¡SEGURIDAD! Sin fallback — configurar en env
 
 
 # ─── OBS Client (lazy init) ────────────────────────────
@@ -912,13 +917,13 @@ async def dify_chat(query: dict):
         "user": query.get("user", "demo-user"),
     }
     
-    print(f"Headers: Authorization=Bearer {api_key}")
+    print("Headers: Authorization=Bearer ****")  # Token enmascarado por seguridad
     print(f"Body: {body}")
     
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             print("Making POST to " + base_url + "/v1/chat-messages")
-            print("Auth header: Bearer " + api_key)
+            print("Auth header: Bearer ****")  # Token enmascarado por seguridad
             response = await client.post(
                 base_url + "/v1/chat-messages",
                 headers=headers,
@@ -1378,7 +1383,7 @@ def _insert_dws(result, contract_number):
                 str(alertas),
                 str(recs),
                 str(resumen),
-                result.get("llm_provider", "maas-deepseek-v4-flash"),
+                result.get("llm_provider", "maas-deepseek-v4-pro"),
             ))
         conn.close()
     except Exception as e:

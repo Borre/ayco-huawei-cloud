@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/setup-dify.sh — Deploy Dify en ECS vía docker-compose
-# LLM: MaaS DeepSeek v4 Flash (primary) + DeepSeek direct (fallback)
+# LLM: MaaS DeepSeek v4 Pro (primary) + DeepSeek direct (fallback)
 
 set -euo pipefail
 
@@ -34,9 +34,11 @@ echo "=== Deploying Dify on $DIFY_IP ==="
 ssh -i ~/.ssh/ayco-demo -o StrictHostKeyChecking=no root@"$DIFY_IP" << DEPLOY
 set -euo pipefail
 
-# ─── DNS fix ────────────────────────────────────────
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+# ─── NOTA: NO sobreescribir resolv.conf — Huawei Cloud DNS (100.125.1.250)
+#       resuelve MaaS, OBS, DWS endpoints internamente.
+#       Si hay problemas de DNS, systemd-resolved puede necesitar:
+#         systemctl stop systemd-resolved && systemctl disable systemd-resolved
+#       Ver subnet DNS en terraform/modules/foundation/main.tf para reference.
 
 # ─── Docker ──────────────────────────────────────────
 if ! command -v docker &> /dev/null; then
@@ -58,12 +60,12 @@ cp -n .env.example .env || true
 cat >> .env << 'ENVVARS'
 
 # === AYCO Demo — LLM Configuration ===
-# Primary: Huawei Cloud MaaS (DeepSeek v4 Flash)
+# Primary: Huawei Cloud MaaS (DeepSeek v4 Pro)
 DEEPSEEK_API_KEY=PLACEHOLDER_FOR_EXPANSION
 DEEPSEEK_API_BASE=https://api-ap-southeast-1.modelarts-maas.com/openai/v1
 
 # Note: Using OpenAI-compatible endpoint for Dify
-# Model: deepseek-v4-flash
+# Model: deepseek-v4-pro
 ENVVARS
 
 # Replace placeholder with real key (single-pass, no second SSH needed)
@@ -105,4 +107,4 @@ echo "=== Dify deploy complete ==="
 echo "    Web:  http://$DIFY_IP"
 echo "    API:  http://$DIFY_IP/v1"
 echo "    Dashboard: http://$DIFY_IP/dashboard/"
-echo "    LLM:  MaaS DeepSeek v4 Flash (via Huawei Cloud)"
+echo "    LLM:  MaaS DeepSeek v4 Pro (via Huawei Cloud)"

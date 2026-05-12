@@ -1,14 +1,24 @@
 #!/bin/bash
 # deploy.sh — Build and deploy AYCO frontend to ECS
 # Usage: ./deploy.sh [user@host] [ssh-key]
-# Defaults: root@149.232.129.39, ~/.ssh/ayco-demo
+# Defaults: root@$(terraform output), ~/.ssh/ayco-demo
 
 set -euo pipefail
 
-HOST="${1:-root@149.232.129.39}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TF_DIR="$(cd "$SCRIPT_DIR/../terraform" && pwd)"
+
+# Resolve ECS IP from Terraform (no hardcoded IPs)
+WEB_IP=$(terraform -chdir="$TF_DIR" output -raw web_public_ip 2>/dev/null || echo "")
+if [ -z "$WEB_IP" ]; then
+  echo "ERROR: No web_public_ip in terraform output. Has terraform been applied?"
+  echo "       Run: make apply"
+  exit 1
+fi
+
+HOST="${1:-root@${WEB_IP}}"
 SSH_KEY="${2:-$HOME/.ssh/ayco-demo}"
 REMOTE_DIR="/var/www/ayco"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 SSH="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no"
 SCP="scp -i ${SSH_KEY} -o StrictHostKeyChecking=no"
@@ -42,9 +52,9 @@ HTTP_CODE=$(${SSH} "$HOST" "curl -s -o /dev/null -w '%{http_code}' http://localh
 if [ "$HTTP_CODE" = "200" ]; then
     echo ""
     echo "=== Deploy exitoso ==="
-    echo "Frontend: http://149.232.129.39/"
-    echo "Dashboard: http://149.232.129.39/dashboard/"
-    echo "API proxy: http://149.232.129.39/api/dify/chat-messages"
+    echo "Frontend: http://${WEB_IP}/"
+    echo "Dashboard: http://${WEB_IP}/dashboard/"
+    echo "API proxy: http://${WEB_IP}/api/dify/chat-messages"
 else
     echo "WARNING: HTTP status ${HTTP_CODE} — revisa nginx logs en el ECS"
 fi

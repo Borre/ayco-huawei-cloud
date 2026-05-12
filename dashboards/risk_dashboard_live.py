@@ -23,7 +23,7 @@ if env_path.exists():
 st.set_page_config(page_title="AYCO Risk Intelligence", page_icon="🛡️", layout="wide")
 
 # ── DWS Connection ──
-DWS_HOST = os.getenv("DWS_HOST", "46.250.161.25")
+DWS_HOST = os.getenv("DWS_HOST", "")  # ¡FORZADO! Sin fallback — debe venir de .env
 DWS_PORT = os.getenv("DWS_PORT", "8000")
 DWS_DB = os.getenv("DWS_DB", "ayco_db")
 DWS_USER = os.getenv("DWS_USER", "ayco_admin")

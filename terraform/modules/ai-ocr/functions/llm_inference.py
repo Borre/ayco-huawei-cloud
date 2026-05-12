@@ -16,7 +16,7 @@ import urllib.request
 
 # ─── LLM Configuration ──────────────────────────────────
 MAAS_ENDPOINT = "https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions"
-MAAS_MODEL = "deepseek-v4-flash"
+MAAS_MODEL = "deepseek-v4-pro"
 
 DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
@@ -110,7 +110,7 @@ def call_llm(user_message, context):
             t0 = time.time()
             result = _call_maaS(maas_key, user_message)
             latency_ms = int((time.time() - t0) * 1000)
-            provider = "maas-deepseek-v4-flash"
+            provider = "maas-deepseek-v4-pro"
             usage = trace_llm_call(
                 provider=provider,
                 model=os.environ.get("MAAS_MODEL", MAAS_MODEL),

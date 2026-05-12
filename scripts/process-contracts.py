@@ -119,7 +119,9 @@ def load_to_dws(analysis):
         resumen = EXCLUDED.resumen,
         analyzed_at = CURRENT_TIMESTAMP;
 """
-    cmd = f"PGPASSWORD='{DWS_PASSWORD}' psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c \"{sql}\""
+    dws_host = os.environ.get("DWS_HOST", "localhost")
+    dws_port = os.environ.get("DWS_PORT", "8000")
+    cmd = f"PGPASSWORD='{DWS_PASSWORD}' psql -h {dws_host} -p {dws_port} -U ayco_admin -d ayco_db -c \"{sql}\""
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
     return result.stdout.strip()
 

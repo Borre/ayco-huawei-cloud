@@ -3,7 +3,7 @@
 # Usage: bash scripts/deploy-agent-tools.sh
 set -euo pipefail
 
-ECS_IP="101.44.185.139"
+ECS_IP="${ECS_IP:?FATAL: ECS_IP no definida — usa terraform output dify_eip}"
 SSH_KEY="${SSH_KEY_PATH:-~/.ssh/ayco-demo}"
 SERVICE_NAME="ayco-tools"
 

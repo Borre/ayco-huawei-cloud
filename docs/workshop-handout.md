@@ -138,7 +138,7 @@ Streaming: SSE via nginx reverse proxy
 ```python
 # llm_inference.py — Contract → Risk Score via MaaS DeepSeek
 MAAS_ENDPOINT = "https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions"
-MAAS_MODEL = "deepseek-v4-flash"
+MAAS_MODEL = "deepseek-v4-pro"
 
 def handler(event, context):
     contract = event.get("contract_data", event)

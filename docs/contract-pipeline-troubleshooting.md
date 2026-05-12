@@ -88,7 +88,7 @@ ssh -i ~/.ssh/ayco-demo root@149.232.129.39 \
 curl -s https://maas.huaweicloud.com/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $MAAS_API_KEY" \
-  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"test"}]}'
+  -d '{"model":"deepseek-v4-pro","messages":[{"role":"user","content":"test"}]}'
 ```
 
 **Known issues:**

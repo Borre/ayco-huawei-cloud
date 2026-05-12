@@ -34,7 +34,7 @@ variable "maas_endpoint" {
 variable "maas_model" {
   description = "MaaS model name"
   type        = string
-  default     = "deepseek-v4-flash"
+  default     = "deepseek-v4-pro"
 }
 
 variable "deepseek_api_key" {

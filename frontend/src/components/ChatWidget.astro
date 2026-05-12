@@ -101,7 +101,7 @@
 <script>
   const DIFY_BASE = '/api/dify';
   const DIFY_KEY = import.meta.env.PUBLIC_DIFY_API_KEY || 'app-xxxxxxxxxxxxxxxx';
-  const COBRANZA_KEY = 'app-ZrM7Pal6G2b89drd1zLVssvM';
+  const COBRANZA_KEY = import.meta.env.PUBLIC_COBRANZA_API_KEY || '';  // ¡SEGURIDAD! Configurar en .env
 
   let conversationId = '';
   let isStreaming = false;

@@ -33,7 +33,7 @@ OBS_RESULTS_BUCKET = os.environ.get("OBS_RESULTS_BUCKET", "ayco-contracts-result
 OBS_ACCESS_KEY = os.environ.get("HUAWEI_ACCESS_KEY", "")
 OBS_SECRET_KEY = os.environ.get("HUAWEI_SECRET_KEY", "")
 
-DWS_HOST = os.environ.get("DWS_HOST", "46.250.161.25")
+DWS_HOST = os.environ.get("DWS_HOST", "")  # ¡FORZADO! Sin fallback — debe venir de env var
 DWS_PORT = int(os.environ.get("DWS_PORT", "8000"))
 DWS_DB = os.environ.get("DWS_DB", "ayco_db")
 DWS_USER = os.environ.get("DWS_USER", "ayco_admin")
@@ -147,9 +147,10 @@ async def upload_contract(file: UploadFile = File(...)):
     }
 
 
-# ─── Pipeline Runner (background) ──────────────────────
-FG_REGION = "la-north-2"
-FG_PROJECT_ID = "fbb6435c497c41bda90a0cc5240573e0"
+# ─── FunctionGraph Config ──────────────────────────────────
+FG_REGION = os.environ.get("HUAWEI_REGION", "la-north-2")
+FG_PROJECT_ID = os.environ.get("HUAWEI_PROJECT_ID", "")
+# WARNING: HUAWEI_PROJECT_ID debe estar en .env — si falta, falla
 FG_OCR_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-ocr-trigger"
 FG_PARSE_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-parse-contract"
 FG_LLM_URN = f"urn:fss:{FG_REGION}:{FG_PROJECT_ID}:function:default:ayco-llm-inference"
@@ -319,7 +320,7 @@ def _insert_dws(result: dict, contract_number: str):
                 str(alertas),
                 str(recs),
                 str(resumen),
-                result.get("llm_provider", "maas-deepseek-v4-flash"),
+                result.get("llm_provider", "maas-deepseek-v4-pro"),
             ))
         conn.close()
     except Exception as e:

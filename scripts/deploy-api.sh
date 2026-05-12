@@ -4,7 +4,7 @@
 # Fresh install: set HUAWEI_ACCESS_KEY, HUAWEI_SECRET_KEY, DWS_PASSWORD env vars
 set -euo pipefail
 
-WEB_IP="${WEB_IP:-149.232.129.39}"
+WEB_IP="${WEB_IP:?FATAL: WEB_IP no definida — usa terraform output web_eip}"
 SSH_KEY="${SSH_KEY_PATH:-~/.ssh/ayco-demo}"
 API_DIR="/opt/ayco-api"
 VENV_DIR="$API_DIR/venv"
@@ -66,7 +66,7 @@ WorkingDirectory=/opt/ayco-api
 Environment=PATH=/opt/ayco-api/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 Environment=HUAWEI_ACCESS_KEY=$HUAWEI_ACCESS_KEY
 Environment=HUAWEI_SECRET_KEY=$HUAWEI_SECRET_KEY
-Environment=DWS_HOST=192.168.100.223
+Environment=DWS_HOST=${DWS_HOST:?FATAL: DWS_HOST no definida}
 Environment=DWS_PORT=8000
 Environment=DWS_DB=ayco_db
 Environment=DWS_USER=ayco_admin

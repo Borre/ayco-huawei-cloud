@@ -484,7 +484,7 @@ LIMIT 10;
 4. Señala los 4 paneles del trace:
    - **Input:** El prompt completo enviado al LLM (system prompt + contrato estructurado)
    - **Output:** JSON con risk_score, risk_level, alertas, recomendaciones
-   - **Metadata:** modelo `deepseek-v4-flash`, provider `maas`, latencia `~3.8s`, tokens `~450`
+   - **Metadata:** modelo `deepseek-v4-pro`, provider `maas`, latencia `~3.8s`, tokens `~450`
    - **Timestamp:** `pg_systimestamp()` del momento exacto del análisis
 5. Muestra el código de instrumentación en Langfuse (abre el archivo en terminal):
 ```python
@@ -570,7 +570,7 @@ Click en "Contract AI" en el header. URL: `http://149.232.129.39/contract-ai/`
 2. **Cambia a Tab 5** (Dify Console > AYCO Chat > Configuration).
 3. Muestra la configuración del modelo:
    - **Model Provider:** DeepSeek (via MaaS HK plugin v0.0.4)
-   - **Model:** deepseek-v4-flash
+   - **Model:** deepseek-v4-pro
    - **Context window:** 128K tokens
    - **Temperature:** 0.3
 4. Muestra los datasets conectados:
@@ -914,7 +914,7 @@ import json, os, uuid, urllib.request
 from datetime import datetime
 
 MAAS_ENDPOINT = "https://api-ap-southeast-1.modelarts-maas.com/v2/chat/completions"
-MAAS_MODEL = "deepseek-v4-flash"
+MAAS_MODEL = "deepseek-v4-pro"
 LANGFUSE_HOST = "https://us.cloud.langfuse.com"
 
 def handler(event, context):

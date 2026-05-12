@@ -199,7 +199,7 @@ risk_canonical = [
         "alertas": "Sin alertas criticas | Garantia suficiente (fianza 15% + deposito $50K) | Jurisdiccion Queretaro",
         "recomendaciones": "Aprobar con monitoreo estandar | Verificar entrega de fianza",
         "resumen": "Contrato de bajo riesgo por monto moderado ($850K), garantia del 15% y penalizacion baja del 10%.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:15:00",
     },
     {   # contrato-medio-riesgo-mantenimiento.pdf
@@ -215,7 +215,7 @@ risk_canonical = [
         "alertas": "Penalizacion del 25% | Garantia minima del 5% | Jurisdiccion San Luis Potosi",
         "recomendaciones": "Evaluar incrementar garantia | Verificar cobertura de carta de credito",
         "resumen": "Contrato de riesgo medio por monto elevado ($4.2M), penalizacion del 25% y garantia limitada.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:16:00",
     },
     {   # contrato-alto-riesgo-software.pdf
@@ -231,7 +231,7 @@ risk_canonical = [
         "alertas": "Penalizacion por terminacion anticipada del 40% | Sin garantia de cumplimiento | Jurisdiccion fuera de CDMX",
         "recomendaciones": "Exigir fianza de cumplimiento | Reducir penalizacion | Revisar jurisdiccion y confidencialidad",
         "resumen": "Contrato de riesgo alto por penalizacion elevada (40%), ausencia de garantia y jurisdiccion en Monterrey.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:17:00",
     },
     {   # contrato-critico-datacenter.pdf
@@ -247,7 +247,7 @@ risk_canonical = [
         "alertas": "Penalizacion por terminacion del 50% | Sin garantia de cumplimiento | Arbitraje UNCITRAL en ingles | Empresa de reciente creacion (RFC 2024) | Confidencialidad indefinida",
         "recomendaciones": "Reestructurar garantias | Renegociar penalizacion | Revisar arbitraje y confidencialidad con asesoria legal | Auditoria financiera al contratista",
         "resumen": "Contrato critico por penalizacion extrema (50%), ausencia de garantia, arbitraje internacional y contratista de reciente creacion.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:18:00",
     },
     {   # contrato-alto-riesgo-outsourcing.pdf
@@ -263,7 +263,7 @@ risk_canonical = [
         "alertas": "Penalizacion del 35% | Sin garantia de cumplimiento (exonerado por relacion de confianza) | Jurisdiccion Tapachula, Chiapas | Propiedad intelectual para el contratista",
         "recomendaciones": "Exigir garantia de cumplimiento | Revisar clausula de propiedad intelectual | Evaluar jurisdiccion remota",
         "resumen": "Contrato de alto riesgo por outsourcing de personal especializado sin garantia, penalizacion del 35% y jurisdiccion en Chiapas.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:19:00",
     },
     {   # contrato-medio-riesgo-suministros.pdf
@@ -279,7 +279,7 @@ risk_canonical = [
         "alertas": "Penalizacion del 20% | Garantia del 10% solo primer anio | Suministro de equipo medico critico",
         "recomendaciones": "Extender garantia a toda la vigencia | Verificar certificaciones del equipo medico",
         "resumen": "Contrato de riesgo medio por equipo medico especializado, garantia limitada al primer anio y monto de $5.8M.",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": "2026-05-08T10:20:00",
     },
 ]
@@ -315,7 +315,7 @@ for i in range(1, 18):
         "alertas": " | ".join(alertas),
         "recomendaciones": " | ".join(recs),
         "resumen": f"Contrato {profile_name.lower()} — ${monto:,.0f} MXN, {plazo} días, penalización {penalizacion}%, garantía {garantia}%",
-        "llm_provider": "maas-deepseek-v4-flash",
+        "llm_provider": "maas-deepseek-v4-pro",
         "analyzed_at": f"2026-05-08T10:{18 + i:02d}:00",
     })
 

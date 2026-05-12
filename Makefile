@@ -37,7 +37,7 @@ apply-compute:
 	cd $(TF_DIR) && terraform apply -target=module.compute -auto-approve
 
 apply-data-platform:
-	cd $(TF_DIR) && terraform apply -target=module.data-platform -auto-approve
+	cd $(TF_DIR) && terraform apply -target=module.data_platform -auto-approve
 
 apply-ai-ocr:
 	cd $(TF_DIR) && terraform apply -target=module.ai-ocr -auto-approve
@@ -155,7 +155,12 @@ dashboard:
 
 dashboard-status:
 	@echo "=== Dashboard Health ==="
-	@curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\n" http://101.44.185.139/dashboard/ || echo "Streamlit: DOWN"
+	@DIFY_IP=$$(cd $(TF_DIR) && terraform output -raw dify_public_ip 2>/dev/null); \
+	if [ -n "$$DIFY_IP" ]; then \
+	  curl -s -o /dev/null -w "Streamlit: HTTP %{http_code}\\n" http://$$DIFY_IP/dashboard/ || echo "Streamlit: DOWN"; \
+	else \
+	  echo "Dashboard: No dify_public_ip — deploy first"; \
+	fi
 
 # ─── API Backend ─────────────────────────────────────
 deploy-api:
@@ -164,7 +169,12 @@ deploy-api:
 
 api-status:
 	@echo "=== API Health ==="
-	@curl -s http://149.232.129.39/api/health | python3 -m json.tool 2>/dev/null || echo "API: DOWN"
+	@WEB_IP=$$(cd $(TF_DIR) && terraform output -raw web_public_ip 2>/dev/null); \
+	if [ -n "$$WEB_IP" ]; then \
+	  curl -s http://$$WEB_IP/api/health | python3 -m json.tool 2>/dev/null || echo "API: DOWN"; \
+	else \
+	  echo "API: No web_public_ip — deploy first"; \
+	fi
 
 # ─── Agent Tools ────────────────────────────────────
 agent-tools:

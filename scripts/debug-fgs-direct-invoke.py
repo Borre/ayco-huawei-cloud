@@ -7,7 +7,7 @@ from huaweicloudsdkfunctiongraph.v2.region.functiongraph_region import FunctionG
 from huaweicloudsdkfunctiongraph.v2 import FunctionGraphClient
 from huaweicloudsdkfunctiongraph.v2.model.invoke_function_request import InvokeFunctionRequest
 
-AK = os.environ.get("HUAWEI_ACCESS_KEY", "4DXDDBDYHYP5FLEHREH2")
+AK = os.environ.get("HUAWEI_ACCESS_KEY", "")  # ¡SEGURIDAD! Forzar desde env var — sin fallback
 SK = os.environ.get("HUAWEI_SECRET_KEY")
 PROJECT_ID = "fbb6435c497c41bda90a0cc5240573e0"
 FUNCTION_NAME = "ayco-ocr-trigger"
