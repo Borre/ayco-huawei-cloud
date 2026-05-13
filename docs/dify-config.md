@@ -35,10 +35,31 @@ docker compose -f /opt/ayco/dify/docker/docker-compose.yaml restart plugin_daemo
 **Status:** MaaS HK no funciona (NXDOMAIN maas-api.la-north-2). DeepSeek directo es el fallback.
 
 ## Agent Tools Mock
-- **Port:** 8400 (systemd: ayco-tools)
-- **Endpoints:** /aplicar_plan_pago, /consultar_buro, /generar_carta, /health
-- **DB registration:** tool_api_providers.id=78e524a4... + 3 label_bindings
-- **Agent config:** app_model_configs.agent_mode includes tools array
+- **Deploy:** `ssh -i ~/.ssh/ayco-demo root@101.44.185.139`
+- **Service:** systemd `ayco-tools` (port 8400, localhost-only — no expuesto al público)
+- **Verify:** `curl -s http://localhost:8400/health`
+- **Restart:** `systemctl restart ayco-tools`
+- **Code:** `/opt/ayco/tools/server.py`
+
+### Endpoints
+
+| Endpoint | Method | Example Response |
+|----------|--------|-----------------|
+| `/health` | GET | `{"status":"ok","tools":["aplicar_plan_pago","consultar_buro","generar_carta"]}` |
+| `/aplicar_plan_pago` | POST | `{"plan_id":"5e23f8ac","tipo":"quita","cuota_mensual":60000.0,"plazo_meses":1}` |
+| `/consultar_buro` | POST | `{"cliente_id":"CLI-042","score":596,"historial":"SIN_ATRASOS","alertas":1}` |
+| `/generar_carta` | POST | `{"carta_id":"a1b2c3d4","tipo":"recordatorio","texto":"Carta generada exitosamente","pdf_url":"/cartas/carta-XXXX.pdf"}` |
+
+### Redeploy (si el ECS se pierde)
+```bash
+ECS_IP=101.44.185.139 SSH_KEY_PATH=~/.ssh/ayco-demo bash scripts/deploy-agent-tools.sh
+```
+
+### DB registration
+- tool_api_providers.id=78e524a4... + 3 label_bindings
+- app_model_configs.agent_mode includes tools array
+
+**Nota:** Puerto 8400 bloqueado por SG — solo accesible via localhost. Las health checks externas en otros docs están desactualizadas; el verify correcto es via SSH + localhost.
 
 ## Workflow Routing
 Document types detected: FACTURA, INE, CARTA_COBRANZA, ESTADO_CUENTA, CONTRATO

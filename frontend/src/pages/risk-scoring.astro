@@ -481,16 +481,16 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
         '</tr>';
       }).join('');
       
-      // Bind click handlers after DOM update
-      setTimeout(function() {
-        document.querySelectorAll('.btn-ai-analysis').forEach(function(btn) {
-          btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const contractNumber = this.getAttribute('data-contract');
-            openChatWithQuery('Analiza el contrato ' + contractNumber);
-          });
-        });
-      }, 50);
+      // Event delegation: bind once on the table body, works for all buttons
+      // even if the DOM changes after this binding runs
+      tbody.addEventListener('click', function(e) {
+        var btn = e.target.closest('.btn-ai-analysis');
+        if (btn) {
+          e.preventDefault();
+          var contractNumber = btn.getAttribute('data-contract');
+          openChatWithQuery('Analiza el contrato ' + contractNumber);
+        }
+      });
     }
 
     function escapeHtml(str) {
@@ -502,59 +502,23 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
     window.openChatWithQuery = function(query) {
       var chatWindow = document.getElementById('chat-window');
       var chatToggle = document.getElementById('chat-toggle');
-      var chatMessages = document.getElementById('chat-messages');
       var chatInput = document.getElementById('chat-input');
+      var chatForm = document.getElementById('chat-form');
       
       // Open chat if closed
       if (chatWindow && chatWindow.classList.contains('chat-window-closed') && chatToggle) {
         chatToggle.click();
       }
       
-      // Add user message to chat
-      if (chatMessages) {
-        var userMsg = '<div class="chat-message user mb-4"><div class="chat-bubble-user max-w-[85%]">' + 
-          escapeHtml(query) + '</div></div>';
-        chatMessages.innerHTML += userMsg;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-      
-      // Show loading
-      if (chatMessages) {
-        chatMessages.innerHTML += '<div id="chat-loading" class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%] text-gs-gray-400">Pensando...</div></div>';
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-      
-      // Call API
-      fetch('/api/dify/chat-messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: {}, query: query, response_mode: 'blocking', user: 'web-user' })
-      })
-      .then(res => res.json())
-      .then(data => {
-        // Remove loading
-        var loading = document.getElementById('chat-loading');
-        if (loading) loading.remove();
-        
-        // Add bot response
-        if (chatMessages && data.answer) {
-          var botMsg = '<div class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%]">' + 
-            data.answer.replace(/\n/g, '<br>') + '</div></div>';
-          chatMessages.innerHTML += botMsg;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Use the ChatWidget's own form submit mechanism
+      // This includes the Authorization header (Bearer DIFY_KEY)
+      // Same pattern used by the quick-action buttons
+      setTimeout(function() {
+        if (chatInput && chatForm) {
+          chatInput.value = query;
+          chatForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         }
-      })
-      .catch(err => {
-        console.error('Chat error:', err);
-        var loading = document.getElementById('chat-loading');
-        if (loading) loading.remove();
-        if (chatMessages) {
-          chatMessages.innerHTML += '<div class="chat-message bot mb-4"><div class="chat-bubble-bot max-w-[85%] text-red-400">Error conectando a Dify</div></div>';
-        }
-      });
-      
-      // Clear input
-      if (chatInput) chatInput.value = '';
+      }, 350);
     };
 
     initMap();

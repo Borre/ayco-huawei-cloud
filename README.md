@@ -18,6 +18,20 @@ make demo
 make status
 ```
 
+## Current State (May 13, 2026)
+
+Demo revived after original DWS cluster was deleted. 2 ECS instances survived (ayco-dify, ayco-web). DWS recreated via Terraform, frontend rebuilt with auth fixes.
+
+| Resource | Public IP | Private IP | Status |
+|----------|-----------|------------|--------|
+| ECS Dify (ayco-dify) | 101.44.185.139 | 192.168.100.135 | Running (11 Docker containers) |
+| ECS Web (ayco-web) | 149.232.129.39 | 192.168.100.123 | Running (Nginx + FastAPI) |
+| DWS Cluster (ayco-dws) | 46.250.168.254:8000 | 192.168.100.157, 192.168.100.126 | Available (24 records) |
+| Streamlit Dashboard | 101.44.185.139:8501 | — | Running |
+| Agent Tools mock | localhost:8400 (via SSH) | — | Running (puerto no expuesto) |
+
+**SSH access:** `ssh -i ~/.ssh/ayco-demo root@<IP>`
+
 ## Architecture
 
 - **Region:** la-north-2 (Mexico City 2)
@@ -168,6 +182,23 @@ Every LLM call is traced automatically via Langfuse REST API (non-blocking, no S
 └── backups/                              # Demo recordings (gitignored)
 ```
 
+## Frontend Env Variables
+
+The Astro frontend needs env vars at build time. Create `frontend/.env` (see `frontend/.env.example`):
+
+```bash
+cd frontend
+cp .env.example .env
+# Edit with your Dify API keys
+npm install --legacy-peer-deps && npm run build
+```
+
+| Variable | Required | Description | Current Value |
+|----------|----------|-------------|---------------|
+| `PUBLIC_DIFY_API_KEY` | **Yes** | Dify app key (AYCO Chat) | `app-Y8MxfRygyUWOAfyTlo1MQSJx` |
+| `PUBLIC_COBRANZA_API_KEY` | No | Dify cobranza agent key (currently unused) | `app-ZrM7Pal6G2b89drd1zLVssvM` |
+| `PUBLIC_DASHBOARD_URL` | No | Streamlit dashboard URL | `http://101.44.185.139` |
+
 ## Credentials
 
 Use 1Password CLI for production secrets:
@@ -196,6 +227,24 @@ cd /opt/dify/docker && docker compose logs
 
 **DWS connection refused:**
 Check security group allows port from your IP. DWS takes 5-10 min to provision.
+
+**Dify chat returns 401 Unauthorized:**
+The frontend ChatWidget uses `Authorization: Bearer ${DIFY_KEY}`. If the COBRANZA_KEY was removed or the env var `PUBLIC_DIFY_API_KEY` is missing, replace `frontend/src/components/ChatWidget.astro` line 104.
+```
+# In frontend/.env — required before build
+PUBLIC_DIFY_API_KEY=app-Y8MxfRygyUWOAfyTlo1MQSJx
+```
+Then rebuild + redeploy: `make frontend-deploy`
+
+**Deep Analysis AI button doesn't open chat:**
+The button uses event delegation (`document.addEventListener`). If you rewrote the `risk-scoring.astro` script, make sure the `openChatWithQuery` function dispatches a form submit event on `#chat-form` (not a raw fetch call), or the Authorization header won't be included.
+
+**DWS version mismatch on recreate:**
+If Terraform fails with `datastore version is illegal`, check the current version:
+```bash
+hcloud DWS ListNodeTypes --cli-region=la-north-2 | python3 -c "import sys,json; [print(v.get('detail',[])) for v in json.load(sys.stdin).get('node_types',[])]"
+```
+Then update `terraform/modules/data-platform/dws.tf` variable `version`.
 
 **Health check fails:**
 ```bash

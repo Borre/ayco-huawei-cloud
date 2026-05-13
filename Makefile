@@ -178,11 +178,11 @@ api-status:
 
 # ─── Agent Tools ────────────────────────────────────
 agent-tools:
-	@echo "=== Deploying Agent Tools Mock Server ==="
-	bash $(SCRIPTS)/deploy-agent-tools.sh
+	@echo "=== Deploying Agent Tools Mock Server ===\n"
+	ECS_IP=101.44.185.139 SSH_KEY_PATH=~/.ssh/ayco-demo bash $(SCRIPTS)/deploy-agent-tools.sh
 
 agent-tools-status:
-	@curl -s http://101.44.185.139:8400/health | python3 -m json.tool 2>/dev/null || echo "Agent Tools: DOWN"
+	@ssh -i ~/.ssh/ayco-demo root@101.44.185.139 'curl -s http://localhost:8400/health' | python3 -m json.tool 2>/dev/null || echo "Agent Tools: DOWN"
 
 # ─── MaaS HK Fix ────────────────────────────────────
 maas-fix:

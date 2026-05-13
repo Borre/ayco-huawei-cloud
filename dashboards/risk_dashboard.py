@@ -1116,6 +1116,82 @@ def _suggest_followups(user_query: str, sql: str, result_summary: str) -> list[s
     except Exception:
         return []
 
+
+def _process_chat_query(user_query: str) -> None:
+    """Execute the full ChatBI pipeline: call LLM → extract SQL → validate → execute → store in history.
+
+    Called both from form submit (manual Enter) and from follow-up button clicks.
+    """
+    st.session_state.chatbi_history.append({"role": "user", "content": user_query})
+
+    with st.spinner("🧠 DeepSeek está generando la consulta..."):
+        try:
+            llm_response, provider = _call_llm_sql(_DWS_SCHEMA, user_query)
+            sql = _extract_sql(llm_response)
+
+            # Validate
+            is_safe, reason = _validate_sql(sql)
+            if not is_safe:
+                st.session_state.chatbi_history.append({
+                    "role": "assistant",
+                    "content": f"⚠️ Query bloqueado: {reason}",
+                    "sql": sql,
+                    "error": True,
+                })
+            else:
+                sql = _enforce_limit(sql, 200)
+                # Execute with auto-retry on SQL errors
+                result_df, final_sql, db_error = _execute_with_retry(sql, user_query)
+
+                # Build result summary for follow-up generation
+                if db_error:
+                    st.session_state.chatbi_history.append({
+                        "role": "assistant",
+                        "content": f"❌ Error DWS tras reintentos: {db_error}",
+                        "sql": final_sql,
+                        "error": True,
+                        "provider": provider,
+                    })
+                else:
+                    # Generate follow-ups (lightweight, non-blocking feel)
+                    result_summary = f"{len(result_df)} filas"
+                    if not result_df.empty:
+                        cols = ", ".join(result_df.columns[:5])
+                        result_summary += f". Columnas: {cols}"
+                    followups = _suggest_followups(user_query, final_sql, result_summary)
+
+                    st.session_state.chatbi_history.append({
+                        "role": "assistant",
+                        "content": llm_response,
+                        "sql": final_sql,
+                        "data": result_df,
+                        "error": False,
+                        "provider": provider,
+                        "followups": followups,
+                    })
+        except urllib.error.HTTPError as e:
+            st.session_state.chatbi_history.append({
+                "role": "assistant",
+                "content": f"❌ Error MaaS API: {e.code} {e.reason}",
+                "sql": "",
+                "error": True,
+            })
+        except urllib.error.URLError as e:
+            st.session_state.chatbi_history.append({
+                "role": "assistant",
+                "content": f"❌ Error de conexión MaaS: {e.reason}",
+                "sql": "",
+                "error": True,
+            })
+        except Exception as e:
+            st.session_state.chatbi_history.append({
+                "role": "assistant",
+                "content": f"❌ Error: {str(e)[:200]}",
+                "sql": "",
+                "error": True,
+            })
+
+
 # ─── DWS Schema for system prompt ────────────────────────
 _DWS_SCHEMA = """
 Eres un asistente SQL experto para Huawei Cloud DWS (GaussDB/PostgreSQL). SOLO generas queries SELECT.
@@ -1324,10 +1400,21 @@ with tab5:
     if selected_example:
         st.session_state.chatbi_text = selected_example
 
+    # Check for pending follow-up query from buttons below
+    # (must resolve BEFORE the widget is instantiated)
+    if "chatbi_pending" in st.session_state and st.session_state.chatbi_pending:
+        user_query = st.session_state.chatbi_pending
+        st.session_state.chatbi_text = st.session_state.chatbi_pending
+        st.session_state.chatbi_pending = ""
+        # Process immediately — bypass form submit (follow-up button path)
+        _process_chat_query(user_query)
+
     # Input row: form with text input + send button (Enter key submits)
     # Initialize session state key if missing
     if "chatbi_text" not in st.session_state:
         st.session_state.chatbi_text = ""
+    if "chatbi_pending" not in st.session_state:
+        st.session_state.chatbi_pending = ""
 
     with st.form("chatbi_form", clear_on_submit=False):
         col_input, col_btn = st.columns([5, 1])
@@ -1344,75 +1431,7 @@ with tab5:
 
     # Process on form submit (button click OR Enter key)
     if send_clicked and user_query and user_query.strip():
-        # Add user message to history
-        st.session_state.chatbi_history.append({"role": "user", "content": user_query})
-
-        with st.spinner("🧠 DeepSeek está generando la consulta..."):
-            try:
-                llm_response, provider = _call_llm_sql(_DWS_SCHEMA, user_query)
-                sql = _extract_sql(llm_response)
-
-                # Validate
-                is_safe, reason = _validate_sql(sql)
-                if not is_safe:
-                    st.session_state.chatbi_history.append({
-                        "role": "assistant",
-                        "content": f"⚠️ Query bloqueado: {reason}",
-                        "sql": sql,
-                        "error": True,
-                    })
-                else:
-                    sql = _enforce_limit(sql, 200)
-                    # Execute with auto-retry on SQL errors
-                    result_df, final_sql, db_error = _execute_with_retry(sql, user_query)
-
-                    # Build result summary for follow-up generation
-                    if db_error:
-                        st.session_state.chatbi_history.append({
-                            "role": "assistant",
-                            "content": f"❌ Error DWS tras reintentos: {db_error}",
-                            "sql": final_sql,
-                            "error": True,
-                            "provider": provider,
-                        })
-                    else:
-                        # Generate follow-ups (lightweight, non-blocking feel)
-                        result_summary = f"{len(result_df)} filas"
-                        if not result_df.empty:
-                            cols = ", ".join(result_df.columns[:5])
-                            result_summary += f". Columnas: {cols}"
-                        followups = _suggest_followups(user_query, final_sql, result_summary)
-
-                        st.session_state.chatbi_history.append({
-                            "role": "assistant",
-                            "content": llm_response,
-                            "sql": final_sql,
-                            "data": result_df,
-                            "error": False,
-                            "provider": provider,
-                            "followups": followups,
-                        })
-            except urllib.error.HTTPError as e:
-                st.session_state.chatbi_history.append({
-                    "role": "assistant",
-                    "content": f"❌ Error MaaS API: {e.code} {e.reason}",
-                    "sql": "",
-                    "error": True,
-                })
-            except urllib.error.URLError as e:
-                st.session_state.chatbi_history.append({
-                    "role": "assistant",
-                    "content": f"❌ Error de conexión MaaS: {e.reason}",
-                    "sql": "",
-                    "error": True,
-                })
-            except Exception as e:
-                st.session_state.chatbi_history.append({
-                    "role": "assistant",
-                    "content": f"❌ Error: {str(e)[:200]}",
-                    "sql": "",
-                    "error": True,
-                })
+        _process_chat_query(user_query)
 
     # Render chat history
     for msg_idx, msg in enumerate(st.session_state.chatbi_history):
@@ -1464,7 +1483,7 @@ with tab5:
                     for i, (fq, col) in enumerate(zip(msg["followups"], followup_cols)):
                         with col:
                             if st.button(fq, key=f"fu_{msg_idx}_{i}", use_container_width=True):
-                                st.session_state.chatbi_text = fq
+                                st.session_state.chatbi_pending = fq
                                 st.rerun()
 
     # Clear history button

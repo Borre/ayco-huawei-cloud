@@ -85,7 +85,8 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 |---------|--------------|-------------|
 | Frontend (Demo 1, 2) | http://149.232.129.39 | Público |
 | Dify (Demo 3) | http://101.44.185.139 | eduardo@ayco-demo.com / ver 1Password |
-| Dashboard Streamlit | http://101.44.185.139:8501 | Público (desde IP del presentador) |
+| **Dashboard Streamlit** | http://101.44.185.139:8501 | Público (desde IP del presentador) |
+| **Agent Tools** | localhost:8400 (via SSH) | Solo localhost — SG bloquea acceso externo |
 | DWS (psql) | 46.250.161.25:8000 | ayco_admin / ver 1Password |
 | SSH Dify | ssh -i ~/.ssh/ayco-demo root@101.44.185.139 | Key SSH en repo |
 | SSH Web | ssh -i ~/.ssh/ayco-demo root@149.232.129.39 | Key SSH en repo |
@@ -118,7 +119,8 @@ done
 curl -s -o /dev/null -w '%{http_code}' http://101.44.185.139:8501
 
 # 6. Verificar Agent Tools
-curl -s http://101.44.185.139:8400/health
+# NOTA: puerto 8400 no expuesto (SG). Verificar via SSH:
+ssh -i ~/.ssh/ayco-demo root@101.44.185.139 'curl -s http://localhost:8400/health'
 ```
 
 ---
@@ -258,7 +260,14 @@ curl -s -o /dev/null -w '%{http_code}' http://101.44.185.139:8501
 
 ```bash
 ssh ayco-dify 'systemctl restart ayco-tools'
-curl -s http://101.44.185.139:8400/health
+# Puerto 8400 no expuesto — verificar via SSH:
+ssh ayco-dify 'curl -s http://localhost:8400/health'
+```
+
+### Redeploy (si se pierde el server.py o el service)
+```bash
+cd /home/eduardo/dev/ayco-huawei-cloud
+ECS_IP=101.44.185.139 SSH_KEY_PATH=~/.ssh/ayco-demo bash scripts/deploy-agent-tools.sh
 ```
 
 ## Frontend caído
@@ -272,6 +281,7 @@ ssh ayco-web 'systemctl restart nginx'
 ```bash
 ssh ayco-dify 'docker compose restart'  # 11 containers
 ssh ayco-dify 'systemctl restart streamlit-dashboard ayco-tools'
+# Verificar: ssh ayco-dify 'curl -s http://localhost:8400/health'
 ssh ayco-web 'systemctl restart nginx'
 # Esperar 60 segundos
 # Si sigue caído: usar screenshots + narrativa verbal
@@ -313,6 +323,7 @@ ssh ayco-dify 'systemctl restart streamlit-dashboard'
 
 # Reiniciar Agent Tools
 ssh ayco-dify 'systemctl restart ayco-tools'
+# Verificar: ssh ayco-dify 'curl -s http://localhost:8400/health'
 ```
 
 ---

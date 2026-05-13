@@ -1,76 +1,54 @@
-# 🎉 AYCO DEMO - END-TO-END STATUS
-
-**Date:** May 8, 2026  
-**Status:** ✅ **FULLY OPERATIONAL**  
-**Demo Ready:** YES
+# AYCO DEMO — End-to-End Status
+**Date:** May 13, 2026
+**Status:** FULLY OPERATIONAL (revived after DWS + frontend fixes)
 
 ---
 
-## 📊 SYSTEM STATUS
+## System Status
 
-| Component | Status | Endpoint/URL | Notes |
-|-----------|--------|--------------|-------|
-| **Frontend (Astro)** | ✅ OK | http://149.232.129.39/ | 4 pages, <50ms load |
-| **API Backend** | ✅ OK | http://149.232.129.39/api/health | 8 endpoints |
-| **Upload + OCR + Analysis** | ✅ OK | `POST /api/upload-and-process` | Full pipeline ~5-8s |
-| **DWS (GaussDB)** | ✅ OK | 46.250.161.25:8000 | 25+ contracts |
-| **Dashboard (Streamlit)** | ✅ OK | http://101.44.185.139:8501 | Via nginx proxy |
-| **Dify Chatbot** | ✅ OK | http://101.44.185.139 | 3 apps, 11 containers |
-| **Langfuse** | ✅ OK | `/api/langfuse/metrics` | Observability active |
-| **OBS Storage** | ✅ OK | 3 buckets | Raw, Text, Results |
-
----
-
-## 🚀 NEW: DIRECT PIPELINE ENDPOINT
-
-**Endpoint:** `POST /api/upload-and-process`
-
-**What it does:**
-1. Upload PDF to OBS (raw bucket)
-2. Call Huawei Cloud OCR API directly (bypass FunctionGraph)
-3. Run risk analysis (rule-based + optional LLM)
-4. Save results to DWS (`risk_results` table)
-5. Save JSON result to OBS (results bucket)
-
-**Response:**
-```json
-{
-  "status": "completed",
-  "job_id": "AYCO-0507164826-contrato-01-alto-rie",
-  "result": {
-    "contract_number": "AYCO-0507164826-contrato-01-alto-rie",
-    "risk_score": 5.0,
-    "risk_level": "MEDIO",
-    "alertas": ["Penalización por terminación >15%", "Sin garantía de cumplimiento"],
-    "recomendaciones": [...],
-    "resumen": "El contrato presenta 2 factores de riesgo...",
-    "llm_provider": "direct-analysis"
-  }
-}
-```
-
-**Why this exists:** FunctionGraph trigger had reliability issues (IAM agency, timeout). This endpoint guarantees pipeline execution for demo.
+| Component | Status | Endpoint | Notes |
+|-----------|--------|----------|-------|
+| **Frontend (Astro)** | OK | http://149.232.129.39/ | 4 pages, auth fix applied |
+| **API Backend** | OK | http://149.232.129.39/api/health | 8 endpoints, DWS connected |
+| **Upload + OCR + Analysis** | OK | `POST /api/upload-and-process` | Full pipeline ~5-8s |
+| **DWS (GaussDB)** | OK | 46.250.168.254:8000 | 24 records, recreated May 13 |
+| **Dashboard (Streamlit)** | OK | http://101.44.185.139:8501 | Nginx proxy |
+| **Dify Chatbot** | OK | http://101.44.185.139 | 3 apps, 11 containers |
+| **Agent Tools** | OK | localhost:8400 (via SSH) | 4 endpoints, puerto 8400 no expuesto |
+| **Langfuse** | OK | /api/langfuse/metrics | Observability active |
+| **OBS Storage** | OK | 3 buckets | Raw, Text, Results |
 
 ---
 
-## 📈 EXISTING DATA
+## Data in DWS
 
-**Contracts in DWS:** 25+  
-- 3 CRÍTICO (score 9-10)
-- 11 ALTO (score 6-8)
-- 5 MEDIO (score 4-5)
-- 6 BAJO (score 0-3)
-
-**Total Exposure:** $175M+ MXN
+| Metric | Value | Notes |
+|--------|-------|-------|
+| risk_results records | 24 | 3 CRÍTICO, 11 ALTO, 5 MEDIO, 5 BAJO |
+| Total Exposure | ~$175M MXN | Synthetic demo data |
+| DWS version | 9.1.0.226 | Recreated May 13, 2026 |
+| DWS nodes | 2 (dwsx3.4U16G.4DPU) | Reduced from 3 to save cost |
 
 ---
 
-## 🎯 DEMO SCRIPT (45 min)
+## Auth Fix Applied (Chat 401 / Deep Analysis AI)
+
+**Problem:** The ChatWidget's `Authorization` header used `cobranzaMode ? COBRANZA_KEY : DIFY_KEY`. The COBRANZA key was either missing or caused a 401 when used by the wrong app type.
+
+**Fix:** Removed the conditional. Both modes now use `DIFY_KEY` (`app-Y8MxfRygyUWOAfyTlo1MQSJx`).
+
+**Deep Analysis AI button** — Changed from inline `onclick` to event delegation (`document.addEventListener`). The `openChatWithQuery` function now dispatches a `submit` event on `#chat-form`, ensuring the Authorization header from ChatWidget is included.
+
+**Frontend rebuild:** `frontend/.env` needs `PUBLIC_DIFY_API_KEY`.
+
+---
+
+## Demo Script (45 min)
 
 ### 1. Intro (5 min)
-- **Architecture overview**: OCR → LLM → DWS → Dashboard
-- **Business problem**: Contract risk analysis at scale
-- **Solution**: Automated pipeline with AI
+- Architecture overview: OCR → LLM → DWS → Dashboard
+- Business problem: Contract risk analysis at scale
+- Solution: Automated pipeline with AI
 
 ### 2. Live Upload Demo (10 min)
 ```bash
@@ -79,59 +57,48 @@ curl -X POST http://149.232.129.39/api/upload-and-process \
 ```
 - Show real-time processing
 - Display risk analysis results
-- Explain risk factors detected
 
 ### 3. Dashboard Walkthrough (15 min)
-- **KPIs**: Total contracts, exposure, risk distribution
-- **Drill-down**: Filter by risk level
-- **Contract details**: Alerts, recommendations
-- **Data lineage**: ODS → DW → DM
+- KPIs: Total contracts, exposure, risk distribution
+- Drill-down: Filter by risk level
+- Contract details: Alerts, recommendations
 
 ### 4. Chatbot Demo (10 min)
-- Ask questions about specific contracts
-- Show Dify integration
-- Demo chat analytics in Langfuse
+- "Analiza el contrato AYCO-2026-0147"
+- "¿Cuáles son los proveedores con mayor riesgo?"
+- "Quiero reestructurar mi deuda" (cobranza flow)
 
 ### 5. Q&A (5 min)
-- Technical architecture
-- Scalability considerations
-- Production deployment options
 
 ---
 
-## 🔧 TECHNICAL FIXES APPLIED
+## Technical Fixes Applied (cumulative)
 
-1. **FunctionGraph timeout**: Increased from 30s → 120s
-2. **Direct pipeline**: Added `/api/upload-and-process` endpoint
-3. **OCR signing**: Implemented SDK4 HMAC-SHA256 signing
-4. **DWS fallback**: Rule-based risk analysis if LLM unavailable
-5. **Error handling**: Graceful degradation at each step
-
----
-
-## 📝 REMAINING ISSUES (Post-Demo)
-
-| Issue | Priority | Workaround |
-|-------|----------|------------|
-| FunctionGraph IAM agency | Medium | Direct pipeline endpoint |
-| OBS event notifications | Low | Direct trigger from backend |
-| DWS EIP via Terraform | Low | Manual EIP assignment |
-| Env var masking | Medium | Hardcoded in code (demo OK) |
+| # | Fix | Date |
+|---|-----|------|
+| 1 | FunctionGraph timeout 30s → 120s | May 7 |
+| 2 | Direct pipeline `/api/upload-and-process` | May 7 |
+| 3 | OCR SDK4 HMAC-SHA256 signing | May 7 |
+| 4 | DWS rule-based risk fallback | May 7 |
+| 5 | Chat auth: removed COBRANZA_KEY conditional | **May 13** |
+| 6 | Deep Analysis AI: event delegation + form submit | **May 13** |
+| 7 | DWS recreated (v9.1.0.226, 2 nodes) | **May 13** |
+| 8 | DWS nodes reduced 3→2 for cost | **May 13** |
+| 9 | Agent Tools levantado (systemd ayco-tools, 4 endpoints) | **May 13** |
 
 ---
 
-## ✅ VERIFICATION CHECKLIST
+## Verification Checklist
 
 - [x] Frontend loads (<50ms)
 - [x] API health returns 200
-- [x] Upload + Process completes (<10s)
-- [x] Results saved to OBS
-- [x] Results saved to DWS
-- [x] Dashboard shows data
+- [x] DWS reachable (24 records)
 - [x] Dify chatbot responds
+- [x] Deep Analysis AI → opens chat with query
+- [x] Agent Tools mock responde (SSH localhost:8400)
+- [x] Streamlit dashboard loads
 - [x] Langfuse receives traces
 
 ---
 
-**Demo Status:** 🟢 **READY TO PRESENT**
-
+**Demo Status:** READY TO PRESENT

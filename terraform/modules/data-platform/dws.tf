@@ -21,7 +21,7 @@ resource "huaweicloud_dws_cluster" "ayco" {
   node_type         = "dwsx3.4U16G.4DPU"
   number_of_node    = var.dws_node_count
   number_of_cn      = 2
-  version           = "9.1.0.223"
+  version           = "9.1.0.226"
   user_name         = "ayco_admin"
   user_pwd          = var.dws_admin_password
   vpc_id            = var.vpc_id
