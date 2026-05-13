@@ -14,9 +14,9 @@ const { value, label, trend, trendUp = true, icon } = Astro.props;
   <div class="flex items-start justify-between">
     <div>
       <p class="metric-label mb-1">{label}</p>
-      <p class="metric-value" data-counter={value}>{value}</p>
+      <p class="metric-value" data-counter={value} data-metric-value>{value}</p>
       {trend && (
-        <div class={`flex items-center mt-2 text-sm font-medium ${trendUp ? 'text-risk-low' : 'text-risk-high'}`}>
+        <div class={`flex items-center mt-2 text-sm font-medium ${trendUp ? 'text-risk-low' : 'text-risk-high'}`} data-metric-trend>
           <svg class={`w-4 h-4 mr-1 ${trendUp ? '' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
           </svg>

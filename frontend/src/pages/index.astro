@@ -196,20 +196,20 @@ const demoCards = [
         if (!data.kpis) return;
         const k = data.kpis;
         const fmt = (n) => n >= 1e9 ? `${(n/1e9).toFixed(1)}B` : n >= 1e6 ? `${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `${(n/1e3).toFixed(0)}K` : String(n);
-        setKPI('home-kpi-vendors', k.unique_vendors.toString(), 'Únicos en DWS');
-        setKPI('home-kpi-minutes', k.total_contracts.toString(), `Pipeline DWS · ${k.critical_count} crítico${k.critical_count!==1?'s':''}`);
+        setKPI('home-kpi-vendors', (k.unique_vendors ?? 0).toString(), 'Únicos en DWS');
+        setKPI('home-kpi-minutes', (k.total_contracts ?? 0).toString(), `Pipeline DWS · ${k.critical_count ?? 0} crítico${(k.critical_count ?? 0)!==1?'s':''}`);
         setKPI('home-kpi-cost', `$${k.daily_cost_usd || 31}`, k.total_exposure_mxn ? `Exposición ${fmt(k.total_exposure_mxn)}` : 'USD/día');
         function setKPI(id, val, trend) {
           const el = document.getElementById(id);
           if (!el) return;
-          const v = el.querySelector('.text-2xl, .text-3xl, [class*="font-bold"]');
-          const t = el.querySelector('.text-xs, [class*="text-gs-gray"]');
+          const v = el.querySelector('[data-metric-value]');
+          const t = el.querySelector('[data-metric-trend]');
           if (v) v.textContent = val;
           if (t) t.textContent = trend;
         }
       })
       .catch(() => {
-        // Fallback demo values when API is unavailable
+        /* Fallback demo values when API is unavailable */
         const fallbacks = {
           'home-kpi-vendors': { val: '2,300', trend: 'Demo · Datos de ejemplo' },
           'home-kpi-minutes': { val: '20', trend: 'Demo · Pipeline DWS' },

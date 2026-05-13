@@ -23,7 +23,7 @@
 | **Dify Console** | `http://101.44.185.139/console` (eduardo@ayco-demo.com / AYCOcloud2026!) | Config interna: datasets, RAG, modelo |
 | **Dify Chat API Proxy** | `http://149.232.129.39/api/chat?query=...` | Análisis de contratos vía DeepSeek desde el frontend |
 | **Langfuse** | `https://us.cloud.langfuse.com` → ayco-demo | Trazabilidad LLM |
-| **Streamlit Dashboard** | `http://101.44.185.139/dashboard/` | Dashboard Python interactivo (nginx proxy → :8501) |
+| **Streamlit Dashboard** | `http://ayco-dashboard.hwcdemo.com/` | Dashboard Python interactivo (nginx proxy → :8501) |
 | **Terraform Repo** | `github.com/Borre/ayco-huawei-cloud` | Infraestructura como código |
 
 ---
@@ -47,7 +47,7 @@
 - [ ] **Frontend accessible:** `curl -s http://149.232.129.39/` returns 200
 - [ ] **Dify API:** `curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer app-Y8MxfRygyUWOAfyTlo1MQSJx" http://101.44.185.139/v1/chat-messages` returns 401 (API viva, solo falta body)
 - [ ] **DWS:** `PGPASSWORD=... psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c "SELECT 1"` returns 1
-- [ ] **Streamlit:** `curl -s http://101.44.185.139/dashboard//_stcore/health` returns ok
+- [ ] **Streamlit:** `curl -s http://ayco-dashboard.hwcdemo.com/dashboard/_stcore/health` returns ok
 - [ ] Contract data seeded: 20 rows in `public.risk_results` + 2,300 vendors, 500 customers, 5,000 transactions in ODS/DW/DM
 - [ ] 9 contratos PDF listos en `data/contracts/` (3 originales + 6 nuevos con perfiles BAJO/MEDIO/ALTO/CRÍTICO)
 - [ ] Run `python3 scripts/generate-contracts-pdf.py` para regenerar si es necesario
@@ -60,7 +60,7 @@
 - [ ] **Tab 3:** Frontend Data Governance (`http://149.232.129.39/data-governance/`)
 - [ ] **Tab 4:** Frontend Contract AI (`http://149.232.129.39/contract-ai/`)
 - [ ] **Tab 5:** Dify Console (`http://101.44.185.139/console` — eduardo@ayco-demo.com / AYCOcloud2026!)
-- [ ] **Tab 6:** Streamlit Dashboard (`http://101.44.185.139/dashboard/`)
+- [ ] **Tab 6:** Streamlit Dashboard (`http://ayco-dashboard.hwcdemo.com`)
 - [ ] **Tab 7:** Huawei Console > DWS > Cluster `ayco-dws` > SQL Editor
 - [ ] **Tab 8:** Huawei Console > DLI > SQL Editor
 - [ ] **Tab 9:** Huawei Console > FunctionGraph > `llm-inference` > Logs
@@ -780,7 +780,7 @@ and found no differences, so no changes are needed.
 
 | Fallo | Acción de respaldo |
 |-------|-------------------|
-| Frontend no carga (149.232.129.39 down) | Mostrar Dify directo en `http://101.44.185.139` + Streamlit en `/dashboard/` |
+| Frontend no carga (149.232.129.39 down) | Mostrar Dify directo en `http://101.44.185.139` + Streamlit en `http://ayco-dashboard.hwcdemo.com` |
 | DWS no responde | Usar Streamlit dashboard con datos cacheados, o mostrar PG local con seed data |
 | Chatbot no responde | Usar `curl` directo a Dify API + mostrar Langfuse traces pregrabadas |
 | Dify API timeout | Cambiar a DeepSeek directo (`api.deepseek.com`) o usar respuestas cacheadas |
@@ -885,7 +885,7 @@ curl -s -o /dev/null -w "%{http_code}" http://149.232.129.39/contract-ai/
 
 # ─── Streamlit Dashboard ───
 # Health check
-curl -s http://101.44.185.139/dashboard//_stcore/health
+curl -s http://ayco-dashboard.hwcdemo.com/dashboard/_stcore/health
 
 # Restart
 ssh -i ~/.ssh/ayco-demo root@101.44.185.139 \

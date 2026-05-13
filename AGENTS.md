@@ -123,7 +123,7 @@ The root module (`terraform/main.tf`) wires outputs between modules. Each module
 - **COBRANZA_KEY was removed from Authorization header** — The ChatWidget previously used `cobranzaMode ? COBRANZA_KEY : DIFY_KEY` on the Authorization header. Since the COBRANZA key (`app-ZrM7Pal6G2b89drd1zLVssvM`) is also a Dify Chat app key (not an Agent key), both modes now use `DIFY_KEY` exclusively. If you re-add a separate cobranza key, test that the Authorization header still works for both modes.
 - **Deep Analysis AI button uses event delegation** — The `openChatWithQuery` function in `risk-scoring.astro` dispatches a submit event on `#chat-form`, NOT a raw fetch call. This ensures the Authorization header from ChatWidget is included. If you replace this function, maintain the form-submit pattern.
 - **`deploy.sh` hardcodes ECS IP `149.232.129.39`** — should be from Terraform output.
-- **Streamlit Dashboard servido vía nginx proxy** — puerto 8501 bloqueado en redes corporativas. Acceso: `/dashboard/` en Dify ECS (101.44.185.139) → proxy_pass a `localhost:8501`.
+- **Streamlit Dashboard servido vía nginx proxy** — puerto 8501 bloqueado en redes corporativas. Acceso: `/dashboard/` en el Web ECS (149.232.129.39) → proxy_pass a `localhost:8501`.
 - **Dify Chat API Proxy** — endpoint `/api/chat?query=...` en el FastAPI del ECS web (149.232.129.39:8001). Llama Dify `/v1/chat-messages` con API key `app-Y8MxfRygyUWOAfyTlo1MQSJx`.
 - **Risk score threshold logic is duplicated** across `RiskGauge.astro`, `ContractUploader.astro`, and page files.
 - **`stagger-children` CSS only handles 4 children** — 5th+ child won't animate.

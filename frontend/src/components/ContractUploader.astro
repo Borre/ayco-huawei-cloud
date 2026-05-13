@@ -63,6 +63,12 @@
 </div>
 
 <script>
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   const zone = document.getElementById('uploader-zone');
   const content = document.getElementById('uploader-content');
   const processing = document.getElementById('uploader-processing');
@@ -256,7 +262,7 @@
       const badgeClass = ['BAJO', 'MEDIO', 'ALTO', 'CRITICO'].includes(level)
         ? `badge-risk-${level.toLowerCase()}`
         : 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gs-gray-100 text-gs-gray-600 border border-gs-gray-200';
-      badge.innerHTML = `<span class="${badgeClass}">Riesgo ${levelLabel}</span>
+      badge.innerHTML = `<span class="${badgeClass}">Riesgo ${escapeHtml(levelLabel)}</span>
         <span class="ml-2 text-xs ${isReal ? 'text-green-600' : 'text-gray-400'}">${isReal ? '● Pipeline real' : '● Sin resultado'}</span>`;
     }
 
@@ -271,7 +277,7 @@
     // Show alertas if any
     const alertasDiv = document.getElementById('result-alertas');
     if (alertasDiv && data.alertas?.length) {
-      alertasDiv.innerHTML = data.alertas.map((a: string) => `<li class="text-xs text-red-600">⚠ ${a}</li>`).join('');
+      alertasDiv.innerHTML = data.alertas.map((a: string) => `<li class="text-xs text-red-600">⚠ ${escapeHtml(a)}</li>`).join('');
       alertasDiv.classList.remove('hidden');
     }
 

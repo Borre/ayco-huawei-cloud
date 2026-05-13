@@ -17,7 +17,7 @@ const { title, description = 'Inteligencia Artificial para la Gestión de Riesgo
   <meta property="og:title" content={`${title} | AYCO × Huawei Cloud — IA para Gestión de Riesgo Financiero`} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="http://149.232.129.39/" />
+  <meta property="og:url" content={import.meta.env.PUBLIC_SITE_URL || "http://149.232.129.39/"} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={`${title} | AYCO × Huawei Cloud — IA para Gestión de Riesgo Financiero`} />
   <meta name="twitter:description" content={description} />

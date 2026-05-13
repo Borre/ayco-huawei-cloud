@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import PipelineDiagram from '../components/PipelineDiagram.astro';
 
-const dashboardUrl = import.meta.env.PUBLIC_DASHBOARD_URL || 'http://101.44.185.139';
+const dashboardUrl = import.meta.env.PUBLIC_DASHBOARD_URL || '';
 
 const etlSteps = [
   { name: 'Extract', desc: 'Lectura de datos crudos desde OBS (CSV, JSON, PDFs)', status: 'complete', icon: '📥' },
@@ -183,7 +183,7 @@ const etlSteps = [
       {[
         { label: 'Completitud', value: '98.7%', desc: 'Campos no nulos vs total', color: 'bg-emerald-500' },
         { label: 'Consistencia', value: '99.2%', desc: 'Reglas de negocio válidas', color: 'bg-emerald-500' },
-        { label: 'Freshness', value: '<5min', desc: 'Latencia de datos actualizados', color: 'bg-gs-blue' },
+        { label: 'Duplicados', value: '0', desc: 'Contratos duplicados detectados en la carga', color: 'bg-gs-blue' },
       ].map((m) => (
         <div class="card p-6">
           <p class="metric-label mb-1">{m.label}</p>
@@ -274,7 +274,7 @@ const etlSteps = [
   }
 
   function updateQualityMetric(index, value, desc) {
-    const cards = document.querySelectorAll('.grid-cols-1.md\\:grid-cols-3 > .card');
+    const cards = document.querySelectorAll('[class*=\"md:grid-cols-3\"] > .card');
     if (cards[index]) {
       const valueEl = cards[index].querySelector('.metric-value');
       const descEl = cards[index].querySelector('.text-sm');

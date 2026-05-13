@@ -241,7 +241,7 @@ const contracts = [
       .then(r => r.json())
       .then(data => {
         if (data.status !== 'ok') {
-          // Langfuse unavailable — keep "—" placeholders
+          /* Langfuse unavailable — keep "—" placeholders */
           return;
         }
         const setEl = (id, val) => {

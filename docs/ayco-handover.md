@@ -21,7 +21,7 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 |---|------|----------|-----------------|-----|
 | 1 | Risk Scoring | 5 min | DWS + DLI Spark | http://149.232.129.39/risk-scoring/ |
 | 2 | Data Governance | 5 min | Frontend + DataArts (Plan B) | http://149.232.129.39/data-governance/ |
-| 3 | Contract AI | 10 min | Dify + DeepSeek V4 | http://101.44.185.139 |
+| 3 | Contract AI | 10 min | Dify + DeepSeek V4 | http://ayco-dify.hwcdemo.com (consola Dify) |
 
 ## Público Objetivo
 
@@ -84,8 +84,8 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 | Recurso | URL / Comando | Credenciales |
 |---------|--------------|-------------|
 | Frontend (Demo 1, 2) | http://149.232.129.39 | Público |
-| Dify (Demo 3) | http://101.44.185.139 | eduardo@ayco-demo.com / ver 1Password |
-| **Dashboard Streamlit** | http://101.44.185.139:8501 | Público (desde IP del presentador) |
+| Dify (Demo 3) | http://ayco-dify.hwcdemo.com (consola Dify) | eduardo@ayco-demo.com / ver 1Password |
+| **Dashboard Streamlit** | http://ayco-dify.hwcdemo.com (consola Dify):8501 | Público (desde IP del presentador) |
 | **Agent Tools** | localhost:8400 (via SSH) | Solo localhost — SG bloquea acceso externo |
 | DWS (psql) | 46.250.168.254:8000 | ayco_admin / ver 1Password |
 | SSH Dify | ssh -i ~/.ssh/ayco-demo root@101.44.185.139 | Key SSH en repo |
@@ -298,11 +298,11 @@ ssh ayco-web 'systemctl restart nginx'
 | Frontend | http://149.232.129.39 |
 | Risk Scoring | http://149.232.129.39/risk-scoring/ |
 | Data Governance | http://149.232.129.39/data-governance/ |
-| Dify | http://101.44.185.139 |
-| FAQ Chat | http://101.44.185.139/chat/253ad7c8-1cd7-44ea-a27d-9d67f031e5a1 |
-| Cobranza Agent | http://101.44.185.139/chat/7e0472b6-249f-47bb-a2c1-cf298b7287f7 |
-| Doc Analyzer | http://101.44.185.139/chat/b7e99855-1fc9-4374-82c8-9a47693205d7 |
-| Dashboard | http://101.44.185.139:8501 |
+| Dify | http://ayco-dify.hwcdemo.com (consola Dify) |
+| FAQ Chat | http://ayco-dify.hwcdemo.com (consola Dify)/chat/253ad7c8-1cd7-44ea-a27d-9d67f031e5a1 |
+| Cobranza Agent | http://ayco-dify.hwcdemo.com (consola Dify)/chat/7e0472b6-249f-47bb-a2c1-cf298b7287f7 |
+| Doc Analyzer | http://ayco-dify.hwcdemo.com (consola Dify)/chat/b7e99855-1fc9-4374-82c8-9a47693205d7 |
+| Dashboard | http://ayco-dify.hwcdemo.com (consola Dify):8501 |
 
 ## API Keys
 

@@ -25,7 +25,7 @@ MAAS_API_KEY = os.getenv("MAAS_API_KEY", "")
 DEEPSEEK_ENDPOINT = os.getenv("DEEPSEEK_ENDPOINT", "https://api.deepseek.com/v1/chat/completions")
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-DIFY_ENDPOINT = os.getenv("DIFY_ENDPOINT", "http://localhost/v1/chat-messages")
+DIFY_ENDPOINT = os.getenv("DIFY_ENDPOINT", "http://101.44.185.139/v1/chat-messages")
 DIFY_API_KEY = os.getenv("DIFY_API_KEY", "")
 
 # Module-level error state (survives Streamlit reruns within same session)
@@ -53,32 +53,32 @@ st.markdown("""
     /* Self-hosted: no external font dependency — Google Fonts blocked in Huawei Cloud LATAM */
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-400-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-400-normal.woff2') format('woff2');
         font-weight: 400; font-style: normal; font-display: swap;
     }
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-500-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-500-normal.woff2') format('woff2');
         font-weight: 500; font-style: normal; font-display: swap;
     }
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-600-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-600-normal.woff2') format('woff2');
         font-weight: 600; font-style: normal; font-display: swap;
     }
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-700-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-700-normal.woff2') format('woff2');
         font-weight: 700; font-style: normal; font-display: swap;
     }
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-300-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-300-normal.woff2') format('woff2');
         font-weight: 300; font-style: normal; font-display: swap;
     }
     @font-face {
         font-family: 'Inter';
-        src: url('http://149.232.129.39/fonts/inter-latin-800-normal.woff2') format('woff2');
+        src: url('/fonts/inter-latin-800-normal.woff2') format('woff2');
         font-weight: 800; font-style: normal; font-display: swap;
     }
     * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
@@ -1318,7 +1318,7 @@ def _call_llm_sql(system_prompt: str, user_message: str) -> tuple[str, str]:
             logging.error(f"[ChatBI] DeepSeek also failed: {e}")
             raise
 
-    return "[ERROR] Sin API keys configuradas. Agrega DIFY_API_KEY, MAAS_API_KEY o DEEPSEEK_API_KEY en /opt/dashboards/.env", "none"
+    return "[ERROR] Sin API keys configuradas. Agrega DIFY_API_KEY, MAAS_API_KEY o DEEPSEEK_API_KEY en /opt/ayco/.env", "none"
 
 def _extract_sql(llm_response: str) -> str:
     """Extract SQL from LLM response (may be wrapped in markdown code block)."""

@@ -177,10 +177,22 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
 
   <!-- LIVE DATA SCRIPT -->
   <script is:inline>
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     const API = '/api';
 
     var riskMap = null;
     var mapMarkers = [];
+    var fmtMXN = function(n) {
+      if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+      if (n < 1e3) return '$' + n.toFixed(0);
+      return '$' + (n/1e3).toFixed(0) + 'K';
+    };
 
     var STATE_COORDS = {
       'AGUASCALIENTES': [21.8823, -102.2826],
@@ -273,13 +285,8 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
         var score = c.risk_score || 0;
         var color = getRiskColor(score);
         var name = (c.vendor_name || c.contract_number || '').substring(0, 30);
-        var fmtMXN = function(n) {
-          if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
-          if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
-          return '$' + (n/1e3).toFixed(0) + 'K';
-        };
 
-        if (!stateCount[state]) stateCount[state] = 0;
+        if (!(state in stateCount)) stateCount[state] = 0;        
         var idx = stateCount[state];
         stateCount[state]++;
         var angle = (idx * 137.508) * (Math.PI / 180);
@@ -354,7 +361,7 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
         var dot = document.getElementById('live-dot');
         var label = document.getElementById('live-label');
         if (dot && label && kpis) {
-          dot.className.baseVal = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2';
+          dot.className = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2';
           label.textContent = 'Live \\u00b7 DWS Connected';
         }
       } catch (e) {
@@ -366,20 +373,15 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
     }
 
     function updateKPIs(kpis) {
-      var fmtMXN = function(n) {
-        if (n >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B';
-        if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
-        return '$' + (n/1e3).toFixed(0) + 'K';
-      };
 
-      setMetricValue('kpi-vendors', kpis.unique_vendors.toString(), 'Únicos en DWS');
-      setMetricValue('kpi-contracts', kpis.total_contracts.toString(), 'Analizados');
-      setMetricValue('kpi-critical', kpis.critical_count.toString(), kpis.critical_count > 0 ? '⚠️ Alerta' : '✅ Sin críticos');
-      setMetricValue('kpi-exposure', fmtMXN(kpis.total_exposure_mxn), 'Score avg ' + kpis.avg_risk_score);
+      setMetricValue('kpi-vendors', (kpis.unique_vendors ?? 0).toString(), 'Únicos en DWS');
+      setMetricValue('kpi-contracts', (kpis.total_contracts ?? 0).toString(), 'Analizados');
+      setMetricValue('kpi-critical', (kpis.critical_count ?? 0).toString(), (kpis.critical_count ?? 0) > 0 ? '⚠️ Alerta' : '✅ Sin críticos');
+      setMetricValue('kpi-exposure', kpis.total_exposure_mxn ? fmtMXN(kpis.total_exposure_mxn) : '$0', 'Score avg ' + (kpis.avg_risk_score ?? '—'));
 
       var gaugeContainer = document.getElementById('risk-gauge-container');
       if (gaugeContainer) {
-        updateRiskGauge(gaugeContainer, kpis.avg_risk_score);
+        updateRiskGauge(gaugeContainer, kpis.avg_risk_score ?? 5);
       }
     }
 
@@ -407,8 +409,8 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
         console.error('[setMetricValue] Element not found: ' + id);
         return;
       }
-      var valueEl = el.querySelector('.metric-value, .text-2xl, .text-3xl');
-      var trendEl = el.querySelector('.text-xs, .text-sm, [class*="text-gs-gray"]');
+      var valueEl = el.querySelector('[data-metric-value]');
+      var trendEl = el.querySelector('[data-metric-trend]');
       console.log('[setMetricValue] Found element:', el.tagName, 'valueEl:', valueEl ? valueEl.tagName : null, 'trendEl:', trendEl ? trendEl.tagName : null);
       if (valueEl) {
         valueEl.textContent = value;
@@ -449,11 +451,6 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
       if (!tbody) return;
       if (countEl) countEl.textContent = contracts.length + ' contratos';
 
-      var fmtMXN = function(n) {
-        if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
-        return '$' + (n/1e6).toFixed(1) + 'M';
-      };
-
       tbody.innerHTML = contracts.map(function(c, i) {
         var score = c.risk_score || 0;
         var badgeClass = score >= 8 ? 'badge-risk-critical' : score >= 6 ? 'badge-risk-high' : score >= 4 ? 'badge-risk-medium' : 'badge-risk-low';
@@ -474,29 +471,26 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
           '</td>' +
           '<td class="px-8 py-6 font-black text-white">' + fmtMXN(c.monto_total || 0) + '</td>' +
           '<td class="px-8 py-6 text-right">' +
-             '<button onclick="return false;" data-contract="' + escapeHtml(c.contract_number || '') + '" class="btn-ai-analysis py-2 px-4 text-xs">' +
+             '<button type="button" data-action="ai-analysis" data-contract="' + escapeHtml(c.contract_number || '') + '" class="btn-ai-analysis py-2 px-4 text-xs">' +
               'Deep Analysis AI' +
             '</button>' +
           '</td>' +
         '</tr>';
       }).join('');
-      
-      // Event delegation: bind once on the table body, works for all buttons
-      // even if the DOM changes after this binding runs
-      tbody.addEventListener('click', function(e) {
-        var btn = e.target.closest('.btn-ai-analysis');
-        if (btn) {
-          e.preventDefault();
-          var contractNumber = btn.getAttribute('data-contract');
-          openChatWithQuery('Analiza el contrato ' + contractNumber);
-        }
-      });
-    }
 
-    function escapeHtml(str) {
-      var div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
+      if (!tbody._listenerAttached) {
+        tbody._listenerAttached = true;
+        /* Event delegation: bind once on the table body, works for all buttons */
+        /* even if the DOM changes after this binding runs */
+        tbody.addEventListener('click', function(e) {
+          var btn = e.target.closest('.btn-ai-analysis');
+          if (btn) {
+            e.preventDefault();
+            var contractNumber = btn.getAttribute('data-contract');
+            openChatWithQuery('Analiza el contrato ' + contractNumber);
+          }
+        });
+      }
     }
     
     window.openChatWithQuery = function(query) {
@@ -505,14 +499,14 @@ import PipelineDiagram from '../components/PipelineDiagram.astro';
       var chatInput = document.getElementById('chat-input');
       var chatForm = document.getElementById('chat-form');
       
-      // Open chat if closed
+      /* Open chat if closed */
       if (chatWindow && chatWindow.classList.contains('chat-window-closed') && chatToggle) {
         chatToggle.click();
       }
       
-      // Use the ChatWidget's own form submit mechanism
-      // This includes the Authorization header (Bearer DIFY_KEY)
-      // Same pattern used by the quick-action buttons
+      /* Use the ChatWidget's own form submit mechanism */
+      /* This includes the Authorization header (Bearer DIFY_KEY) */
+      /* Same pattern used by the quick-action buttons */
       setTimeout(function() {
         if (chatInput && chatForm) {
           chatInput.value = query;

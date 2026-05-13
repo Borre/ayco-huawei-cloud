@@ -12,7 +12,7 @@
 | **API Backend** | OK | http://149.232.129.39/api/health | 8 endpoints, DWS connected |
 | **Upload + OCR + Analysis** | OK | `POST /api/upload-and-process` | Full pipeline ~5-8s |
 | **DWS (GaussDB)** | OK | 46.250.168.254:8000 | 24 records, recreated May 13 |
-| **Dashboard (Streamlit)** | OK | http://101.44.185.139:8501 | Nginx proxy |
+| **Dashboard (Streamlit)** | OK | http://149.232.129.39/dashboard/ | Nginx proxy → Streamlit :8501 |
 | **Dify Chatbot** | OK | http://101.44.185.139 | 3 apps, 11 containers |
 | **Agent Tools** | OK | localhost:8400 (via SSH) | 4 endpoints, puerto 8400 no expuesto |
 | **Langfuse** | OK | /api/langfuse/metrics | Observability active |

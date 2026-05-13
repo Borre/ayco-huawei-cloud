@@ -41,7 +41,7 @@ output "dataarts_api_app_key" {
 
 output "dashboard_url" {
   description = "Streamlit Contract Risk Dashboard URL"
-  value       = "http://${module.compute.dify_public_ip}:8501"
+  value       = "http://${module.compute.web_public_ip}/dashboard/"
 }
 
 output "langfuse_dashboard_url" {
