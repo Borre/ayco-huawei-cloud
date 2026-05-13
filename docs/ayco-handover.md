@@ -61,9 +61,9 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 │                                                           │
 │  ┌──────────────────┐  ┌──────────────────┐              │
 │  │  DWS Cluster      │  │  OBS (3 buckets)  │              │
-│  │  46.250.161.25    │  │  ├ contracts-raw  │              │
+│  │  46.250.168.254    │  │  ├ contracts-raw  │              │
 │  │  8000             │  │  ├ contracts-text │              │
-│  │  risk_results(20) │  │  └ contracts-res  │              │
+│  │  risk_results(24) │  │  └ contracts-res  │              │
 │  └──────────────────┘  └──────────────────┘              │
 │                                                           │
 │  ┌──────────────────┐  ┌──────────────────┐              │
@@ -87,7 +87,7 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 | Dify (Demo 3) | http://101.44.185.139 | eduardo@ayco-demo.com / ver 1Password |
 | **Dashboard Streamlit** | http://101.44.185.139:8501 | Público (desde IP del presentador) |
 | **Agent Tools** | localhost:8400 (via SSH) | Solo localhost — SG bloquea acceso externo |
-| DWS (psql) | 46.250.161.25:8000 | ayco_admin / ver 1Password |
+| DWS (psql) | 46.250.168.254:8000 | ayco_admin / ver 1Password |
 | SSH Dify | ssh -i ~/.ssh/ayco-demo root@101.44.185.139 | Key SSH en repo |
 | SSH Web | ssh -i ~/.ssh/ayco-demo root@149.232.129.39 | Key SSH en repo |
 
@@ -108,7 +108,7 @@ ssh -i ~/.ssh/ayco-demo root@149.232.129.39 'hostname'
 curl -s http://101.44.185.139/console/api/version?current_version=1.0.0
 
 # 3. Verificar DWS
-PGPASSWORD=AycoD3mo2026! psql -h 46.250.161.25 -p 8000 -U ayco_admin -d ayco_db -c "SELECT count(*) FROM risk_results;"
+PGPASSWORD=AycoD3mo2026! psql -h 46.250.168.254 -p 8000 -U ayco_admin -d ayco_db -c "SELECT count(*) FROM risk_results;"
 
 # 4. Verificar frontend
 for p in "" "/risk-scoring/" "/data-governance/" "/contract-ai/"; do
@@ -138,8 +138,8 @@ ssh -i ~/.ssh/ayco-demo root@101.44.185.139 'curl -s http://localhost:8400/healt
 **Demostración (3 min):**
 
 1. **KPIs (1 min):** Señalar los 4 KPIs superiores
-   - "2,347 proveedores activos. +5.2% este mes."
-   - "5,128 transacciones analizadas."
+   - "24 contratos en DWS. +5.2% este mes."
+   - "24 contratos procesados analizadas."
    - "47 alertas CNBV activas, 12 críticas." ← Punto de tensión
    - "Exposición total: $2.1 mil millones de pesos."
 
@@ -148,13 +148,13 @@ ssh -i ~/.ssh/ayco-demo root@101.44.185.139 'curl -s http://localhost:8400/healt
 
 3. **Gauge de Riesgo (30 seg):**
    - "Riesgo promedio global: 5.8/10. Categoría Alto."
-   - Señalar distribución por nivel (847 bajo, 1,024 medio, 389 alto, 87 crítico)
+   - Señalar distribución por nivel (5 bajo, 5 medio, 11 alto, 3 crítico)
 
 4. **Top 5 Proveedores (30 seg):**
    - "Constructora Delta MX: score 8.7, $385M exposición. Priorización automática."
 
 **Cierre (30 seg):**
-"Todo sobre DWS de Huawei Cloud. 3 nodos, datos en vivo, sin infraestructura que mantener."
+"Todo sobre DWS de Huawei Cloud. 2 nodos, datos en vivo, sin infraestructura que mantener."
 
 ---
 
@@ -334,4 +334,4 @@ AYCO es una empresa del ecosistema **Grupo Salinas** (TV Azteca, Elektra, Banco 
 
 ---
 
-*Documento preparado el 5 de mayo de 2026. Versión 1.0. CONFIDENCIAL — Huawei Cloud LATAM.*
+*Documento preparado el 13 de mayo de 2026. Versión 1.1. CONFIDENCIAL — Huawei Cloud LATAM.*
