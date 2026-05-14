@@ -117,7 +117,7 @@ def load_csv_to_table(conn, csv_path, table_name):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Seed AYCO DWS with all data")
+    parser = argparse.ArgumentParser(description="Seed DWS with all demo data")
     parser.add_argument("--host", required=True, help="DWS private IP")
     parser.add_argument("--port", default=8000, type=int)
     parser.add_argument("--db", default="ayco_db")
@@ -175,8 +175,8 @@ def main():
     print(f"\n{'='*60}")
     print(f"  DWS seeding complete!")
     print(f"{'='*60}")
-    print(f"\n  Next: update ayco-api.service DWS_HOST → {args.host}")
-    print(f"  Then:  systemctl daemon-reload && systemctl restart ayco-api")
+    print(f"\n  Next: update api.service DWS_HOST → {args.host}")
+    print(f"  Then:  systemctl daemon-reload && systemctl restart api")
     print()
 
 

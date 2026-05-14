@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate 6 clean AYCO contracts with searchable text (Helvetica core font)."""
+"""Generate 6 clean contracts with searchable text (Helvetica core font)."""
 import os, unicodedata
 from pathlib import Path
 from fpdf import FPDF
@@ -20,7 +20,7 @@ def asciify(s):
 contracts = [
     {
         "filename": "contrato-bajo-riesgo-consultoria.pdf",
-        "number": "AYCO-2026-0160",
+        "number": "CT-2026-0160",
         "title": "CONTRATO DE CONSULTORIA EN PROCESOS ADMINISTRATIVOS",
         "contratante": {"name": "Grupo Educativo del Bajio S.A. de C.V.", "rfc": "GEB210415MN3", "rep": "Lic. Maria Elena Torres Mendoza"},
         "contratista": {"name": "Consultores Asociados de Queretaro S.C.", "rfc": "CAQ190830PQ8", "rep": "C.P. Jose Antonio Vazquez Duran"},
@@ -35,7 +35,7 @@ contracts = [
     },
     {
         "filename": "contrato-medio-riesgo-mantenimiento.pdf",
-        "number": "AYCO-2026-0161",
+        "number": "CT-2026-0161",
         "title": "CONTRATO DE MANTENIMIENTO INTEGRAL DE FLOTA VEHICULAR",
         "contratante": {"name": "Transportes y Logistica del Centro S.A. de C.V.", "rfc": "TLC200512RN9", "rep": "Lic. Fernando Javier Diaz Castillo"},
         "contratista": {"name": "Autoservicio Mecanico del Norte S.A. de C.V.", "rfc": "AMN170215TS4", "rep": "Ing. Ricardo Alonso Martinez Pena"},
@@ -50,7 +50,7 @@ contracts = [
     },
     {
         "filename": "contrato-alto-riesgo-software.pdf",
-        "number": "AYCO-2026-0162",
+        "number": "CT-2026-0162",
         "title": "CONTRATO DE DESARROLLO DE SOFTWARE EMPRESARIAL",
         "contratante": {"name": "Financiera Nacional de Desarrollo S.A. de C.V.", "rfc": "FND220901KL7", "rep": "Lic. Maria Fernanda Gutierrez Lopez"},
         "contratista": {"name": "TechSolutions de Mexico S.A. de C.V.", "rfc": "TSM210315AB4", "rep": "Ing. Carlos Alberto Ramirez Hernandez"},
@@ -65,7 +65,7 @@ contracts = [
     },
     {
         "filename": "contrato-critico-datacenter.pdf",
-        "number": "AYCO-2026-0163",
+        "number": "CT-2026-0163",
         "title": "CONTRATO DE CONSTRUCCION DE CENTRO DE DATOS",
         "contratante": {"name": "Fondo de Inversion del Pacifico S.A. de C.V.", "rfc": "FIP230801KL5", "rep": "Lic. Maria Fernanda Gutierrez Lopez"},
         "contratista": {"name": "Constructora del Pacifico Express S. de R.L. de C.V.", "rfc": "CPE240115MN6", "rep": "Arq. Juan Pablo Mendoza Rios"},
@@ -80,7 +80,7 @@ contracts = [
     },
     {
         "filename": "contrato-alto-riesgo-outsourcing.pdf",
-        "number": "AYCO-2026-0164",
+        "number": "CT-2026-0164",
         "title": "CONTRATO DE OUTSOURCING DE PERSONAL ESPECIALIZADO",
         "contratante": {"name": "Banco Regional de Desarrollo S.A. Institucion de Banca Multiple", "rfc": "BRD150820FG6", "rep": "Lic. Alejandro Gomez Sada"},
         "contratista": {"name": "Capital Humano y Servicios del Sureste S.A. de C.V.", "rfc": "CHS190530WX2", "rep": "Lic. Patricia Hernandez Lopez"},
@@ -95,7 +95,7 @@ contracts = [
     },
     {
         "filename": "contrato-medio-riesgo-suministros.pdf",
-        "number": "AYCO-2026-0165",
+        "number": "CT-2026-0165",
         "title": "CONTRATO DE SUMINISTRO DE EQUIPO MEDICO",
         "contratante": {"name": "Hospital Angeles del Pedregal S.A. de C.V.", "rfc": "HAP910620KL2", "rep": "Dr. Roberto Sanchez Miranda"},
         "contratista": {"name": "Equipamiento Hospitalario del Bajio S.A. de C.V.", "rfc": "EHB180410MN7", "rep": "Ing. Luis Fernando Ortega Vega"},

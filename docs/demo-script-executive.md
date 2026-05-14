@@ -1,7 +1,7 @@
-# AYCO Demo Script — 3 Actos Narrativos
+# Demo Script — 3 Actos Narrativos (Versión Ejecutiva)
 
 **Duración:** 15 minutos | **Audiencia:** Dirección General / Comités de Crédito y Cobranza
-**Fecha:** Mayo 2026 | **URL Demo:** http://ayco-dashboard.hwcdemo.com (frontend) — Dify: http://101.44.185.139 (consola)
+**Fecha:** Mayo 2026 | **URL Demo:** https://finance-dashboard.hwcdemo.com (frontend) — Dify: http://101.44.185.139 (consola)
 
 > "Lo que van a ver hoy corre 100% sobre Huawei Cloud — misma infraestructura física en México (la-north-2), sin depender de servicios de terceros."
 

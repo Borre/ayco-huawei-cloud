@@ -33,7 +33,7 @@ def main():
     args = parser.parse_args()
 
     spark = SparkSession.builder \
-        .appName("AYCO Risk Aggregation") \
+        .appName("Contract Risk Aggregation") \
         .config("spark.sql.catalogImplementation", "hive") \
         .enableHiveSupport() \
         .getOrCreate()

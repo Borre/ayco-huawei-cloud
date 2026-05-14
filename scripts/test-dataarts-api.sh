@@ -57,9 +57,9 @@ echo "$RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$RESPONSE"
 echo ""
 
 # ─── Test 3: Get specific contract detail ──────────────────────
-log "Test 3: GET /api/v1/contracts/AYCO-2026-0001"
+log "Test 3: GET /api/v1/contracts/CT-2026-0001"
 echo "────────────────────────────────────────────────"
-RESPONSE=$(curl -s "${BASE}/api/v1/contracts/AYCO-2026-0001" 2>/dev/null || echo '{"error":"connection failed"}')
+RESPONSE=$(curl -s "${BASE}/api/v1/contracts/CT-2026-0001" 2>/dev/null || echo '{"error":"connection failed"}')
 echo "$RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$RESPONSE"
 echo ""
 

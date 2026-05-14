@@ -1,6 +1,6 @@
 ---
-title: AYCO × Huawei Cloud — Guía de Handover para Presentador
-subtitle: Demos para Workshop de Transformación Digital · Mayo 2026
+title: Handover para Presentador — Demo Contract Risk Intelligence
+subtitle: Workshops de Transformación Digital · Mayo 2026
 author: Preparado por Eduardo (CTO LATAM)
 geometry: margin=2.5cm
 fontsize: 11pt
@@ -13,7 +13,7 @@ numbersections: true
 
 ## Qué es esto
 
-Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataforma de crédito y cobranza usando Huawei Cloud. Cada demo es independiente y dura 5-7 minutos. El workshop completo toma 20 minutos con Q&A.
+Tres demos técnicos que muestran modernización de plataforma de crédito y cobranza usando Huawei Cloud. Cada demo es independiente y dura 5-7 minutos. El workshop completo toma 20 minutos con Q&A.
 
 ## Las 3 Demos
 
@@ -31,7 +31,7 @@ Tres demos técnicos que muestran cómo AYCO (Grupo Salinas) moderniza su plataf
 
 ## Lo Que Necesitas Saber (30 Segundos)
 
-1. AYCO es una financiera del ecosistema Grupo Salinas
+1. El cliente es una financiera que procesa crédito y cobranza
 2. Procesan ~5,000 transacciones/mes de proveedores y créditos
 3. Están migrando de infraestructura on-premise legacy a Huawei Cloud
 4. El workshop muestra 3 casos de uso reales corriendo en vivo

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""scripts/generate-test-data.py — Datos sintéticos México para AYCO demo.
+"""scripts/generate-test-data.py — Datos sintéticos México para demo de riesgo contractual.
 Genera vendors, customers y transacciones con anomalías CNBV."""
 
 import csv
@@ -19,7 +19,7 @@ ANOMALY_TYPES = ["normal", "structuring", "cross_border", "unusual_time", "large
 
 
 def main():
-    """Generate synthetic test data for AYCO demo."""
+    """Generate synthetic test data for contract risk demo."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     random.seed(42)  # Reproducible

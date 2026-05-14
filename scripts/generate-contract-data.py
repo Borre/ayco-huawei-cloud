@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""scripts/generate-contract-data.py — Datos sintéticos de contratos para AYCO demo.
+"""scripts/generate-contract-data.py — Datos sintéticos de contratos para demo de riesgo.
 
 Genera:
 1. risk_results.csv — 20 resultados de riesgo: 3 canónicos alineados a los PDFs + 17 sintéticos

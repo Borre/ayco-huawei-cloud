@@ -1,4 +1,4 @@
-# AYCO Huawei Cloud — Makefile
+# AI Contract Risk Intelligence — Makefile
 # Un comando: make demo
 
 ENV     := la-north-2
@@ -53,7 +53,7 @@ post-provision:
 # Order: foundation → data-platform → compute → ai-ocr
 # (compute depends on DWS endpoint from data-platform)
 deploy: init apply-foundation apply-data-platform apply-compute apply-ai-ocr post-provision
-	@echo "=== AYCO Infraestructura desplegada ==="
+	@echo "=== Infraestructura desplegada ==="
 
 # ─── Demo-ready (one command) ────────────────────────
 demo:
@@ -87,14 +87,14 @@ demo:
 	@echo "=== Health check ==="
 	bash $(SCRIPTS)/health-check.sh
 	@echo ""
-	@echo "=== AYCO DEMO READY ==="
+	@echo "=== DEMO READY ==="
 	@echo "    Dify: http://$$(cd $(TF_DIR) && terraform output -raw dify_public_ip)"
 	@echo "    Dashboard: http://$$(cd $(TF_DIR) && terraform output -raw web_public_ip)/dashboard/"
 	@echo "    Langfuse: $$(cd $(TF_DIR) && terraform output -raw langfuse_dashboard_url)"
 
 # ─── Status ───────────────────────────────────────────
 status:
-	@echo "=== AYCO Status ==="
+	@echo "=== Status ==="
 	@echo ""
 	cd $(TF_DIR) && terraform output
 	@echo ""
@@ -136,7 +136,7 @@ lint: fmt-check validate
 FRONTEND := frontend
 
 frontend:
-	@echo "=== Building AYCO frontend ==="
+	@echo "=== Building frontend ==="
 	cd $(FRONTEND) && npm install --legacy-peer-deps && npm run build
 	@echo "✓ Frontend built → $(FRONTEND)/dist/"
 
@@ -193,11 +193,11 @@ maas-fix:
 frontend-iframe:
 	@echo "=== Embedding Streamlit iframe in Risk Scoring ==="
 	@FRONTEND_IP=$$(cd $(TF_DIR) && terraform output -raw web_public_ip 2>/dev/null); \
-	curl -s "http://$$FRONTEND_IP/risk-scoring/" | python3 -c 'import sys; html=sys.stdin.read(); old=\"<div class=aspect-video\"; new=\"<iframe src=http://$$(cd $(TF_DIR) && terraform output -raw web_public_ip)/dashboard/ style=width:100%;height:100%;min-height:480px;border:none;border-radius:12px title=AYCO></iframe>\"; print(\"iframe embedded\" if old in html else \"placeholder not found\")' > /dev/null
+	curl -s "http://$$FRONTEND_IP/risk-scoring/" | python3 -c 'import sys; html=sys.stdin.read(); old=\"<div class=aspect-video\"; new=\"<iframe src=http://$$(cd $(TF_DIR) && terraform output -raw web_public_ip)/dashboard/ style=width:100%;height:100%;min-height:480px;border:none;border-radius:12px title=Dashboard></iframe>\"; print(\"iframe embedded\" if old in html else \"placeholder not found\")' > /dev/null
 
 # ─── Help ─────────────────────────────────────────────
 help:
-	@echo "AYCO Huawei Cloud — Terraform Automation"
+	@echo "AI Contract Risk Intelligence — Terraform Automation"
 	@echo ""
 	@echo "  make init              Inicializar Terraform"
 	@echo "  make plan              Ver cambios sin aplicar"

@@ -1,12 +1,12 @@
-# AYCO × Huawei Cloud — Demo Infrastructure
+# AI Contract Risk Intelligence — Demo Infrastructure
 
-Infrastructure-as-code for the AYCO (Grupo Salinas) Huawei Cloud workshop demo.
+Infrastructure-as-code for a Huawei Cloud contract risk analysis workshop demo.
 
 ## Quick Start
 
 ```bash
 # 1. Clone and configure
-cd /home/eduardo/dev/ayco-huawei-cloud
+cd /home/eduardo/dev/ai-contract-risk-intelligence
 cp .env.example .env
 cp terraform.tfvars.example terraform/terraform.tfvars
 # Edit .env and terraform/terraform.tfvars with real credentials
@@ -20,15 +20,12 @@ make status
 
 ## Current State (May 13, 2026)
 
-Demo revived after original DWS cluster was deleted. 2 ECS instances survived (ayco-dify, ayco-web). DWS recreated via Terraform, frontend rebuilt with auth fixes.
-
 | Resource | Public IP | Private IP | Status |
 |----------|-----------|------------|--------|
-| ECS Dify (ayco-dify) | 101.44.185.139 | 192.168.100.135 | Running (11 Docker containers) |
-| ECS Web (ayco-web) | 149.232.129.39 | 192.168.100.123 | Running (Nginx + FastAPI) |
-| DWS Cluster (ayco-dws) | 46.250.168.254:8000 | 192.168.100.157, 192.168.100.126 | Available (24 records) |
-| Streamlit Dashboard | 101.44.185.139:8501 | — | Running |
-| Agent Tools mock | localhost:8400 (via SSH) | — | Running (puerto no expuesto) |
+| ECS Dify | 101.44.185.139 | 192.168.100.135 | Running (11 Docker containers) |
+| ECS Web | 149.232.129.39 | 192.168.100.123 | Running (Nginx + FastAPI) |
+| DWS Cluster | 46.250.168.254:8000 | 192.168.100.157, 192.168.100.126 | Available (24 records) |
+| Streamlit Dashboard | 149.232.129.39:8501 (via nginx /dashboard/) | — | Running |
 
 **SSH access:** `ssh -i ~/.ssh/ayco-demo root@<IP>`
 
@@ -37,7 +34,6 @@ Demo revived after original DWS cluster was deleted. 2 ECS instances survived (a
 - **Region:** la-north-2 (Mexico City 2)
 - **Demo Duration:** 45 minutes (3 demos + PPT + Q&A)
 - **Stack:** Huawei Cloud (VPC, ECS, DLI, DWS, DataArts, FunctionGraph, OBS) + DeepSeek v4 Flash (MaaS) + Dify + Langfuse (LLM Observability)
-- **Security note:** Cloud Firewall is documented as an optional future hardening step, but it is not provisioned in this demo because the Terraform resource is intentionally commented out.
 
 ### Resource Summary
 
@@ -116,9 +112,9 @@ Demo revived after original DWS cluster was deleted. 2 ECS instances survived (a
 
 | Contract | Contract No. | Profile | Risk | Amount | Key Signal |
 |----------|--------------|---------|------|--------|------------|
-| contrato-01-alto-riesgo.pdf | AYCO-2026-0147 | High risk | 8.7/10 | $3.85M MXN | 30% penalty, no guarantee |
-| contrato-02-bajo-riesgo.pdf | AYCO-2026-0148 | Low risk | 2.3/10 | $450K MXN | 5% penalty, 20% bond |
-| contrato-03-critico.pdf | AYCO-2026-0149 | Critical | 9.2/10 | $12.5M MXN | 40% penalty, UNCITRAL arbitration |
+| contrato-01-alto-riesgo.pdf | CT-2026-0147 | High risk | 8.7/10 | $3.85M MXN | 30% penalty, no guarantee |
+| contrato-02-bajo-riesgo.pdf | CT-2026-0148 | Low risk | 2.3/10 | $450K MXN | 5% penalty, 20% bond |
+| contrato-03-critico.pdf | CT-2026-0149 | Critical | 9.2/10 | $12.5M MXN | 40% penalty, UNCITRAL arbitration |
 
 `make generate-data` expands these canonical examples into 20 demo contract records and 20 text files for DWS, OBS, and Dify indexing.
 
@@ -139,7 +135,6 @@ The OCR → Parse → LLM pipeline uses MaaS as default. If MaaS fails, falls ba
 Every LLM call is traced automatically via Langfuse REST API (non-blocking, no SDK dependency):
 - **Traces:** Contract risk analysis lifecycle (trace ID, latency, contract number)
 - **Generations:** Model call details (input/output preview, estimated tokens, provider metadata)
-- **Dashboard:** https://us.cloud.langfuse.com → project ayco-demo → free tier
 
 ## Directory Structure
 
@@ -195,9 +190,9 @@ npm install --legacy-peer-deps && npm run build
 
 | Variable | Required | Description | Current Value |
 |----------|----------|-------------|---------------|
-| `PUBLIC_DIFY_API_KEY` | **Yes** | Dify app key (AYCO Chat) | `app-Y8MxfRygyUWOAfyTlo1MQSJx` |
+| `PUBLIC_DIFY_API_KEY` | **Yes** | Dify app key | `app-Y8MxfRygyUWOAfyTlo1MQSJx` |
 | `PUBLIC_COBRANZA_API_KEY` | No | Dify cobranza agent key (currently unused) | `app-ZrM7Pal6G2b89drd1zLVssvM` |
-| `PUBLIC_DASHBOARD_URL` | No | Streamlit dashboard URL | `http://101.44.185.139` |
+| `PUBLIC_DASHBOARD_URL` | No | Streamlit dashboard URL | `https://finance-dashboard.hwcdemo.com/dashboard/` |
 
 ## Credentials
 
@@ -229,8 +224,8 @@ cd /opt/dify/docker && docker compose logs
 Check security group allows port from your IP. DWS takes 5-10 min to provision.
 
 **Dify chat returns 401 Unauthorized:**
-The frontend ChatWidget uses `Authorization: Bearer ${DIFY_KEY}`. If the COBRANZA_KEY was removed or the env var `PUBLIC_DIFY_API_KEY` is missing, replace `frontend/src/components/ChatWidget.astro` line 104.
-```
+The frontend ChatWidget uses `Authorization: Bearer <DIFY_KEY>`. If the env var `PUBLIC_DIFY_API_KEY` is missing, replace `frontend/src/components/ChatWidget.astro` line 104.
+```bash
 # In frontend/.env — required before build
 PUBLIC_DIFY_API_KEY=app-Y8MxfRygyUWOAfyTlo1MQSJx
 ```
@@ -256,4 +251,5 @@ curl http://$(terraform -chdir=terraform output -raw dify_public_ip)/v1
 **Full troubleshooting guide:** [`docs/prep-checklist.md#troubleshooting`](docs/prep-checklist.md)
 
 ---
-**Workshop:** May 8, 2026 — Huawei Cloud × Salinas
+
+**Workshop:** May 8, 2026 — Huawei Cloud

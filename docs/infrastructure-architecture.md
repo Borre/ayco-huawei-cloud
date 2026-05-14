@@ -1,4 +1,4 @@
-# AYCO Architecture — Current Deployed State
+# Infrastructure Architecture — Current Deployed State
 **Last updated:** May 5, 2026
 
 ## Overview
