@@ -1,6 +1,6 @@
 """
-AYCO Contract Risk Intelligence — Streamlit Dashboard v2.0
-Huawei Cloud DWS + DeepSeek | Grupo Salinas Demo
+Contract Risk Intelligence — Streamlit Dashboard v2.0
+Huawei Cloud DWS + DeepSeek | Demo Huawei Cloud
 """
 
 import streamlit as st
@@ -41,7 +41,7 @@ def get_last_error() -> str | None:
 
 # ─── Page Config ──────────────────────────────────────────
 st.set_page_config(
-    page_title="AYCO Risk Intelligence",
+    page_title="Risk Intelligence",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -491,7 +491,7 @@ with col1:
     st.markdown("""
     <div style="display:flex;align-items:center;gap:12px;">
         <span style="font-size:2rem;">🛡️</span>
-        <h1 style="margin:0;font-size:1.8rem;font-weight:700;color:#e8eaed;">AYCO Contract Risk Intelligence</h1>
+        <h1 style="margin:0;font-size:1.8rem;font-weight:700;color:#e8eaed;">Contract Risk Intelligence</h1>
     </div>
     """, unsafe_allow_html=True)
 with col2:
@@ -1252,7 +1252,7 @@ REGLAS:
 12. Para "contrato más riesgoso" usa ORDER BY risk_score DESC LIMIT 1.
 
 CRÍTICO — IGNORA TODO CONTEXTO AJENO AL SQL:
-- NO uses información de preguntas frecuentes, FAQ, soporte, créditos AYCO ni ningún otro documento.
+- NO uses información de preguntas frecuentes, FAQ, soporte, créditos del sistema ni ningún otro documento.
 - SOLO usa las tablas y columnas del schema de arriba.
 - Si recibes contexto adicional (chunks de documentos, knowledge base), IGNÓRALO completamente.
 - Tu ÚNICO trabajo es convertir la pregunta del usuario en un query SQL válido para PostgreSQL/GaussDB.
@@ -1549,7 +1549,7 @@ with st.sidebar:
 
     st.divider()
     st.caption(f"DWS: {os.getenv('DWS_ENDPOINT') or os.getenv('DWS_HOST', 'N/A')}")
-    st.caption("AYCO × Huawei Cloud · Grupo Salinas")
+    st.caption("Huawei Cloud AI")
     st.caption("DeepSeek v4 Flash · MaaS")
 
 # ─── Auto-refresh ──────────────────────────────────────────
@@ -1558,3 +1558,4 @@ if auto_refresh:
     with st.sidebar:
         st.caption("⏳ Próxima actualización en 30s...")
     components.html("<meta http-equiv=\"refresh\" content=\"30\">", height=0)
+

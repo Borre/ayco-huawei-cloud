@@ -8,15 +8,15 @@ import RiskGauge from '../components/RiskGauge.astro';
 import PipelineDiagram from '../components/PipelineDiagram.astro';
 
 const contracts = [
-  { id: 'AYCO-2026-0149', name: 'Constructora y Desarrolladora del Golfo', risk: 9.2, amount: '$12.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Arbitraje UNCITRAL', 'Empresa RFC 2024'] },
-  { id: 'AYCO-2026-0147', name: 'Outsourcing del Sureste', risk: 8.7, amount: '$3.85M MXN', type: 'Alto Riesgo', factors: ['Penalización 30%', 'Sin garantía', 'Rescisión ambigua'] },
-  { id: 'AYCO-2026-0162', name: 'CodeSec Solutions', risk: 8.5, amount: '$7.8M MXN', type: 'Alto Riesgo', factors: ['Penalización 40%', 'Sin garantía', 'Sector financiero'] },
-  { id: 'AYCO-2026-0164', name: 'Servicios Corporativos Olmeca', risk: 8.2, amount: '$9.6M MXN', type: 'Alto Riesgo', factors: ['Penalización 35%', 'Exonerado garantía', 'Tapachula CNBV-flagged'] },
-  { id: 'AYCO-2026-0161', name: 'Transportes Cuauhtémoc', risk: 6.4, amount: '$4.2M MXN', type: 'Medio Riesgo', factors: ['Penalización 25%', 'Garantía 5%', 'Carta crédito'] },
-  { id: 'AYCO-2026-0165', name: 'Meditek del Centro', risk: 5.8, amount: '$5.8M MXN', type: 'Medio Riesgo', factors: ['Penalización 20%', 'Fianza solo 1er año', 'Equipo médico'] },
-  { id: 'AYCO-2026-0148', name: 'Energía Solar del Golfo', risk: 2.3, amount: '$450K MXN', type: 'Bajo Riesgo', factors: ['Penalización 5%', 'Garantía 20%', 'Arbitraje ICC'] },
-  { id: 'AYCO-2026-0160', name: 'Consultoría Administrativa Querétaro', risk: 1.8, amount: '$850K MXN', type: 'Bajo Riesgo', factors: ['Penalización 10%', 'Fianza 15%', 'Depósito $50K'] },
-  { id: 'AYCO-2026-0163', name: 'DataNube Mexicana', risk: 9.8, amount: '$22.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Sin garantía', 'Arbitraje UNCITRAL · Empresa fantasma'] },
+  { id: 'CT-2026-0149', name: 'Constructora y Desarrolladora del Golfo', risk: 9.2, amount: '$12.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Arbitraje UNCITRAL', 'Empresa RFC 2024'] },
+  { id: 'CT-2026-0147', name: 'Outsourcing del Sureste', risk: 8.7, amount: '$3.85M MXN', type: 'Alto Riesgo', factors: ['Penalización 30%', 'Sin garantía', 'Rescisión ambigua'] },
+  { id: 'CT-2026-0162', name: 'CodeSec Solutions', risk: 8.5, amount: '$7.8M MXN', type: 'Alto Riesgo', factors: ['Penalización 40%', 'Sin garantía', 'Sector financiero'] },
+  { id: 'CT-2026-0164', name: 'Servicios Corporativos Olmeca', risk: 8.2, amount: '$9.6M MXN', type: 'Alto Riesgo', factors: ['Penalización 35%', 'Exonerado garantía', 'Tapachula CNBV-flagged'] },
+  { id: 'CT-2026-0161', name: 'Transportes Cuauhtémoc', risk: 6.4, amount: '$4.2M MXN', type: 'Medio Riesgo', factors: ['Penalización 25%', 'Garantía 5%', 'Carta crédito'] },
+  { id: 'CT-2026-0165', name: 'Meditek del Centro', risk: 5.8, amount: '$5.8M MXN', type: 'Medio Riesgo', factors: ['Penalización 20%', 'Fianza solo 1er año', 'Equipo médico'] },
+  { id: 'CT-2026-0148', name: 'Energía Solar del Golfo', risk: 2.3, amount: '$450K MXN', type: 'Bajo Riesgo', factors: ['Penalización 5%', 'Garantía 20%', 'Arbitraje ICC'] },
+  { id: 'CT-2026-0160', name: 'Consultoría Administrativa Querétaro', risk: 1.8, amount: '$850K MXN', type: 'Bajo Riesgo', factors: ['Penalización 10%', 'Fianza 15%', 'Depósito $50K'] },
+  { id: 'CT-2026-0163', name: 'DataNube Mexicana', risk: 9.8, amount: '$22.5M MXN', type: 'Crítico', factors: ['Penalización 50%', 'Sin garantía', 'Arbitraje UNCITRAL · Empresa fantasma'] },
 ];
 ---
 
@@ -70,7 +70,7 @@ const contracts = [
               <span class="text-sm text-gs-gold font-bold">A</span>
             </div>
             <div>
-              <p class="font-semibold text-white">AYCO — Asistente de Contratos</p>
+              <p class="font-semibold text-white">Asistente de Contratos</p>
               <p class="text-xs text-emerald-600 flex items-center">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse-soft"/>
                 En línea · DeepSeek v4 Flash
@@ -85,8 +85,8 @@ const contracts = [
           </div>
 
           <div class="space-y-2">
-            <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Analiza el contrato AYCO-2026-0147 y dime los principales riesgos">
-              <span class="text-gs-blue mr-2">→</span> Analiza el contrato AYCO-2026-0147 y dime los principales riesgos
+            <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Analiza el contrato CT-2026-0147 y dime los principales riesgos">
+              <span class="text-gs-blue mr-2">→</span> Analiza el contrato CT-2026-0147 y dime los principales riesgos
             </button>
             <button type="button" class="quick-chat w-full text-left px-4 py-3 bg-gs-blue/5 hover:bg-gs-blue/10 rounded-xl transition-colors text-sm text-gs-navy" data-query="Compara las cláusulas de penalización entre los 3 contratos de demo">
               <span class="text-gs-blue mr-2">→</span> Compara las cláusulas de penalización entre los 3 contratos
@@ -184,7 +184,7 @@ const contracts = [
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           Abrir Langfuse Dashboard →
         </a>
-        <p class="text-xs text-gs-gray-400 mt-3">us.cloud.langfuse.com → Proyecto AYCO Demo</p>
+        <p class="text-xs text-gs-gray-400 mt-3">us.cloud.langfuse.com → Proyecto Demo</p>
       </div>
 
       <!-- What Langfuse shows -->

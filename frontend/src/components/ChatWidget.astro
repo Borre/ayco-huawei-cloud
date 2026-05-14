@@ -27,7 +27,7 @@
         </svg>
       </div>
       <div>
-        <p class="text-sm font-semibold">AYCO — Asistente de Contratos</p>
+        <p class="text-sm font-semibold">Asistente de Contratos</p>
         <p class="text-xs text-gs-gray-300" id="chat-status">En línea</p>
       </div>
       <div class="ml-auto flex items-center space-x-1">
@@ -58,7 +58,7 @@
         </div>
         <div class="bg-gs-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%]">
           <p class="text-sm text-gs-gray-900">
-            Hola, soy el asistente de análisis de contratos de AYCO. Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?
+            Hola, soy el asistente de análisis de contratos . Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?
           </p>
         </div>
       </div>
@@ -67,7 +67,7 @@
     <!-- Quick Actions with scroll -->
     <div class="px-4 pb-2 overflow-x-auto" id="quick-actions-container">
       <div class="flex flex-wrap gap-1.5" id="quick-actions">
-      <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Analiza el contrato AYCO-2026-0147">
+      <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="Analiza el contrato CT-2026-0147">
         Analizar contrato alto riesgo
       </button>
       <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors" data-query="¿Cuáles son los proveedores con mayor riesgo?">
@@ -232,8 +232,8 @@
     conversationId = '';
     if (messages) {
       const greeting = cobranzaMode 
-        ? 'Hola, soy el asistente de cobranza de AYCO, parte de Grupo Salinas. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?'
-        : 'Hola, soy el asistente de análisis de contratos de AYCO. Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?';
+        ? 'Hola, soy el asistente de cobranza parte de Huawei Cloud. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?'
+        : 'Hola, soy el asistente de análisis de contratos . Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?';
       messages.innerHTML = `
         <div class="flex items-start space-x-2 animate-fade-in">
           <div class="w-7 h-7 rounded-full bg-gs-navy flex items-center justify-center flex-shrink-0">
@@ -284,7 +284,7 @@
     }
     
     if (headerTitle) {
-      headerTitle.textContent = active ? 'AYCO — Cobranza' : 'AYCO — Asistente de Contratos';
+      headerTitle.textContent = active ? 'Cobranza' : 'Asistente de Contratos';
     }
     
         // Update quick actions
@@ -297,7 +297,7 @@
         `;
       } else {
         quickActions.innerHTML = `
-          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="Analiza el contrato AYCO-2026-0147">Analizar contrato alto riesgo</button>
+          <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="Analiza el contrato CT-2026-0147">Analizar contrato alto riesgo</button>
           <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="¿Cuáles son los proveedores con mayor riesgo?">Top proveedores riesgo</button>
           <button type="button" class="quick-action text-xs px-3 py-1.5 bg-gs-blue/10 text-gs-blue rounded-full hover:bg-gs-blue/20 transition-colors whitespace-nowrap" data-query="Resumen ejecutivo de la exposición actual">Resumen ejecutivo</button>
         `;
@@ -319,9 +319,9 @@
     
     // Update greeting and clear button
     if (active) {
-      updateGreeting('Hola, soy el asistente de cobranza de AYCO, parte de Grupo Salinas. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?');
+      updateGreeting('Hola, soy el asistente de cobranza parte de Huawei Cloud. Estoy aquí para ayudarte con tus pagos, aclaraciones de saldo, opciones de reestructura y más. ¿En qué puedo ayudarte?');
     } else {
-      updateGreeting('Hola, soy el asistente de análisis de contratos de AYCO. Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?');
+      updateGreeting('Hola, soy el asistente de análisis de contratos . Puedo ayudarte a evaluar riesgos, consultar términos contractuales y analizar cláusulas. ¿En qué te puedo ayudar?');
     }
   }
 
